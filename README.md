@@ -38,5 +38,26 @@ Given the customer has connectivity
 #### No connectivity - error course (sad path):
 1. System delivers no connectivity error.
 
+---
 
+## Model specs
 
+### Story ID
+| Property     | Type       |
+|--------------|------------|
+| `id`         | `Int`      |
+
+### Payload contract
+
+```
+GET /v0/newstories
+
+200 Response
+
+[
+    46374488,
+    46374487,
+    46374481
+]
+
+```
