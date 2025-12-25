@@ -17,7 +17,7 @@ public final class RemoteFeedLoader {
     }
     
     public enum Result: Equatable {
-        case success([Int])
+        case success([FeedItem])
         case failure(Error)
     }
     
@@ -29,8 +29,8 @@ public final class RemoteFeedLoader {
     public func load(completion: @escaping (Result) -> Void) {
         client.get(from: url) { result in
             switch result {
-            case let .success(data, _):
-                if let items = try? JSONDecoder().decode([Int].self, from: data) {
+            case let .success(data, response):
+                if response.statusCode == 200, let items = try? JSONDecoder().decode([FeedItem].self, from: data) {
                     completion(.success(items))
                 } else {
                     completion(.failure(.invalidData))

@@ -51,7 +51,8 @@ class RemoteFeedLoaderTests: XCTestCase {
         
         samples.enumerated().forEach { index, code in
             expect(sut, toCompleteWith: .failure(.invalidData), when: {
-                client.complete(withStatusCode: code, at: index)
+                let json = makeItemsJSON([])
+                client.complete(withStatusCode: code, data: json, at: index)
             })
         }
     }
@@ -77,17 +78,14 @@ class RemoteFeedLoaderTests: XCTestCase {
     func test_load_deliversItemsOn200HTTPResponseWithJSONItems() {
         let (sut, client) = makeSUT()
          
-        let item1 = 1
-        let item2 = 2
-        
-        let itemsJSON = [item1, item2]
-        
+        let item1 = makeItem(id: 1)
+        let item2 = makeItem(id: 2)
+            
         expect(sut, toCompleteWith: .success([item1, item2]), when: {
-            let json = try! JSONSerialization.data(withJSONObject: itemsJSON)
+            let json = makeItemsJSON([item1, item2])
             client.complete(withStatusCode: 200, data: json)
         })
     }
-    
     
     // MARK: - Helpers
     
@@ -95,6 +93,16 @@ class RemoteFeedLoaderTests: XCTestCase {
         let client = HTTPClientSpy()
         let sut = RemoteFeedLoader(url: url, client: client)
         return (sut, client)
+    }
+    
+    private func makeItem(id: Int) -> FeedItem {
+        let item = FeedItem(id)
+        return item
+    }
+    
+    private func makeItemsJSON(_ items: [Int]) -> Data {
+        let json = try! JSONSerialization.data(withJSONObject: items)
+        return json
     }
     
     private func expect(_ sut: RemoteFeedLoader,
@@ -125,7 +133,7 @@ class RemoteFeedLoaderTests: XCTestCase {
             messages[index].completion(.failure(error))
         }
         
-        func complete(withStatusCode code: Int, data: Data = Data(), at index: Int = 0) {
+        func complete(withStatusCode code: Int, data: Data, at index: Int = 0) {
             let response = HTTPURLResponse(
                 url: requestedURLs[index],
                 statusCode: code,
