@@ -82,7 +82,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         let item2 = makeItem(id: 2)
             
         expect(sut, toCompleteWith: .success([item1, item2]), when: {
-            let json = makeItemsJSON([item1, item2])
+            let json = makeItemsJSON([item1.id, item2.id])
             client.complete(withStatusCode: 200, data: json)
         })
     }
@@ -96,7 +96,7 @@ class RemoteFeedLoaderTests: XCTestCase {
     }
     
     private func makeItem(id: Int) -> FeedItem {
-        let item = FeedItem(id)
+        let item = FeedItem(id: id)
         return item
     }
     

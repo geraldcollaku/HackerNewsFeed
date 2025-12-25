@@ -5,4 +5,10 @@
 //  Created by Gerald Collaku on 25.12.25.
 //
 
-public typealias FeedItem = Int
+public struct FeedItem: Equatable {
+    public let id: Int
+    
+    public init(id: Int) {
+        self.id = id
+    }
+}

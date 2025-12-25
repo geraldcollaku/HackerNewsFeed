@@ -8,6 +8,8 @@
 import Foundation
 
 public final class RemoteFeedLoader {
+    typealias Item = Int
+    
     private let url: URL
     private let client: HTTPClient
     
@@ -30,8 +32,8 @@ public final class RemoteFeedLoader {
         client.get(from: url) { result in
             switch result {
             case let .success(data, response):
-                if response.statusCode == 200, let items = try? JSONDecoder().decode([FeedItem].self, from: data) {
-                    completion(.success(items))
+                if response.statusCode == 200, let items = try? JSONDecoder().decode([Item].self, from: data) {
+                    completion(.success(items.map { FeedItem(id: $0)}))
                 } else {
                     completion(.failure(.invalidData))
                 }
