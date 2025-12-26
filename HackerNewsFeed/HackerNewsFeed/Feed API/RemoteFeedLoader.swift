@@ -44,7 +44,7 @@ public final class RemoteFeedLoader {
 }
 
 private class FeedItemsMapper {
-    typealias Item = Int
+    private typealias Item = Int
     
     static var OK_200: Int { 200 }
 
@@ -55,13 +55,4 @@ private class FeedItemsMapper {
         let items = try JSONDecoder().decode([Item].self, from: data)
         return items.map { FeedItem(id: $0) }
     }
-}
-
-public enum HTTPClientResult {
-    case success(Data, HTTPURLResponse)
-    case failure(Error)
-}
-
-public protocol HTTPClient {
-    func get(from url: URL, completion: @escaping (HTTPClientResult) -> Void)
 }
