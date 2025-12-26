@@ -13,11 +13,11 @@ enum FeedItemsMapper {
     private static var OK_200: Int { 200 }
     
     static func map(_ data: Data, from response: HTTPURLResponse) -> RemoteFeedLoader.Result {
-        guard response.statusCode == OK_200, let data = try? JSONDecoder().decode([Item].self, from: data) else {
+        guard response.statusCode == OK_200, let root = try? JSONDecoder().decode([Item].self, from: data) else {
             return .failure(.invalidData)
         }
         
-        let items = data.map { FeedItem(id: $0) }
+        let items = root.map { FeedItem(id: $0) }
         return .success(items)
     }
 }
