@@ -42,17 +42,3 @@ public final class RemoteFeedLoader {
         }
     }
 }
-
-private class FeedItemsMapper {
-    private typealias Item = Int
-    
-    static var OK_200: Int { 200 }
-
-    static func map(_ data: Data, _ response: HTTPURLResponse) throws -> [FeedItem] {
-        guard response.statusCode == OK_200 else {
-            throw RemoteFeedLoader.Error.invalidData
-        }
-        let items = try JSONDecoder().decode([Item].self, from: data)
-        return items.map { FeedItem(id: $0) }
-    }
-}
