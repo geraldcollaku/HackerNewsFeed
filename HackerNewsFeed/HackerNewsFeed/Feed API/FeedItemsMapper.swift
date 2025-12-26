@@ -16,6 +16,7 @@ enum FeedItemsMapper {
         guard response.statusCode == OK_200 else {
             throw RemoteFeedLoader.Error.invalidData
         }
+        
         let items = try JSONDecoder().decode([Item].self, from: data)
         return items.map { FeedItem(id: $0) }
     }
