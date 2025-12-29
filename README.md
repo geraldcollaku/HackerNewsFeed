@@ -1,3 +1,4 @@
+
 [![CI-macOS](https://github.com/geraldcollaku/HackerNewsFeed/actions/workflows/CI-macOS.yml/badge.svg)](https://github.com/geraldcollaku/HackerNewsFeed/actions/workflows/CI-macOS.yml)
 
 ## Hacker News Feature specs
