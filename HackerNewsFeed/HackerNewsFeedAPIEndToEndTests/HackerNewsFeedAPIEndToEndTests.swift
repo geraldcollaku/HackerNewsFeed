@@ -32,11 +32,13 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
     
     // MARK: - Helpers
     
-    private func getFeedResult() -> LoadFeedResult? {
+    private func getFeedResult(file: StaticString = #filePath, line: UInt = #line) -> LoadFeedResult? {
         let testServerURL = URL(string: "https://hackernews-fa652-default-rtdb.europe-west1.firebasedatabase.app/items.json")!
         let client = URLSessionHTTPClient()
         let loader = RemoteFeedLoader(url: testServerURL, client: client)
-        
+        trackForMemoryLeaks(client, file: file, line: line)
+        trackForMemoryLeaks(client, file: file, line: line)
+
         let exp = expectation(description: "Wait for load completion")
         
         var receivedResult: LoadFeedResult?
