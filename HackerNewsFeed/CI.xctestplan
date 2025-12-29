@@ -23,6 +23,7 @@
   },
   "testTargets" : [
     {
+      "parallelizable" : false,
       "target" : {
         "containerPath" : "container:HackerNewsFeed.xcodeproj",
         "identifier" : "68E966292F02C422006095E4",
@@ -30,6 +31,7 @@
       }
     },
     {
+      "parallelizable" : false,
       "target" : {
         "containerPath" : "container:HackerNewsFeed.xcodeproj",
         "identifier" : "68E965E82EFAC76A006095E4",
