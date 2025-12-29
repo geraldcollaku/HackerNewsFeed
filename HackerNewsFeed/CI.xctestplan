@@ -1,0 +1,41 @@
+{
+  "configurations" : [
+    {
+      "id" : "4611FE16-3A26-4F0C-8064-F941D22EE5CE",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:HackerNewsFeed.xcodeproj",
+          "identifier" : "68E965DD2EFAC76A006095E4",
+          "name" : "HackerNewsFeed"
+        }
+      ]
+    },
+    "performanceAntipatternCheckerEnabled" : true,
+    "testExecutionOrdering" : "random"
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:HackerNewsFeed.xcodeproj",
+        "identifier" : "68E966292F02C422006095E4",
+        "name" : "HackerNewsFeedAPIEndToEndTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:HackerNewsFeed.xcodeproj",
+        "identifier" : "68E965E82EFAC76A006095E4",
+        "name" : "HackerNewsFeedTests"
+      }
+    }
+  ],
+  "version" : 1
+}

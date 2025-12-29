@@ -33,6 +33,7 @@
 		68E965E92EFAC76A006095E4 /* HackerNewsFeedTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HackerNewsFeedTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		68E966202F01DC0A006095E4 /* HackerNewsFeed.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = HackerNewsFeed.xctestplan; path = ../HackerNewsFeed.xctestplan; sourceTree = "<group>"; };
 		68E9662A2F02C422006095E4 /* HackerNewsFeedAPIEndToEndTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HackerNewsFeedAPIEndToEndTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		68E966362F02D547006095E4 /* CI.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = CI.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -96,6 +97,7 @@
 		68E965D42EFAC76A006095E4 = {
 			isa = PBXGroup;
 			children = (
+				68E966362F02D547006095E4 /* CI.xctestplan */,
 				68E966202F01DC0A006095E4 /* HackerNewsFeed.xctestplan */,
 				68E965E02EFAC76A006095E4 /* HackerNewsFeed */,
 				68E965ED2EFAC76A006095E4 /* HackerNewsFeedTests */,
