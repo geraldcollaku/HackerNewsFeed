@@ -21,6 +21,34 @@ Given the customer has connectivity
     And replace the cache with the new feed
 ```
 
+### Narrative 2
+```
+As an offline customer
+I want the app to show the latest saved version of my feed
+So I can always enjoy getting the news
+
+```
+
+#### Scenarios (Acceptance Criterias)
+```
+Given the customer doesn't have connectivity
+    And there a cached version of the feed
+    And the cache is less than 7 days old
+When the customer request to see the feed
+Then the app should display the cached feed
+
+Given the customer doesn't have connectivity
+    And there a cached version of the feed
+    And the cache is older than 7 days old or more
+When the customer request to see the feed
+Then the app should display an error message
+
+Give the customer doesn't have connectivity
+    And the cache is empty
+When the customer request to see the feed
+Then the app should display an error message
+
+```
 ## Use cases
 
 ### Load feed from remote use case
@@ -66,6 +94,7 @@ GET /v0/newstories
 ```
 
 ### Load Feed From Cache Use Case
+- Max Age (7 days)
 
 #### Primary course:
 1. Execute "Load Feed Items" command with above data.
