@@ -40,7 +40,7 @@
 		68E966352F02D487006095E4 /* Exceptions for "HackerNewsFeedTests" folder in "HackerNewsFeedAPIEndToEndTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				"Feed API/Helpers/XCTestCase+MemoryLeaksTracking.swift",
+				"Helpers/XCTestCase+MemoryLeaksTracking.swift",
 			);
 			target = 68E966292F02C422006095E4 /* HackerNewsFeedAPIEndToEndTests */;
 		};
