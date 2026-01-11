@@ -7,8 +7,6 @@
 
 import Foundation
 
-typealias RemoteFeedItem = Int
-
 enum FeedItemsMapper {
     private static var OK_200: Int { 200 }
     

@@ -15,12 +15,3 @@ public protocol FeedStore {
     
     func insert(_ items: [LocalFeedItem], timestamp: Date, completion: @escaping InsertionCompletion)
 }
-
-public struct LocalFeedItem: Equatable {
-    public let id: Int
-    
-    public init(id: Int) {
-        self.id = id
-    }
-}
-
