@@ -7,17 +7,16 @@
 
 import Foundation
 
+typealias RemoteFeedItem = Int
+
 enum FeedItemsMapper {
-    private typealias Item = Int
-    
     private static var OK_200: Int { 200 }
     
-    static func map(_ data: Data, from response: HTTPURLResponse) -> RemoteFeedLoader.Result {
-        guard response.statusCode == OK_200, let root = try? JSONDecoder().decode([Item].self, from: data) else {
-            return .failure(RemoteFeedLoader.Error.invalidData)
+    static func map(_ data: Data, from response: HTTPURLResponse) throws -> [RemoteFeedItem] {
+        guard response.statusCode == OK_200, let items = try? JSONDecoder().decode([RemoteFeedItem].self, from: data) else {
+            throw RemoteFeedLoader.Error.invalidData
         }
         
-        let items = root.map { FeedItem(id: $0) }
-        return .success(items)
+        return items
     }
 }
