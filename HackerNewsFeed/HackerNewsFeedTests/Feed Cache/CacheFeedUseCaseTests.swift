@@ -116,7 +116,7 @@ class CacheFeedUseCaseTests: XCTestCase {
         return (sut, store)
     }
     
-    private func expect(_ sut: LocalFeedLoader, toCompleteWithError expectedError: NSError?, when action: () -> Void) {
+    private func expect(_ sut: LocalFeedLoader, toCompleteWithError expectedError: NSError?, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
         let exp = expectation(description: "wait for save completion")
 
         var receivedError: Error?
@@ -128,7 +128,7 @@ class CacheFeedUseCaseTests: XCTestCase {
         action()
         wait(for: [exp], timeout: 1.0)
         
-        XCTAssertEqual(receivedError as NSError?, expectedError, )
+        XCTAssertEqual(receivedError as NSError?, expectedError, file: file, line: line)
     }
     
     private class FeedStoreSpy: FeedStore {
