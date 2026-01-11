@@ -115,8 +115,8 @@ class LoadFeedFromRemoteUseCaseTests: XCTestCase {
         .failure(error)
     }
     
-    private func makeItem(id: Int) -> FeedItem {
-        let item = FeedItem(id: id)
+    private func makeItem(id: Int) -> FeedId {
+        let item = FeedId(id: id)
         return item
     }
     

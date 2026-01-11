@@ -1,11 +1,11 @@
 //
-//  FeedItem.swift
+//  FeedImage.swift
 //  HackerNewsFeed
 //
 //  Created by Gerald Collaku on 25.12.25.
 //
 
-public struct FeedItem: Equatable {
+public struct FeedId: Equatable {
     public let id: Int
     
     public init(id: Int) {

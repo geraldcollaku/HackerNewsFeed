@@ -48,7 +48,7 @@ public final class RemoteFeedLoader: FeedLoader {
 }
 
 private extension Array where Element == RemoteFeedItem {
-    func toModels() -> [FeedItem] {
-        map { FeedItem(id: $0)}
+    func toModels() -> [FeedId] {
+        map { FeedId(id: $0)}
     }
 }

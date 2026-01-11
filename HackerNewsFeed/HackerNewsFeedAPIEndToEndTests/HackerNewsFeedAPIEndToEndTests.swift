@@ -12,16 +12,16 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
     
     func test_endToEndTestGetFeedResult_matchesFixedTestAccountData() {
         switch getFeedResult() {
-        case let .success(items)?:
-            XCTAssertEqual(items.count, 7, "Expected 7 items in the test account")
+        case let .success(feed)?:
+            XCTAssertEqual(feed.count, 7, "Expected 7 items in the test account")
             
-            XCTAssertEqual(items[0], expectedItem(at: 0))
-            XCTAssertEqual(items[1], expectedItem(at: 1))
-            XCTAssertEqual(items[2], expectedItem(at: 2))
-            XCTAssertEqual(items[3], expectedItem(at: 3))
-            XCTAssertEqual(items[4], expectedItem(at: 4))
-            XCTAssertEqual(items[5], expectedItem(at: 5))
-            XCTAssertEqual(items[6], expectedItem(at: 6))
+            XCTAssertEqual(feed[0], expectedId(at: 0))
+            XCTAssertEqual(feed[1], expectedId(at: 1))
+            XCTAssertEqual(feed[2], expectedId(at: 2))
+            XCTAssertEqual(feed[3], expectedId(at: 3))
+            XCTAssertEqual(feed[4], expectedId(at: 4))
+            XCTAssertEqual(feed[5], expectedId(at: 5))
+            XCTAssertEqual(feed[6], expectedId(at: 6))
             
         case let .failure(error):
             XCTFail("Expected successful feed result, got \(error) instead")
@@ -51,8 +51,8 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
         return receivedResult
     }
     
-    private func expectedItem(at index: Int) -> FeedItem {
-        FeedItem(id: id(at: index))
+    private func expectedId(at index: Int) -> FeedId {
+        FeedId(id: id(at: index))
     }
     
     private func id(at index: Int) -> Int {

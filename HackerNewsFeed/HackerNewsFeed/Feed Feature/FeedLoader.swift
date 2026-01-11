@@ -6,7 +6,7 @@
 //
 
 public enum LoadFeedResult {
-    case success([FeedItem])
+    case success([FeedId])
     case failure(Error)
 }
 
