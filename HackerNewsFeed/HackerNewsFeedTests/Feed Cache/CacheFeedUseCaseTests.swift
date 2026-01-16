@@ -129,14 +129,14 @@ class CacheFeedUseCaseTests: XCTestCase {
         XCTAssertEqual(receivedError as NSError?, expectedError, file: file, line: line)
     }
     
-    private func uniqueId(_ id: Int) -> FeedId {
-        FeedId(id: id)
-    }
-    
     private func uniqueIdFeed() -> (models: [FeedId], local: [LocalFeedId]) {
         let models = [uniqueId(0), uniqueId(1)]
         let local = models.map { LocalFeedId(id: $0.id)}
         return (models, local)
+    }
+    
+    private func uniqueId(_ id: Int) -> FeedId {
+        FeedId(id: id)
     }
     
     private func anyNSError() -> NSError {
