@@ -43,3 +43,4 @@ private extension Array where Element == FeedId {
         map { LocalFeedId(id: $0.id) }
     }
 }
+
