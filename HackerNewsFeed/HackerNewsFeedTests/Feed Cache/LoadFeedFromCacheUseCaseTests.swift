@@ -170,28 +170,4 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         
         wait(for: [exp], timeout: 1.0)
     }
-    
-    private func anyNSError() -> NSError {
-        NSError(domain: "any", code: 0)
-    }
-    
-    private func uniqueIdFeed() -> (models: [FeedId], local: [LocalFeedId]) {
-        let models = [uniqueId(0), uniqueId(1)]
-        let local = models.map { LocalFeedId(id: $0.id)}
-        return (models, local)
-    }
-    
-    private func uniqueId(_ id: Int) -> FeedId {
-        FeedId(id: id)
-    }
-}
-
-private extension Date {
-    func adding(days: Int) -> Date {
-        Calendar(identifier: .gregorian).date(byAdding: .day, value: days, to: self)!
-    }
-    
-    func adding(seconds: TimeInterval) -> Date {
-        self + seconds
-    }
 }
