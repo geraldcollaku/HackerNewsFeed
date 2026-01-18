@@ -114,6 +114,19 @@ GET /v0/newstories
 #### Empty cache course (sad path):
 1. System delivers no feed ids. 
 
+### Validate Feed Cache Use Case
+
+#### Primary course:
+1. Execute "Validate Cache" command with above data.
+2. System fetches feed data from cache.
+3. System validates cache is less than 7 days old.
+
+#### Retrieval error course (sad path):
+1. System deletes cache.
+
+#### Expired cache (sad path):
+1. System deletes cache.
+
 ### Cache Feed Use Case
 
 #### Data:
