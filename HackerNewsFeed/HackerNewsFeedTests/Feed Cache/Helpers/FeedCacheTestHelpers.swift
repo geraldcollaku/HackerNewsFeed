@@ -20,8 +20,10 @@ func uniqueId(_ id: Int) -> FeedId {
 
 extension Date {
     func minusFeedCacheMaxAge() -> Date {
-        return adding(days: -7)
+        return adding(days: -feedCacheMaxAgeInDays)
     }
+    
+    private var feedCacheMaxAgeInDays: Int { 7 }
     
     func adding(days: Int) -> Date {
         Calendar(identifier: .gregorian).date(byAdding: .day, value: days, to: self)!
