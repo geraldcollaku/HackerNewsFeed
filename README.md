@@ -145,3 +145,18 @@ GET /v0/newstories
 
 #### Saving error course (sad path):
 1. System delivers error.
+
+### Store implementation expectations
+- Retrieve
+    - Empty cache
+    - Non-empty cache returns data
+    - Non-empty cache twice returns same data (no side-effects)
+    - Error(if applicable, e.g invalid data)
+- Insert 
+    - To empty cache
+    - To a non-empty cache override previous data with new data
+    - Error(if applicable, e.g no write permission)
+- Delete
+    - Empty cache do nothing (cache stays empty and does not fail)
+    - Non-empty cache leaves cache empty
+    - Error (if applicable, e.g no delete permission)
