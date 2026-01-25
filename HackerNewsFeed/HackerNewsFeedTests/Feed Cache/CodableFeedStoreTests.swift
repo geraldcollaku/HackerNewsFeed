@@ -10,8 +10,24 @@ import HackerNewsFeed
 
 class CodableFeedStore {
     private struct Cache: Codable {
-        let feed: [LocalFeedId]
+        let feed: [CodableFeedId]
         let timestamp: Date
+        
+        var localFeed: [LocalFeedId] {
+            return feed.map { $0.local }
+        }
+    }
+    
+    private struct CodableFeedId: Codable {
+        private let id: Int
+        
+        init(_ id: LocalFeedId) {
+            self.id = id.id
+        }
+        
+        var local: LocalFeedId {
+            LocalFeedId(id: id)
+        }
     }
     
     private let storeURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("feed-id.store")
@@ -22,12 +38,13 @@ class CodableFeedStore {
         }
         let decoder = JSONDecoder()
         let cache = try! decoder.decode(Cache.self, from: data)
-        completion(.found(feed: cache.feed, timestamp: cache.timestamp))
+        completion(.found(feed: cache.localFeed, timestamp: cache.timestamp))
     }
     
     func insert(_ feed: [LocalFeedId], timestamp: Date, completion: @escaping FeedStore.InsertionCompletion) {
         let encoder = JSONEncoder()
-        let encoded = try! encoder.encode(Cache(feed: feed, timestamp: timestamp))
+        let cache = Cache(feed: feed.map(CodableFeedId.init), timestamp: timestamp)
+        let encoded = try! encoder.encode(cache)
         try! encoded.write(to: storeURL)
         completion(nil)
     }
