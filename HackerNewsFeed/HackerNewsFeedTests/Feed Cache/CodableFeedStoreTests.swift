@@ -99,6 +99,7 @@ class CodableFeedStoreTests: XCTestCase {
     
     func test_delete_hasNoSideEffectsOnEmptyCache() {
         let sut = makeSUT()
+        
         let deletionError = deleteCache(from: sut)
 
         XCTAssertNil(deletionError, "Expected empty cache deletion to succeed")
@@ -110,8 +111,8 @@ class CodableFeedStoreTests: XCTestCase {
         insert((uniqueIdFeed().local, Date()), to: sut)
         
         let deletionError = deleteCache(from: sut)
+        
         XCTAssertNil(deletionError, "Expected non-empty cache deletion to succeed")
-
         expect(sut, toRetrieve: .empty)
     }
     
@@ -120,6 +121,7 @@ class CodableFeedStoreTests: XCTestCase {
         let sut = makeSUT(storeURL: noDeletePermissionURL)
         
         let deletionError = deleteCache(from: sut)
+        
         XCTAssertNotNil(deletionError, "Expected cache deletion to fail")
         expect(sut, toRetrieve: .empty)
     }
