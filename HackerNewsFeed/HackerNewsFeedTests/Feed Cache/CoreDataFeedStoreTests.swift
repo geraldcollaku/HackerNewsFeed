@@ -8,23 +8,6 @@
 import XCTest
 import HackerNewsFeed
 
-public class CoreDataFeedStore: FeedStore {
-    
-    public init() {}
-    
-    public func retrieve(completion: @escaping RetrievalCompletion) {
-        completion(.empty)
-    }
-    
-    public func insert(_ feed: [LocalFeedId], timestamp: Date, completion: @escaping InsertionCompletion) {
-        
-    }
-    
-    public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
-        
-    }
-}
-
 class CoreDataFeedStoreTests: XCTestCase, FeedStoreSpecs {
     func test_retrieve_deliversEmptyOnEmptyCache() {
         let sut = makeSUT()
