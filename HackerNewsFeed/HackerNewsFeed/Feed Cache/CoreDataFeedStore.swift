@@ -19,22 +19,56 @@ public class CoreDataFeedStore: FeedStore {
     }
     
     public func retrieve(completion: @escaping RetrievalCompletion) {
-        completion(.empty)
+        let context = self.context
+        context.perform {
+            do {
+                let request = NSFetchRequest<ManagedCache>(entityName: ManagedCache.entity().name!)
+                request.returnsObjectsAsFaults = false
+                if let cache = try context.fetch(request).first {
+                    completion(.found(feed: cache.news.compactMap {
+                        $0 as? ManagedNews
+                    }.map {
+                        LocalFeedId(id: $0.id)
+                    }, timestamp: cache.timestamp))
+                } else {
+                    completion(.empty)
+                }
+            } catch {
+                completion(.failure(error))
+            }
+        }
     }
     
     public func insert(_ feed: [LocalFeedId], timestamp: Date, completion: @escaping InsertionCompletion) {
-        
+        let context = self.context
+        context.perform {
+            do {
+                let managedCache = ManagedCache(context: context)
+                managedCache.timestamp = timestamp
+                managedCache.news = NSOrderedSet(array: feed.map { local in
+                    let managed = ManagedNews(context: context)
+                    managed.id = local.id
+                    return managed
+                })
+                try context.save()
+                completion(nil)
+            } catch {
+                completion(error)
+            }
+        }
     }
     
     public func deleteCachedFeed(completion: @escaping DeletionCompletion) {
         
     }
     
+    @objc(ManagedCache)
     private class ManagedCache: NSManagedObject {
         @NSManaged var timestamp: Date
         @NSManaged var news: NSOrderedSet
     }
     
+    @objc(ManagedNews)
     private class ManagedNews: NSManagedObject {
         @NSManaged var id: Int
     }
