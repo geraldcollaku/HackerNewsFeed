@@ -66,45 +66,4 @@ public class CoreDataFeedStore: FeedStore {
             action(context)
         }
     }
-    
-    @objc(ManagedCache)
-    private class ManagedCache: NSManagedObject {
-        @NSManaged var timestamp: Date
-        @NSManaged var news: NSOrderedSet
-        
-        static func find(in context: NSManagedObjectContext) throws -> ManagedCache? {
-            let request = NSFetchRequest<ManagedCache>(entityName: ManagedCache.entity().name!)
-            
-            request.returnsObjectsAsFaults = false
-            return try context.fetch(request).first
-        }
-        
-        static func newUniqueInstance(in context: NSManagedObjectContext) throws -> ManagedCache {
-            try find(in: context).map(context.delete)
-            return ManagedCache(context: context)
-        }
-
-        var localFeed: [LocalFeedId] {
-           news.compactMap {
-               ($0 as? ManagedNews)?.local
-            }
-        }
-    }
-    
-    @objc(ManagedNews)
-    private class ManagedNews: NSManagedObject {
-        @NSManaged var id: Int
-        
-        static func ids(from localFeed: [LocalFeedId], in context: NSManagedObjectContext) -> NSOrderedSet {
-            return NSOrderedSet(array: localFeed.map { local in
-                let managed = ManagedNews(context: context)
-                managed.id = local.id
-                return managed
-            })
-        }
-        
-        var local: LocalFeedId {
-            LocalFeedId(id: id)
-        }
-    }
 }
