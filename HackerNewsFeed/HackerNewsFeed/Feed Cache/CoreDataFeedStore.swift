@@ -56,12 +56,11 @@ public class CoreDataFeedStore: FeedStore {
                     .find(in: context)
                     .map(context.delete)
                     .map(context.save)
+                completion(nil)
             } catch {
                 completion(error)
             }
-
         }
-        completion(nil)
     }
     
     @objc(ManagedCache)
