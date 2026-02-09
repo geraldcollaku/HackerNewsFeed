@@ -25,11 +25,7 @@ public class CoreDataFeedStore: FeedStore {
                 let request = NSFetchRequest<ManagedCache>(entityName: ManagedCache.entity().name!)
                 request.returnsObjectsAsFaults = false
                 if let cache = try context.fetch(request).first {
-                    completion(.found(feed: cache.news.compactMap {
-                        $0 as? ManagedNews
-                    }.map {
-                        LocalFeedId(id: $0.id)
-                    }, timestamp: cache.timestamp))
+                    completion(.found(feed: cache.localFeed, timestamp: cache.timestamp))
                 } else {
                     completion(.empty)
                 }
@@ -45,11 +41,7 @@ public class CoreDataFeedStore: FeedStore {
             do {
                 let managedCache = ManagedCache(context: context)
                 managedCache.timestamp = timestamp
-                managedCache.news = NSOrderedSet(array: feed.map { local in
-                    let managed = ManagedNews(context: context)
-                    managed.id = local.id
-                    return managed
-                })
+                managedCache.news = ManagedNews.ids(from: feed, in: context)
                 try context.save()
                 completion(nil)
             } catch {
@@ -66,11 +58,29 @@ public class CoreDataFeedStore: FeedStore {
     private class ManagedCache: NSManagedObject {
         @NSManaged var timestamp: Date
         @NSManaged var news: NSOrderedSet
+        
+        var localFeed: [LocalFeedId] {
+           news.compactMap {
+               ($0 as? ManagedNews)?.local
+            }
+        }
     }
     
     @objc(ManagedNews)
     private class ManagedNews: NSManagedObject {
         @NSManaged var id: Int
+        
+        static func ids(from localFeed: [LocalFeedId], in context: NSManagedObjectContext) -> NSOrderedSet {
+            return NSOrderedSet(array: localFeed.map { local in
+                let managed = ManagedNews(context: context)
+                managed.id = local.id
+                return managed
+            })
+        }
+        
+        var local: LocalFeedId {
+            LocalFeedId(id: id)
+        }
     }
 }
 
