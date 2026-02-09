@@ -18,7 +18,9 @@ class ManagedCache: NSManagedObject {
         request.returnsObjectsAsFaults = false
         return try context.fetch(request).first
     }
-    
+}
+
+extension ManagedCache {
     static func newUniqueInstance(in context: NSManagedObjectContext) throws -> ManagedCache {
         try find(in: context).map(context.delete)
         return ManagedCache(context: context)

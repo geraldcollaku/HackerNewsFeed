@@ -10,7 +10,9 @@ import CoreData
 @objc(ManagedNews)
 class ManagedNews: NSManagedObject {
     @NSManaged var id: Int
-    
+}
+
+extension ManagedNews {
     static func ids(from localFeed: [LocalFeedId], in context: NSManagedObjectContext) -> NSOrderedSet {
         return NSOrderedSet(array: localFeed.map { local in
             let managed = ManagedNews(context: context)
