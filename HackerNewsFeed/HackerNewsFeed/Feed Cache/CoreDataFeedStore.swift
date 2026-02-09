@@ -37,7 +37,7 @@ public class CoreDataFeedStore: FeedStore {
         let context = self.context
         context.perform {
             do {
-                let managedCache = ManagedCache(context: context)
+                let managedCache = try ManagedCache.newUniqueInstance(in: context)
                 managedCache.timestamp = timestamp
                 managedCache.news = ManagedNews.ids(from: feed, in: context)
                 try context.save()
@@ -64,6 +64,11 @@ public class CoreDataFeedStore: FeedStore {
             return try context.fetch(request).first
         }
         
+        static func newUniqueInstance(in context: NSManagedObjectContext) throws -> ManagedCache {
+            try find(in: context).map(context.delete)
+            return ManagedCache(context: context)
+        }
+
         var localFeed: [LocalFeedId] {
            news.compactMap {
                ($0 as? ManagedNews)?.local
