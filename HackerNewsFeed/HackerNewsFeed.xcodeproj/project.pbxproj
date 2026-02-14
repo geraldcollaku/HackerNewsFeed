@@ -60,6 +60,8 @@
 		68FB9E4A2F409F1200B7A262 /* Exceptions for "HackerNewsFeedTests" folder in "HackerNewsFeedCacheIntegrationTests" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"Feed Cache/Helpers/FeedCacheTestHelpers.swift",
+				Helpers/SharedTestHelpers.swift,
 				"Helpers/XCTestCase+MemoryLeaksTracking.swift",
 			);
 			target = 68FB9E3C2F3E751A00B7A262 /* HackerNewsFeedCacheIntegrationTests */;
