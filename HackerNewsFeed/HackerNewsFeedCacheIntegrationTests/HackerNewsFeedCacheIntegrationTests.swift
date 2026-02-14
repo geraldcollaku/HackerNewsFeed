@@ -25,21 +25,7 @@ final class HackerNewsFeedCacheIntegrationTests: XCTestCase {
     func test_load_deliversNoItemsOnEmptyCache() {
         let sut = makeSUT()
         
-        let exp = expectation(description: "Wait for load completion")
-        sut.load { result in
-            switch result {
-            case let .success(feed):
-                XCTAssertTrue(feed.isEmpty, "Expected empty feed")
-                
-            case let .failure(error):
-                XCTFail("Expected successful feed result, got \(error) instead")
-                
-            @unknown default:
-                XCTFail("Received unexpected case")
-            }
-            exp.fulfill()
-        }
-        wait(for: [exp], timeout: 1.0)
+        expect(sut, toLoad: [])
     }
     
     func test_load_deliversItemsSavedOnASeparateInstance() {
@@ -54,24 +40,8 @@ final class HackerNewsFeedCacheIntegrationTests: XCTestCase {
         }
         wait(for: [saveExp], timeout: 1.0)
         
-        let loadExp = expectation(description: "Wait for load completion")
-        sutToPerformLoad.load { loadResult in
-            switch loadResult {
-            case let .success(loadedFeed):
-                XCTAssertEqual(loadedFeed, feed)
-                
-            case let .failure(error):
-                XCTFail("Expected successful feed result, got \(error) instead")
-                
-            @unknown default:
-                XCTFail("Received unexpected case")
-            }
-            
-            loadExp.fulfill()
-        }
-        wait(for: [loadExp], timeout: 1.0)
+        expect(sutToPerformLoad, toLoad: feed)
     }
-
     
     // MARK: - Helpers
     
@@ -84,6 +54,26 @@ final class HackerNewsFeedCacheIntegrationTests: XCTestCase {
         trackForMemoryLeaks(sut, file: file, line: line)
         return sut
     }
+    
+    private func expect(_ sut: LocalFeedLoader, toLoad expectedFeed: [FeedId], file: StaticString = #filePath, line: UInt = #line) {
+        let exp = expectation(description: "Wait for load completion")
+        sut.load { result in
+            switch result {
+            case let .success(loadedFed):
+                XCTAssertEqual(loadedFed, expectedFeed, file: file, line: line)
+                
+            case let .failure(error):
+                XCTFail("Expected successful feed result, got \(error) instead", file: file, line: line)
+                
+            @unknown default:
+                XCTFail("Received unexpected case", file: file, line: line)
+            }
+            
+            exp.fulfill()
+        }
+        wait(for: [exp], timeout: 1.0)
+    }
+
     
     private func setupEmptyStoreState() {
         deleteStoreArtifacts()
