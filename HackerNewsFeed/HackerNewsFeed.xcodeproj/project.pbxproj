@@ -57,6 +57,13 @@
 			);
 			target = 68E966292F02C422006095E4 /* HackerNewsFeedAPIEndToEndTests */;
 		};
+		68FB9E4A2F409F1200B7A262 /* Exceptions for "HackerNewsFeedTests" folder in "HackerNewsFeedCacheIntegrationTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Helpers/XCTestCase+MemoryLeaksTracking.swift",
+			);
+			target = 68FB9E3C2F3E751A00B7A262 /* HackerNewsFeedCacheIntegrationTests */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -69,6 +76,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				68E966352F02D487006095E4 /* Exceptions for "HackerNewsFeedTests" folder in "HackerNewsFeedAPIEndToEndTests" target */,
+				68FB9E4A2F409F1200B7A262 /* Exceptions for "HackerNewsFeedTests" folder in "HackerNewsFeedCacheIntegrationTests" target */,
 			);
 			path = HackerNewsFeedTests;
 			sourceTree = "<group>";
