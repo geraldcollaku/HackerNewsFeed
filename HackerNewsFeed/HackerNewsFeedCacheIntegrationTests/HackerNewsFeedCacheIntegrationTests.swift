@@ -46,7 +46,6 @@ final class HackerNewsFeedCacheIntegrationTests: XCTestCase {
         let latestFeed = uniqueIdFeed().models
         
         save(firstFeed, with: sutToPerformFirstSave)
-        
         save(latestFeed, with: sutToPerformLastSave)
         
         expect(sutToPerformLoad, toLoad: latestFeed)

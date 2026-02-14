@@ -26,6 +26,14 @@
       "parallelizable" : false,
       "target" : {
         "containerPath" : "container:HackerNewsFeed.xcodeproj",
+        "identifier" : "68E965E82EFAC76A006095E4",
+        "name" : "HackerNewsFeedTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:HackerNewsFeed.xcodeproj",
         "identifier" : "68E966292F02C422006095E4",
         "name" : "HackerNewsFeedAPIEndToEndTests"
       }
@@ -34,8 +42,8 @@
       "parallelizable" : false,
       "target" : {
         "containerPath" : "container:HackerNewsFeed.xcodeproj",
-        "identifier" : "68E965E82EFAC76A006095E4",
-        "name" : "HackerNewsFeedTests"
+        "identifier" : "68FB9E3C2F3E751A00B7A262",
+        "name" : "HackerNewsFeedCacheIntegrationTests"
       }
     }
   ],
