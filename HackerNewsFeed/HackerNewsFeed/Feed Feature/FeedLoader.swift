@@ -5,11 +5,8 @@
 //  Created by Gerald Collaku on 23.12.25.
 //
 
-public enum LoadFeedResult {
-    case success([FeedId])
-    case failure(Error)
-}
-
 public protocol FeedLoader {
-    func load(completion: @escaping (LoadFeedResult) -> Void)
+    typealias Result = Swift.Result<[FeedId], Error>
+
+    func load(completion: @escaping (Result) -> Void)
 }
