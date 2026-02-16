@@ -1,19 +1,24 @@
+# HackerNewsFeed
 
 [![CI-macOS](https://github.com/geraldcollaku/HackerNewsFeed/actions/workflows/CI-macOS.yml/badge.svg)](https://github.com/geraldcollaku/HackerNewsFeed/actions/workflows/CI-macOS.yml)
 
-## Hacker News Feature specs
+A Swift iOS application that displays the latest Hacker News feed with offline support and intelligent caching.
 
-### Story: Customers request to see their news feed 
+---
 
-### Narrative #1
+## 📋 Feature Specifications
+
+### Story: Customers Request to See Their News Feed
+
+#### Narrative #1: Online Customer
 
 ```
 As an online customer
-I want the app to automatically load news from Remote
-So I can always enjoy the latest news 
+I want the app to automatically load news from remote
+So I can always enjoy the latest news
 ```
 
-#### Scenarios (Acceptance criteria)
+**Acceptance Criteria:**
 ```
 Given the customer has connectivity
     When the customer requests to see the feed
@@ -21,64 +26,65 @@ Given the customer has connectivity
     And replace the cache with the new feed
 ```
 
-### Narrative 2
+#### Narrative #2: Offline Customer
+
 ```
 As an offline customer
 I want the app to show the latest saved version of my feed
 So I can always enjoy getting the news
-
 ```
 
-#### Scenarios (Acceptance Criterias)
+**Acceptance Criteria:**
 ```
 Given the customer doesn't have connectivity
-    And there a cached version of the feed
+    And there is a cached version of the feed
     And the cache is less than 7 days old
-When the customer request to see the feed
+When the customer requests to see the feed
 Then the app should display the cached feed
 
 Given the customer doesn't have connectivity
-    And there a cached version of the feed
-    And the cache is older than 7 days old or more
-When the customer request to see the feed
+    And there is a cached version of the feed
+    And the cache is older than 7 days
+When the customer requests to see the feed
 Then the app should display an error message
 
-Give the customer doesn't have connectivity
+Given the customer doesn't have connectivity
     And the cache is empty
-When the customer request to see the feed
+When the customer requests to see the feed
 Then the app should display an error message
-
 ```
-## Use cases
-
-### Load feed from remote use case
-
-#### Data:
-- URL
-
-#### Primary course (happy path):
-1. Execute `Load News` command with above data.
-2. System downloads data from the URL.
-3. System validates the downloaded data.
-4. System creates news feed.
-5. System delivers news feed.
-
-#### Invalid data - error course (sad path):
-1. System delivers invalid data error.
-
-#### No connectivity - error course (sad path):
-1. System delivers no connectivity error.
 
 ---
 
-## Model specs
+## 🎯 Use Cases
+
+### Load Feed From Remote
+
+**Data:**
+- URL
+
+**Primary Course (Happy Path):**
+1. Execute `Load News` command with the provided URL
+2. System downloads data from the URL
+3. System validates the downloaded data
+4. System creates news feed
+5. System delivers news feed
+
+**Error Courses:**
+- **Invalid Data:** System delivers invalid data error
+- **No Connectivity:** System delivers no connectivity error
+
+---
+
+## 📊 Model Specifications
 
 ### Story ID
-| Property     | Type       |
-|--------------|------------|
-| `id`         | `Int`      |
 
-### Payload contract
+| Property | Type  |
+|----------|-------|
+| `id`     | `Int` |
+
+### Payload Contract
 
 ```
 GET /v0/newstories
@@ -90,76 +96,73 @@ GET /v0/newstories
     46374487,
     46374481
 ]
-
 ```
 
-### Load Feed From Cache Use Case
-- Max Age (7 days)
+### Load Feed From Cache
 
-#### Primary course:
-1. Execute "Load Feed Ids" command with above data.
-2. System fetches feed data from cache.
-3. System validates cache is less than 7 days old.
-4. System creates feed ids from cached data.
-5. System delivers feed ids.
+**Max Age:** 7 days
 
-#### Retrieval error course (sad path):
-1. System deletes cache.
-2. System delivers error.
+**Primary Course:**
+1. Execute "Load Feed Ids" command
+2. System fetches feed data from cache
+3. System validates cache is less than 7 days old
+4. System creates feed ids from cached data
+5. System delivers feed ids
 
-#### Expired cache (sad path):
-1. System deletes cache.
-2. System delivers no feed ids.
+**Error Courses:**
+- **Retrieval Error:** System deletes cache and delivers error
+- **Expired Cache:** System deletes cache and delivers no feed ids
+- **Empty Cache:** System delivers no feed ids
 
-#### Empty cache course (sad path):
-1. System delivers no feed ids. 
+### Validate Feed Cache
 
-### Validate Feed Cache Use Case
+**Primary Course:**
+1. Execute "Validate Cache" command
+2. System fetches feed data from cache
+3. System validates cache is less than 7 days old
 
-#### Primary course:
-1. Execute "Validate Cache" command with above data.
-2. System fetches feed data from cache.
-3. System validates cache is less than 7 days old.
+**Error Courses:**
+- **Retrieval Error:** System deletes cache
+- **Expired Cache:** System deletes cache
 
-#### Retrieval error course (sad path):
-1. System deletes cache.
+### Cache Feed
 
-#### Expired cache (sad path):
-1. System deletes cache.
-
-### Cache Feed Use Case
-
-#### Data:
+**Data:**
 - Feed Ids
 
-#### Primary course:
-1. Execute `Save Feed Ids` command with above data.
-2. System deletes old cache data.
-3. System encodes feed ids.
-4. System timestamps the new cache.
+**Primary Course:**
+1. Execute `Save Feed Ids` command
+2. System deletes old cache data
+3. System encodes feed ids
+4. System timestamps the new cache
 5. System saves new cache data
-6. System delivers success message.
+6. System delivers success message
 
-#### Delete error course (sad path):
-1. System delivers error.
+**Error Courses:**
+- **Delete Error:** System delivers error
+- **Saving Error:** System delivers error
 
-#### Saving error course (sad path):
-1. System delivers error.
+---
 
-### Store implementation expectations
-✅ Retrieve
-    ✅ Empty cache returns empty
-    ✅ Empty cache twice returns empty (no side-effects)
-    ✅ Non-empty cache returns data
-    ✅ Non-empty cache twice returns same data (no side-effects)
-    ✅ Error returns error (if applicable, e.g., invalid data)
-    ✅ Error twice returns same error (if applicable, e.g., invalid data)
-✅ Insert
-    ✅ To empty cache stores data
-    ✅ To non-empty cache overrides previous data with new data
-    ✅ Error (if applicable, e.g., no write permission)
-✅ Delete
-    ✅ Empty cache does nothing (cache stays empty and does not fail)
-    ✅ Non-empty cache leaves cache empty
-    ✅ Error (if applicable, e.g., no delete permission)
-✅ Side-effects must run serially to avoid race-conditions
+## ✅ Store Implementation Expectations
+
+**Retrieve:**
+- ✅ Empty cache returns empty
+- ✅ Empty cache twice returns empty (no side-effects)
+- ✅ Non-empty cache returns data
+- ✅ Non-empty cache twice returns same data (no side-effects)
+- ✅ Error returns error (if applicable, e.g., invalid data)
+- ✅ Error twice returns same error (if applicable, e.g., invalid data)
+
+**Insert:**
+- ✅ To empty cache stores data
+- ✅ To non-empty cache overrides previous data with new data
+- ✅ Error handling (if applicable, e.g., no write permission)
+
+**Delete:**
+- ✅ Empty cache does nothing (cache stays empty and does not fail)
+- ✅ Non-empty cache leaves cache empty
+- ✅ Error handling (if applicable, e.g., no delete permission)
+
+**Concurrency:**
+- ✅ Side-effects must run serially to avoid race conditions
