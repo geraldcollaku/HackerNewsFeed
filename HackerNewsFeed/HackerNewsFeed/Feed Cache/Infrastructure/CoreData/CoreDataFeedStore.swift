@@ -39,9 +39,9 @@ public class CoreDataFeedStore: FeedStore {
                 managedCache.timestamp = timestamp
                 managedCache.news = ManagedNews.ids(from: feed, in: context)
                 try context.save()
-                completion(nil)
+                completion(.success(()))
             } catch {
-                completion(error)
+                completion(.failure(error))
             }
         }
     }
@@ -53,9 +53,9 @@ public class CoreDataFeedStore: FeedStore {
                     .find(in: context)
                     .map(context.delete)
                     .map(context.save)
-                completion(nil)
+                completion(.success(()))
             } catch {
-                completion(error)
+                completion(.failure(error))
             }
         }
     }
