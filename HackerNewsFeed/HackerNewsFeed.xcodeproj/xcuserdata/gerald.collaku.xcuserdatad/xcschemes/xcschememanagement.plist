@@ -24,9 +24,24 @@
 			<key>orderHint</key>
 			<integer>2</integer>
 		</dict>
+		<key>HackerNewsFeediOS.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>4</integer>
+		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>6825D6C92F4B486900079C85</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>6825D6D32F4B486900079C85</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>68E965DD2EFAC76A006095E4</key>
 		<dict>
 			<key>primary</key>
