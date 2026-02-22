@@ -15,6 +15,11 @@
           "containerPath" : "container:HackerNewsFeed.xcodeproj",
           "identifier" : "68E965DD2EFAC76A006095E4",
           "name" : "HackerNewsFeed"
+        },
+        {
+          "containerPath" : "container:HackerNewsFeed.xcodeproj",
+          "identifier" : "6825D6C92F4B486900079C85",
+          "name" : "HackerNewsFeediOS"
         }
       ]
     },
@@ -36,6 +41,17 @@
         "containerPath" : "container:HackerNewsFeed.xcodeproj",
         "identifier" : "68E966292F02C422006095E4",
         "name" : "HackerNewsFeedAPIEndToEndTests"
+      }
+    },
+    {
+      "selectedTests" : [
+        "HackerNewsFeediOSTests\/testExample()",
+        "HackerNewsFeediOSTests\/testPerformanceExample()"
+      ],
+      "target" : {
+        "containerPath" : "container:HackerNewsFeed.xcodeproj",
+        "identifier" : "6825D6D32F4B486900079C85",
+        "name" : "HackerNewsFeediOSTests"
       }
     },
     {
