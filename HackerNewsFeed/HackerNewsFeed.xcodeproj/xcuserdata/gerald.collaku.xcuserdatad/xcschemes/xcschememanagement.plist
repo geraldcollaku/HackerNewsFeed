@@ -17,7 +17,7 @@
 		<key>HackerNewsFeedAPIEndToEndTests.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>0</integer>
+			<integer>3</integer>
 		</dict>
 		<key>HackerNewsFeedCacheIntegrationTests.xcscheme_^#shared#^_</key>
 		<dict>
@@ -33,6 +33,11 @@
 			<true/>
 		</dict>
 		<key>68E965E82EFAC76A006095E4</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>68E966292F02C422006095E4</key>
 		<dict>
 			<key>primary</key>
 			<true/>

@@ -37,6 +37,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		6825D6C42F4B469900079C85 /* HackerNewsFeedAPIEndToEndTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = HackerNewsFeedAPIEndToEndTests.xctestplan; sourceTree = "<group>"; };
 		68E965DE2EFAC76A006095E4 /* HackerNewsFeed.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = HackerNewsFeed.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		68E965E92EFAC76A006095E4 /* HackerNewsFeedTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HackerNewsFeedTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		68E966202F01DC0A006095E4 /* HackerNewsFeed.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = HackerNewsFeed.xctestplan; path = ../HackerNewsFeed.xctestplan; sourceTree = "<group>"; };
@@ -132,6 +133,7 @@
 		68E965D42EFAC76A006095E4 = {
 			isa = PBXGroup;
 			children = (
+				6825D6C42F4B469900079C85 /* HackerNewsFeedAPIEndToEndTests.xctestplan */,
 				68FB9E472F3E754600B7A262 /* HackerNewsFeedCacheIntegrationTests.xctestplan */,
 				68E966362F02D547006095E4 /* CI.xctestplan */,
 				68E966202F01DC0A006095E4 /* HackerNewsFeed.xctestplan */,
@@ -655,6 +657,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.hackerNews.com.HackerNewsFeedAPIEndToEndTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "macosx iphonesimulator iphoneos";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
@@ -675,6 +678,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.hackerNews.com.HackerNewsFeedAPIEndToEndTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "macosx iphonesimulator iphoneos";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
