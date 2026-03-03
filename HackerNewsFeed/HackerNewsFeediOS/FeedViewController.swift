@@ -8,13 +8,21 @@
 import HackerNewsFeed
 import UIKit
 
+public protocol StoryLoader {
+    func loadStory(with id: Int)
+}
+
 public final class FeedViewController: UITableViewController {
-    private var loader: FeedLoader?
-    private var onViewIsAppearing: ((FeedViewController) -> Void)?
+    private var feedIdLoader: FeedLoader?
+    private var storyLoader: StoryLoader?
     
-    public convenience init(loader: FeedLoader) {
+    private var onViewIsAppearing: ((FeedViewController) -> Void)?
+    private var tableModel = [FeedId]()
+    
+    public convenience init(loader: FeedLoader, storyLoader: StoryLoader) {
         self.init()
-        self.loader = loader
+        self.feedIdLoader = loader
+        self.storyLoader = storyLoader
     }
     
     public override func viewDidLoad() {
@@ -37,8 +45,23 @@ public final class FeedViewController: UITableViewController {
     
     @objc public func load() {
         refreshControl?.beginRefreshing()
-        loader?.load { [weak self] _ in
+        feedIdLoader?.load { [weak self] result in
+            if let feed = try? result.get() {
+                self?.tableModel = feed
+                self?.tableView.reloadData()
+            }
             self?.refreshControl?.endRefreshing()
         }
+    }
+    
+    public override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        tableModel.count
+    }
+    
+    public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cellModel = tableModel[indexPath.row]
+        let cell = FeedStoryCell()
+        storyLoader?.loadStory(with: cellModel.id)
+        return cell
     }
 }
