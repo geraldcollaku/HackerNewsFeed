@@ -10,6 +10,7 @@ import UIKit
 
 public protocol StoryLoader {
     func loadStory(with id: Int)
+    func cancelStoryLoading(with id: Int)
 }
 
 public final class FeedViewController: UITableViewController {
@@ -63,5 +64,10 @@ public final class FeedViewController: UITableViewController {
         let cell = FeedStoryCell()
         storyLoader?.loadStory(with: cellModel.id)
         return cell
+    }
+    
+    public override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        let cellModel = tableModel[indexPath.row]
+        storyLoader?.cancelStoryLoading(with: cellModel.id)
     }
 }

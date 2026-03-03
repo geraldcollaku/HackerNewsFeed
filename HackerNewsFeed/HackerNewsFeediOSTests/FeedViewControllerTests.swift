@@ -69,6 +69,23 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(loader.loadedStoriesIds, [story0, story1], "Expected a second story once second view becomes visible")
     }
     
+    func test_storyView_cancelsStoryLoadingWhenViewIsNotVisibleAnymore() {
+        let story0 = 0
+        let story1 = 1
+
+        let (sut, loader) = makeSUT()
+
+        sut.simulateApperance()
+        loader.completeFeedLoading(with: [makeFeedId(id: story0), makeFeedId(id: story1)], at: 0)
+        XCTAssertEqual(loader.cancelledStoriesIds, [], "Expected no cancelled story until view is not visible")
+        
+        sut.simulateStoryViewNotVisible(at: 0)
+        XCTAssertEqual(loader.cancelledStoriesIds, [story0], "Expected one cancelled story request once view is not visible anymore")
+    
+        sut.simulateStoryViewNotVisible(at: 1)
+        XCTAssertEqual(loader.cancelledStoriesIds, [story0, story1], "Expected two cancelled story request once view is not visible anymore")
+    }
+    
     // MARK: - Helpers
     
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: LoaderSpy) {
@@ -101,9 +118,14 @@ final class FeedViewControllerTests: XCTestCase {
         // MARK: - StoryLoader
         
         private(set) var loadedStoriesIds = [Int]()
+        private(set) var cancelledStoriesIds = [Int]()
         
         func loadStory(with id: Int) {
             loadedStoriesIds.append(id)
+        }
+        
+        func cancelStoryLoading(with id: Int) {
+            cancelledStoriesIds.append(id)
         }
     }
 }
@@ -113,8 +135,17 @@ private extension FeedViewController {
         refreshControl?.simulatePullToRefresh()
     }
     
-    func simulateStoryViewVisible(at index: Int) {
-        _ = storyView(at: index)
+    func simulateStoryViewNotVisible(at row: Int) {
+        let view = simulateStoryViewVisible(at: row)
+        
+        let delegate = tableView.delegate
+        let index = IndexPath(row: row, section: feedSection)
+        delegate?.tableView?(tableView, didEndDisplaying: view!, forRowAt: index)
+    }
+    
+    @discardableResult
+    func simulateStoryViewVisible(at index: Int) -> FeedStoryCell? {
+        return storyView(at: index) as? FeedStoryCell
     }
     
     var isShowingLoadingIndicator: Bool {
