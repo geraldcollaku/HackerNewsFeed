@@ -112,7 +112,7 @@ final class FeedViewControllerTests: XCTestCase {
         let (sut, loader) = makeSUT()
         let story0 = makeStory(title: "a title", author: "an author")
         let story1 = makeStory(title: "another title", author: "another author")
-
+        
         sut.simulateApperance()
         loader.completeFeedLoading(with: [makeFeedId(), makeFeedId()], at: 0)
         
@@ -130,6 +130,28 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(view1?.urlText, story1.url?.absoluteString)
         XCTAssertEqual(view1?.authorText, story1.author)
         XCTAssertEqual(view1?.scoreText, String(story1.score ?? 0))
+    }
+    
+    func test_storyViewRetryButton_isVisibleOnStoryLoadError() {
+        let (sut, loader) = makeSUT()
+        let story = makeStory(title: "a title", author: "an author")
+
+        sut.simulateApperance()
+        loader.completeFeedLoading(with: [makeFeedId(), makeFeedId()], at: 0)
+        
+        let view0 = sut.simulateStoryViewVisible(at: 0)
+        let view1 = sut.simulateStoryViewVisible(at: 1)
+        
+        XCTAssertEqual(view0?.isShowingRetryAction, false, "Expected no retry action for first view while loading first story")
+        XCTAssertEqual(view1?.isShowingRetryAction, false, "Expected no retry action for second view while loading second story")
+
+        loader.completeStoryLoading(with: story, at: 0)
+        XCTAssertEqual(view0?.isShowingRetryAction, false, "Expected no retry action for first view once first story loaded successfully")
+        XCTAssertEqual(view1?.isShowingRetryAction, false, "Expected no retry action for second view once first story loading completes successfully")
+        
+        loader.completeStoryLoadingWithError(at: 1)
+        XCTAssertEqual(view0?.isShowingRetryAction, false, "Expected no retry action state change for first view once second view loads with error")
+        XCTAssertEqual(view1?.isShowingRetryAction, true, "Expected  retry action for second view once second view loads with error")
     }
     
     // MARK: - Helpers
@@ -284,6 +306,10 @@ private extension FeedViewController {
 private extension FeedStoryCell {
     var isShowingLoadingIndicator: Bool {
         container.isShimmering
+    }
+    
+    var isShowingRetryAction: Bool {
+        !retryButton.isHidden
     }
     
     var titleText: String? {

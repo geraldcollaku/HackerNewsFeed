@@ -104,13 +104,18 @@ public final class FeedViewController: UITableViewController {
         let cellModel = tableModel[indexPath.row]
         let cell = FeedStoryCell()
         cell.container.isShimmering = true
+        cell.retryButton.isHidden = true
         tasks[indexPath] = storyLoader?.loadStory(with: cellModel.id) { [weak cell] result in
-            let story = try? result.get()
-            cell?.container.isShimmering = false
-            cell?.authorLabel.text = story?.author
-            cell?.titleLabel.text = story?.title
-            cell?.scoreLabel.text = String(story?.score ?? 0)
-            cell?.urlLabel.text = story?.url?.absoluteString
+            if let story = try? result.get() {
+                cell?.container.isShimmering = false
+                cell?.authorLabel.text = story.author
+                cell?.titleLabel.text = story.title
+                cell?.scoreLabel.text = String(story.score ?? 0)
+                cell?.urlLabel.text = story.url?.absoluteString
+                cell?.retryButton.isHidden = true
+            } else {
+                cell?.retryButton.isHidden = false
+            }
         }
         return cell
     }

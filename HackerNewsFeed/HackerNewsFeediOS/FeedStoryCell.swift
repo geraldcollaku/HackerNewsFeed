@@ -13,4 +13,5 @@ public final class FeedStoryCell: UITableViewCell {
     public let urlLabel = UILabel()
     public let authorLabel = UILabel()
     public let scoreLabel = UILabel()
+    public let retryButton = UIButton()
 }
