@@ -154,6 +154,28 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(view1?.isShowingRetryAction, true, "Expected  retry action for second view once second view loads with error")
     }
     
+    func test_storyViewRetryAction_retriesStoryLoad() {
+        let (sut, loader) = makeSUT()
+
+        sut.simulateApperance()
+        loader.completeFeedLoading(with: [makeFeedId(), makeFeedId()], at: 0)
+        
+        let view0 = sut.simulateStoryViewVisible(at: 0)
+        let view1 = sut.simulateStoryViewVisible(at: 1)
+        
+        XCTAssertEqual(loader.loadedStoriesIds.count, 2, "Expected to load both story ids")
+        
+        loader.completeStoryLoadingWithError(at: 0)
+        loader.completeStoryLoadingWithError(at: 1)
+        XCTAssertEqual(loader.loadedStoriesIds.count, 2, "Expected no more loading when story loading completes with error")
+        
+        view0?.simulateRetryAction()
+        XCTAssertEqual(loader.loadedStoriesIds.count, 3, "Expected one more loading after tapping retry action")
+
+        view1?.simulateRetryAction()
+        XCTAssertEqual(loader.loadedStoriesIds.count, 4, "Expected another loading after tapping retry action")
+    }
+    
     // MARK: - Helpers
     
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: LoaderSpy) {
@@ -206,7 +228,7 @@ final class FeedViewControllerTests: XCTestCase {
         }
         
         private var storiesRequests = [(id: Int, completion: (StoryLoader.Result) -> Void)]()
-        
+
         var loadedStoriesIds: [Int] {
             storiesRequests.map { $0.id }
         }
@@ -312,6 +334,10 @@ private extension FeedStoryCell {
         !retryButton.isHidden
     }
     
+    func simulateRetryAction() {
+        retryButton.simulateTap()
+    }
+    
     var titleText: String? {
         titleLabel.text
     }
@@ -344,7 +370,17 @@ private class FakeRefreshControl: UIRefreshControl {
     }
 }
 
-extension UIRefreshControl {
+private extension UIButton {
+    func simulateTap() {
+        allTargets.forEach { target in
+            actions(forTarget: target, forControlEvent: .touchUpInside)?.forEach {
+                (target as NSObject).perform(Selector($0))
+            }
+        }
+    }
+}
+
+private extension UIRefreshControl {
     func simulatePullToRefresh() {
         allTargets.forEach { target in
             actions(forTarget: target, forControlEvent: .valueChanged)?.forEach {

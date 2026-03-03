@@ -13,5 +13,16 @@ public final class FeedStoryCell: UITableViewCell {
     public let urlLabel = UILabel()
     public let authorLabel = UILabel()
     public let scoreLabel = UILabel()
-    public let retryButton = UIButton()
+    
+    private(set) public lazy var retryButton: UIButton = {
+        let button = UIButton()
+        button.addTarget(self, action: #selector(retryButtonTapped), for: .touchUpInside)
+        return button
+    }()
+    
+    var onRetry: (() -> Void)?
+    
+    @objc private func retryButtonTapped() {
+        onRetry?()
+    }
 }

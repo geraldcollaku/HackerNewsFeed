@@ -44,7 +44,17 @@
       }
     },
     {
+      "parallelizable" : false,
       "selectedTests" : [
+        "FeedViewControllerTests\/test_loadFeedActions_loadsFeedFromLoader()",
+        "FeedViewControllerTests\/test_loadFeedCompletion_rendersSuccessfullyLoadedFeed()",
+        "FeedViewControllerTests\/test_loadingFeedIndicator_isVisibleWhileLoadingFeed()",
+        "FeedViewControllerTests\/test_storyViewLoadingIndicator_isVisibleWhenLoadingStory()",
+        "FeedViewControllerTests\/test_storyViewRetryAction_retriesStoryLoad()",
+        "FeedViewControllerTests\/test_storyViewRetryButton_isVisibleOnStoryLoadError()",
+        "FeedViewControllerTests\/test_storyView_cancelsStoryLoadingWhenViewIsNotVisibleAnymore()",
+        "FeedViewControllerTests\/test_storyView_loadsStoriesWhenVisible()",
+        "FeedViewControllerTests\/test_storyView_rendersStory()",
         "HackerNewsFeediOSTests\/testExample()",
         "HackerNewsFeediOSTests\/testPerformanceExample()"
       ],
