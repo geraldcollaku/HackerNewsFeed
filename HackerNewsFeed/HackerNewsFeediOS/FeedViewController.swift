@@ -13,7 +13,44 @@ public protocol StoryLoaderTask {
 }
 
 public protocol StoryLoader {
-    func loadStory(with id: Int) -> StoryLoaderTask
+    typealias Result = Swift.Result<Story, Error>
+    
+    func loadStory(with id: Int, completion: @escaping (Result) -> Void) -> StoryLoaderTask
+}
+
+public struct Story: Equatable {
+    public let id: Int
+    public let title: String?
+    public let text: String?
+    public let author: String
+    public let score: Int?
+    public let createdAt: Date
+    public let totalComments: Int?
+    public let comments: [Int]?
+    public let type: String
+    public let url: URL?
+
+    public init(id: Int,
+                title: String?,
+                text: String?,
+                author: String,
+                score: Int?,
+                createdAt: Date,
+                totalComments: Int?,
+                comments: [Int]?,
+                type: String,
+                url: URL?) {
+        self.id = id
+        self.title = title
+        self.text = text
+        self.author = author
+        self.score = score
+        self.createdAt = createdAt
+        self.totalComments = totalComments
+        self.comments = comments
+        self.type = type
+        self.url = url
+    }
 }
 
 public final class FeedViewController: UITableViewController {
@@ -66,12 +103,14 @@ public final class FeedViewController: UITableViewController {
     public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cellModel = tableModel[indexPath.row]
         let cell = FeedStoryCell()
-        tasks[indexPath] = storyLoader?.loadStory(with: cellModel.id)
+        cell.container.isShimmering = true
+        tasks[indexPath] = storyLoader?.loadStory(with: cellModel.id) { [weak cell] result in
+            cell?.container.isShimmering = false
+        }
         return cell
     }
     
     public override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let cellModel = tableModel[indexPath.row]
         tasks[indexPath]?.cancel()
         tasks[indexPath] = nil
     }

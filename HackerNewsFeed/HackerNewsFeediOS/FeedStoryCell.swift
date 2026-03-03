@@ -7,4 +7,7 @@
 
 import UIKit
 
-public final class FeedStoryCell: UITableViewCell { }
+public final class FeedStoryCell: UITableViewCell {
+    public let container = UIView()
+    
+}

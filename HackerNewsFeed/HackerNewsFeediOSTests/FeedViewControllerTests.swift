@@ -86,6 +86,28 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(loader.cancelledStoriesIds, [story0, story1], "Expected two cancelled story request once view is not visible anymore")
     }
     
+    func test_storyViewLoadingIndicator_isVisibleWhenLoadingStory() {
+        let story0 = 0
+        let story1 = 1
+        let (sut, loader) = makeSUT()
+        
+        sut.simulateApperance()
+        loader.completeFeedLoading(with: [makeFeedId(id: story0), makeFeedId(id: story1)], at: 0)
+        
+        let view0 = sut.simulateStoryViewVisible(at: 0)
+        let view1 = sut.simulateStoryViewVisible(at: 1)
+        XCTAssertEqual(view0?.isShowingLoadingIndicator, true, "Expected loading indicator for first view while loading first story")
+        XCTAssertEqual(view1?.isShowingLoadingIndicator, true, "Expected loading indicator for second view while loading second story")
+        
+        loader.completeStoryLoading(at: 0)
+        XCTAssertEqual(view0?.isShowingLoadingIndicator, false, "Expected no loading indicator for first view once first story loading completes successfully")
+        XCTAssertEqual(view1?.isShowingLoadingIndicator, true, "Expected no loading indicator state change once first story loading completes succesfully")
+        
+        loader.completeStoryLoadingWithError(at: 1)
+        XCTAssertEqual(view0?.isShowingLoadingIndicator, false, "Expected no loading indicator change for first view once second story loading completes successfully")
+        XCTAssertEqual(view1?.isShowingLoadingIndicator, false, "Expected no loading indicator state change once seconds story loading completes succesfully")
+    }
+    
     // MARK: - Helpers
     
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: LoaderSpy) {
@@ -125,16 +147,45 @@ final class FeedViewControllerTests: XCTestCase {
             }
         }
         
-        private(set) var loadedStoriesIds = [Int]()
+        private var storiesRequests = [(id: Int, completion: (StoryLoader.Result) -> Void)]()
+        
+        var loadedStoriesIds: [Int] {
+            storiesRequests.map { $0.id }
+        }
+        
         private(set) var cancelledStoriesIds = [Int]()
         
-        func loadStory(with id: Int) -> StoryLoaderTask {
-            loadedStoriesIds.append(id)
+        func loadStory(with id: Int, completion: @escaping (StoryLoader.Result) -> Void) -> StoryLoaderTask {
+            storiesRequests.append((id, completion))
             return StoryLoaderTaskSpy { [weak self] in
                 self?.cancelledStoriesIds.append(id)
             }
         }
+        
+        func completeStoryLoading(with story: Story = .any, at index: Int = 0) {
+            storiesRequests[index].completion(.success(story))
+        }
+        
+        func completeStoryLoadingWithError(at index: Int = 0) {
+            let error = NSError(domain: "an error", code: 0)
+            storiesRequests[index].completion(.failure(error))
+        }
     }
+}
+
+extension Story {
+    static var any = Story(
+        id: Int.random(in: 0 ... 100),
+        title: "a title",
+        text: "a text",
+        author: "a username",
+        score: 10,
+        createdAt: Date(),
+        totalComments: 5,
+        comments: [1, 2, 3],
+        type: "story",
+        url: URL(string: "https://any-url.com")!
+    )
 }
 
 private extension FeedViewController {
@@ -191,6 +242,12 @@ private extension FeedViewController {
         }
         
         refreshControl = fake
+    }
+}
+
+extension FeedStoryCell {
+    var isShowingLoadingIndicator: Bool {
+        container.isShimmering
     }
 }
 
