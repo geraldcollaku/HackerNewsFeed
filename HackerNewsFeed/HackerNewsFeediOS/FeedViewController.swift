@@ -22,23 +22,23 @@ public struct Story: Equatable {
     public let id: Int
     public let title: String?
     public let text: String?
-    public let author: String
+    public let author: String?
     public let score: Int?
     public let createdAt: Date
     public let totalComments: Int?
     public let comments: [Int]?
-    public let type: String
+    public let type: String?
     public let url: URL?
 
     public init(id: Int,
                 title: String?,
                 text: String?,
-                author: String,
+                author: String?,
                 score: Int?,
                 createdAt: Date,
                 totalComments: Int?,
                 comments: [Int]?,
-                type: String,
+                type: String?,
                 url: URL?) {
         self.id = id
         self.title = title
@@ -105,7 +105,12 @@ public final class FeedViewController: UITableViewController {
         let cell = FeedStoryCell()
         cell.container.isShimmering = true
         tasks[indexPath] = storyLoader?.loadStory(with: cellModel.id) { [weak cell] result in
+            let story = try? result.get()
             cell?.container.isShimmering = false
+            cell?.authorLabel.text = story?.author
+            cell?.titleLabel.text = story?.title
+            cell?.scoreLabel.text = String(story?.score ?? 0)
+            cell?.urlLabel.text = story?.url?.absoluteString
         }
         return cell
     }

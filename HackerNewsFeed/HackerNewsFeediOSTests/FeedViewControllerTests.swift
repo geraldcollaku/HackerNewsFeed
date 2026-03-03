@@ -10,14 +10,14 @@ import HackerNewsFeed
 import HackerNewsFeediOS
 
 final class FeedViewControllerTests: XCTestCase {
-        
+    
     func test_loadFeedActions_loadsFeedFromLoader() {
         let (sut, loader) = makeSUT()
         XCTAssertEqual(loader.loadFeedIdCallCount, 0, "Expected no loading indicator before view is loaded")
         
         sut.simulateApperance()
         XCTAssertEqual(loader.loadFeedIdCallCount, 1, "Expected a loading request once view is loaded")
-
+        
         sut.simulateUserInitiatedReload()
         XCTAssertEqual(loader.loadFeedIdCallCount, 2, "Expected another loading request once view is loaded")
         
@@ -30,20 +30,20 @@ final class FeedViewControllerTests: XCTestCase {
         
         sut.simulateApperance()
         XCTAssertTrue(sut.isShowingLoadingIndicator, "Expected loading indicator once view is loaded")
- 
+        
         loader.completeFeedLoading(at: 0)
         XCTAssertFalse(sut.isShowingLoadingIndicator, "Expected no loading indicator once loading is completed")
-
+        
         sut.simulateUserInitiatedReload()
         XCTAssertTrue(sut.isShowingLoadingIndicator, "Expected loading indicator once the user initiated a reload")
-
+        
         loader.completeFeedLoading(at: 1)
         XCTAssertFalse(sut.isShowingLoadingIndicator, "Expected no loading indicator once user intiated loading is completed")
     }
     
     func test_loadFeedCompletion_rendersSuccessfullyLoadedFeed() {
         let (sut, loader) = makeSUT()
-
+        
         sut.simulateApperance()
         XCTAssertEqual(sut.numberOfRenderedViews(), 0)
         
@@ -54,9 +54,9 @@ final class FeedViewControllerTests: XCTestCase {
     func test_storyView_loadsStoriesWhenVisible() {
         let story0 = 0
         let story1 = 1
-
+        
         let (sut, loader) = makeSUT()
-
+        
         sut.simulateApperance()
         loader.completeFeedLoading(with: [makeFeedId(id: story0), makeFeedId(id: story1)], at: 0)
         
@@ -64,7 +64,7 @@ final class FeedViewControllerTests: XCTestCase {
         
         sut.simulateStoryViewVisible(at: 0)
         XCTAssertEqual(loader.loadedStoriesIds, [story0], "Expected first story once view becomes visible")
-    
+        
         sut.simulateStoryViewVisible(at: 1)
         XCTAssertEqual(loader.loadedStoriesIds, [story0, story1], "Expected a second story once second view becomes visible")
     }
@@ -72,16 +72,16 @@ final class FeedViewControllerTests: XCTestCase {
     func test_storyView_cancelsStoryLoadingWhenViewIsNotVisibleAnymore() {
         let story0 = 0
         let story1 = 1
-
+        
         let (sut, loader) = makeSUT()
-
+        
         sut.simulateApperance()
         loader.completeFeedLoading(with: [makeFeedId(id: story0), makeFeedId(id: story1)], at: 0)
         XCTAssertEqual(loader.cancelledStoriesIds, [], "Expected no cancelled story until view is not visible")
         
         sut.simulateStoryViewNotVisible(at: 0)
         XCTAssertEqual(loader.cancelledStoriesIds, [story0], "Expected one cancelled story request once view is not visible anymore")
-    
+        
         sut.simulateStoryViewNotVisible(at: 1)
         XCTAssertEqual(loader.cancelledStoriesIds, [story0, story1], "Expected two cancelled story request once view is not visible anymore")
     }
@@ -108,6 +108,30 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(view1?.isShowingLoadingIndicator, false, "Expected no loading indicator state change once seconds story loading completes succesfully")
     }
     
+    func test_storyView_rendersStory() {
+        let (sut, loader) = makeSUT()
+        let story0 = makeStory(title: "a title", author: "an author")
+        let story1 = makeStory(title: "another title", author: "another author")
+
+        sut.simulateApperance()
+        loader.completeFeedLoading(with: [makeFeedId(), makeFeedId()], at: 0)
+        
+        let view0 = sut.simulateStoryViewVisible(at: 0)
+        let view1 = sut.simulateStoryViewVisible(at: 1)
+        
+        loader.completeStoryLoading(with: story0, at: 0)
+        XCTAssertEqual(view0?.titleText, story0.title)
+        XCTAssertEqual(view0?.urlText, story0.url?.absoluteString)
+        XCTAssertEqual(view0?.authorText, story0.author)
+        XCTAssertEqual(view0?.scoreText, String(story0.score ?? 0))
+        
+        loader.completeStoryLoading(with: story1, at: 1)
+        XCTAssertEqual(view1?.titleText, story1.title)
+        XCTAssertEqual(view1?.urlText, story1.url?.absoluteString)
+        XCTAssertEqual(view1?.authorText, story1.author)
+        XCTAssertEqual(view1?.scoreText, String(story1.score ?? 0))
+    }
+    
     // MARK: - Helpers
     
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: LoaderSpy) {
@@ -120,6 +144,18 @@ final class FeedViewControllerTests: XCTestCase {
     
     private func makeFeedId(id: Int = Int.random(in: 0 ... 100)) -> FeedId {
         FeedId(id: id)
+    }
+    
+    private func makeStory(id: Int = 0,
+                           title: String? = nil,
+                           author: String? = nil,
+                           score: Int? = nil,
+                           createdAt: Date = Date(),
+                           totalComments: Int? = nil,
+                           comments: [Int] = [],
+                           type: String? = nil,
+                           url: URL = URL(string: "https://any-url.com")!) -> Story {
+        Story(id: id, title: title, text: title, author: author, score: score, createdAt: createdAt, totalComments: totalComments, comments: comments, type: type, url: url)
     }
     
     class LoaderSpy: FeedLoader, StoryLoader {
@@ -245,10 +281,27 @@ private extension FeedViewController {
     }
 }
 
-extension FeedStoryCell {
+private extension FeedStoryCell {
     var isShowingLoadingIndicator: Bool {
         container.isShimmering
     }
+    
+    var titleText: String? {
+        titleLabel.text
+    }
+    
+    var urlText: String? {
+        urlLabel.text
+    }
+    
+    var authorText: String? {
+        authorLabel.text
+    }
+    
+    var scoreText: String? {
+        scoreLabel.text
+    }
+
 }
 
 private class FakeRefreshControl: UIRefreshControl {

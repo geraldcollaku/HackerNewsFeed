@@ -9,5 +9,8 @@ import UIKit
 
 public final class FeedStoryCell: UITableViewCell {
     public let container = UIView()
-    
+    public let titleLabel = UILabel()
+    public let urlLabel = UILabel()
+    public let authorLabel = UILabel()
+    public let scoreLabel = UILabel()
 }
