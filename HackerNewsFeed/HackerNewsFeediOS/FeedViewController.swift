@@ -8,17 +8,21 @@
 import HackerNewsFeed
 import UIKit
 
+public protocol StoryLoaderTask {
+    func cancel()
+}
+
 public protocol StoryLoader {
-    func loadStory(with id: Int)
-    func cancelStoryLoading(with id: Int)
+    func loadStory(with id: Int) -> StoryLoaderTask
 }
 
 public final class FeedViewController: UITableViewController {
     private var feedIdLoader: FeedLoader?
     private var storyLoader: StoryLoader?
+    private var tableModel = [FeedId]()
+    private var tasks = [IndexPath: StoryLoaderTask]()
     
     private var onViewIsAppearing: ((FeedViewController) -> Void)?
-    private var tableModel = [FeedId]()
     
     public convenience init(loader: FeedLoader, storyLoader: StoryLoader) {
         self.init()
@@ -62,12 +66,13 @@ public final class FeedViewController: UITableViewController {
     public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cellModel = tableModel[indexPath.row]
         let cell = FeedStoryCell()
-        storyLoader?.loadStory(with: cellModel.id)
+        tasks[indexPath] = storyLoader?.loadStory(with: cellModel.id)
         return cell
     }
     
     public override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         let cellModel = tableModel[indexPath.row]
-        storyLoader?.cancelStoryLoading(with: cellModel.id)
+        tasks[indexPath]?.cancel()
+        tasks[indexPath] = nil
     }
 }

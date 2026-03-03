@@ -117,15 +117,22 @@ final class FeedViewControllerTests: XCTestCase {
         
         // MARK: - StoryLoader
         
+        private struct StoryLoaderTaskSpy: StoryLoaderTask {
+            var cancelCallback: () -> Void
+            
+            func cancel() {
+                cancelCallback()
+            }
+        }
+        
         private(set) var loadedStoriesIds = [Int]()
         private(set) var cancelledStoriesIds = [Int]()
         
-        func loadStory(with id: Int) {
+        func loadStory(with id: Int) -> StoryLoaderTask {
             loadedStoriesIds.append(id)
-        }
-        
-        func cancelStoryLoading(with id: Int) {
-            cancelledStoriesIds.append(id)
+            return StoryLoaderTaskSpy { [weak self] in
+                self?.cancelledStoriesIds.append(id)
+            }
         }
     }
 }
