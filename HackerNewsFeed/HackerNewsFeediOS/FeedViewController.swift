@@ -110,7 +110,6 @@ public final class FeedViewController: UITableViewController {
             guard let self = self else { return }
             self.tasks[indexPath] = self.storyLoader?.loadStory(with: cellModel.id) { [weak cell] result in
                 if let story = try? result.get() {
-                    cell?.container.isShimmering = false
                     cell?.authorLabel.text = story.author
                     cell?.titleLabel.text = story.title
                     cell?.scoreLabel.text = String(story.score ?? 0)
@@ -119,6 +118,7 @@ public final class FeedViewController: UITableViewController {
                 } else {
                     cell?.retryButton.isHidden = false
                 }
+                cell?.container.isShimmering = false
             }
         }
         
