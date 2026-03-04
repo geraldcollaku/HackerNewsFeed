@@ -60,13 +60,13 @@ final class FeedViewControllerTests: XCTestCase {
         sut.simulateApperance()
         loader.completeFeedLoading(with: [makeFeedId(id: story0), makeFeedId(id: story1)], at: 0)
         
-        XCTAssertEqual(loader.loadedStoriesIds, [], "Expected no stories until view becomes visible")
+        XCTAssertEqual(loader.storiesRequests.count, 0, "Expected no stories until view becomes visible")
         
         sut.simulateStoryViewVisible(at: 0)
-        XCTAssertEqual(loader.loadedStoriesIds, [story0], "Expected first story once view becomes visible")
+        XCTAssertEqual(loader.storiesRequests.count, 1, "Expected first story once view becomes visible")
         
         sut.simulateStoryViewVisible(at: 1)
-        XCTAssertEqual(loader.loadedStoriesIds, [story0, story1], "Expected a second story once second view becomes visible")
+        XCTAssertEqual(loader.storiesRequests.count, 2, "Expected a second story once second view becomes visible")
     }
     
     func test_storyView_cancelsStoryLoadingWhenViewIsNotVisibleAnymore() {
@@ -163,17 +163,31 @@ final class FeedViewControllerTests: XCTestCase {
         let view0 = sut.simulateStoryViewVisible(at: 0)
         let view1 = sut.simulateStoryViewVisible(at: 1)
         
-        XCTAssertEqual(loader.loadedStoriesIds.count, 2, "Expected to load both story ids")
+        XCTAssertEqual(loader.storiesRequests.count, 2, "Expected to load both story ids")
         
         loader.completeStoryLoadingWithError(at: 0)
         loader.completeStoryLoadingWithError(at: 1)
-        XCTAssertEqual(loader.loadedStoriesIds.count, 2, "Expected no more loading when story loading completes with error")
+        XCTAssertEqual(loader.storiesRequests.count, 2, "Expected no more loading when story loading completes with error")
         
         view0?.simulateRetryAction()
-        XCTAssertEqual(loader.loadedStoriesIds.count, 3, "Expected one more loading after tapping retry action")
+        XCTAssertEqual(loader.storiesRequests.count, 3, "Expected one more loading after tapping retry action")
 
         view1?.simulateRetryAction()
-        XCTAssertEqual(loader.loadedStoriesIds.count, 4, "Expected another loading after tapping retry action")
+        XCTAssertEqual(loader.storiesRequests.count, 4, "Expected another loading after tapping retry action")
+    }
+    
+    func test_storyView_preloadStoryWhenViewNearVisible() {
+        let (sut, loader) = makeSUT()
+
+        sut.simulateApperance()
+        loader.completeFeedLoading(with: [makeFeedId(), makeFeedId()], at: 0)
+        XCTAssertTrue(loader.storiesRequests.isEmpty, "Expected no story request until view is near visible")
+        
+        sut.simulateStoryViewNearVisible(at: 0)
+        XCTAssertEqual(loader.storiesRequests.count, 1, "Expected first story request once first view is visible")
+        
+        sut.simulateStoryViewNearVisible(at: 1)
+        XCTAssertEqual(loader.storiesRequests.count, 2, "Expected second story request once second view is visible")
     }
     
     // MARK: - Helpers
@@ -227,11 +241,7 @@ final class FeedViewControllerTests: XCTestCase {
             }
         }
         
-        private var storiesRequests = [(id: Int, completion: (StoryLoader.Result) -> Void)]()
-
-        var loadedStoriesIds: [Int] {
-            storiesRequests.map { $0.id }
-        }
+        private(set) var storiesRequests = [(id: Int, completion: (StoryLoader.Result) -> Void)]()
         
         private(set) var cancelledStoriesIds = [Int]()
         
@@ -284,6 +294,12 @@ private extension FeedViewController {
     @discardableResult
     func simulateStoryViewVisible(at index: Int) -> FeedStoryCell? {
         return storyView(at: index) as? FeedStoryCell
+    }
+    
+    func simulateStoryViewNearVisible(at row: Int) {
+        let ds = tableView.prefetchDataSource
+        let index = IndexPath(row: row, section: feedSection)
+        ds?.tableView(tableView, prefetchRowsAt: [index])
     }
     
     var isShowingLoadingIndicator: Bool {
