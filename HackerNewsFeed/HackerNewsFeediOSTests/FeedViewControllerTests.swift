@@ -190,6 +190,22 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(loader.storiesRequests.count, 2, "Expected second story request once second view is visible")
     }
     
+    func test_storyView_cancelsStoryPreloadingWhenNotNearVisibleAnymore() {
+        let (sut, loader) = makeSUT()
+        let story0 = 0
+        let story1 = 1
+
+        sut.simulateApperance()
+        loader.completeFeedLoading(with: [makeFeedId(id: story0), makeFeedId(id: story1)], at: 0)
+        XCTAssertEqual(loader.cancelledStoriesIds, [], "Expected no cancelled stories until image is not near visible")
+        
+        sut.simulateStoryViewNotNearVisible(at: 0)
+        XCTAssertEqual(loader.cancelledStoriesIds, [story0], "Expected first story request once first view is visible")
+        
+        sut.simulateStoryViewNotNearVisible(at: 1)
+        XCTAssertEqual(loader.cancelledStoriesIds, [story0, story1], "Expected second story request once second view is visible")
+    }
+    
     // MARK: - Helpers
     
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: LoaderSpy) {
@@ -300,6 +316,14 @@ private extension FeedViewController {
         let ds = tableView.prefetchDataSource
         let index = IndexPath(row: row, section: feedSection)
         ds?.tableView(tableView, prefetchRowsAt: [index])
+    }
+    
+    func simulateStoryViewNotNearVisible(at row: Int) {
+        simulateStoryViewVisible(at: row)
+        
+        let ds = tableView.prefetchDataSource
+        let index = IndexPath(row: row, section: feedSection)
+        ds?.tableView?(tableView, cancelPrefetchingForRowsAt: [index])
     }
     
     var isShowingLoadingIndicator: Bool {
