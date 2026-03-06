@@ -8,16 +8,6 @@
 import HackerNewsFeed
 import UIKit
 
-public protocol StoryLoaderTask {
-    func cancel()
-}
-
-public protocol StoryLoader {
-    typealias Result = Swift.Result<Story, Error>
-    
-    func loadStory(with id: Int, completion: @escaping (Result) -> Void) -> StoryLoaderTask
-}
-
 public struct Story: Equatable {
     public let id: Int
     public let title: String?
