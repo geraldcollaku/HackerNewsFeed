@@ -16,7 +16,7 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
             tableView.reloadData()
         }
     }
-    private var tasks = [IndexPath: StoryLoaderTask]()
+    private var cellControllers = [IndexPath: FeedStoryCellController]()
     
     private var onViewDidAppear: ((FeedViewController) -> Void)?
     
@@ -53,50 +53,31 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
     }
     
     public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cellModel = tableModel[indexPath.row]
-        let cell = FeedStoryCell()
-        cell.container.isShimmering = true
-        cell.retryButton.isHidden = true
-        
-        let loadStory = { [weak self, weak cell] in
-            guard let self = self else { return }
-            self.tasks[indexPath] = self.storyLoader?.loadStory(with: cellModel.id) { [weak cell] result in
-                if let story = try? result.get() {
-                    cell?.authorLabel.text = story.author
-                    cell?.titleLabel.text = story.title
-                    cell?.scoreLabel.text = String(story.score ?? 0)
-                    cell?.urlLabel.text = story.url?.absoluteString
-                    cell?.retryButton.isHidden = true
-                } else {
-                    cell?.retryButton.isHidden = false
-                }
-                cell?.container.isShimmering = false
-            }
-        }
-        
-        cell.onRetry = loadStory
-        loadStory()
-        
-        return cell
+        return cellController(forRowAt: indexPath).view()
     }
     
     public override func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        cancelTask(forRowAt: indexPath)
+        removeCellController(forRowAt: indexPath)
     }
     
     public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
         indexPaths.forEach { indexPath in
-            let cellModel = tableModel[indexPath.row]
-            tasks[indexPath] = storyLoader?.loadStory(with: cellModel.id) { _ in }
+            cellController(forRowAt: indexPath).preload()
         }
     }
     
     public func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
-        indexPaths.forEach(cancelTask)
+        indexPaths.forEach(removeCellController)
     }
     
-    private func cancelTask(forRowAt indexPath: IndexPath) {
-        tasks[indexPath]?.cancel()
-        tasks[indexPath] = nil
+    private func cellController(forRowAt indexPath: IndexPath) -> FeedStoryCellController {
+        let cellModel = tableModel[indexPath.row]
+        let cellController = FeedStoryCellController(model: cellModel, storyLoader: storyLoader!)
+        cellControllers[indexPath] = cellController
+        return cellController
+    }
+    
+    private func removeCellController(forRowAt indexPath: IndexPath) {
+        cellControllers[indexPath] = nil
     }
 }
