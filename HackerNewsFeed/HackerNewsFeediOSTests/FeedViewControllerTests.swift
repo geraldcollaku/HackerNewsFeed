@@ -294,33 +294,3 @@ extension Story {
     )
 }
 
-private extension FeedStoryCell {
-    var isShowingLoadingIndicator: Bool {
-        container.isShimmering
-    }
-    
-    var isShowingRetryAction: Bool {
-        !retryButton.isHidden
-    }
-    
-    func simulateRetryAction() {
-        retryButton.simulateTap()
-    }
-    
-    var titleText: String? {
-        titleLabel.text
-    }
-    
-    var urlText: String? {
-        urlLabel.text
-    }
-    
-    var authorText: String? {
-        authorLabel.text
-    }
-    
-    var scoreText: String? {
-        scoreLabel.text
-    }
-
-}
