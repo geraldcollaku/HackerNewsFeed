@@ -8,28 +8,24 @@
 import HackerNewsFeed
 
 public final class FeedViewModel {
+    public typealias Observer<T> = (T) -> Void
+    
     private let feedIdLoader: FeedLoader
     
     public init(feedIdLoader: FeedLoader) {
         self.feedIdLoader = feedIdLoader
     }
     
-    public var onChange: ((FeedViewModel) -> Void)?
-    public var onFeedLoad: (([FeedId]) -> Void)?
-    
-    public var isLoading: Bool = false {
-        didSet {
-            onChange?(self)
-        }
-    }
+    public var onLoadingStateChange: Observer<Bool>?
+    public var onFeedLoad: Observer<[FeedId]>?
     
     public func loadFeed() {
-        isLoading = true
+        onLoadingStateChange?(true)
         feedIdLoader.load { [weak self] result in
             if let feed = try? result.get() {
                 self?.onFeedLoad?(feed)
             }
-            self?.isLoading = false
+            self?.onLoadingStateChange?(false)
         }
     }
 }
