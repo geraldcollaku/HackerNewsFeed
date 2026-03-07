@@ -49,6 +49,10 @@ final class FeedStoryCellController {
         task = storyLoader.loadStory(with: model.id) { _ in }
     }
     
+    func cancelLoad() {
+        task?.cancel()
+    }
+    
     deinit {
         task?.cancel()
     }
