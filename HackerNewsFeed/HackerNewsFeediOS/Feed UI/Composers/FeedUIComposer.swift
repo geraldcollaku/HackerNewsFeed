@@ -10,9 +10,10 @@ import HackerNewsFeed
 public enum FeedUIComposer {
     
     public static func feedComposedWith(loader: FeedLoader, storyLoader: StoryLoader) -> FeedViewController {
-        let refreshController = FeedRefreshViewController(feedIdLoader: loader)
+        let feedViewModel = FeedViewModel(feedIdLoader: loader)
+        let refreshController = FeedRefreshViewController(viewModel: feedViewModel)
         let feedController = FeedViewController(refreshController: refreshController)
-        refreshController.onRefresh = adaptFeedToCellControllers(forwardingTo: feedController, loader: storyLoader)
+        feedViewModel.onFeedLoad = adaptFeedToCellControllers(forwardingTo: feedController, loader: storyLoader)
         return feedController
     }
     
