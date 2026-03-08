@@ -20,7 +20,7 @@ public enum FeedUIComposer {
     private static func adaptFeedToCellControllers(forwardingTo controller: FeedViewController, loader: StoryLoader) -> ([FeedId]) -> Void {
         return { [weak controller] feed in
             controller?.tableModel = feed.map { model in
-                FeedStoryCellController(model: model, storyLoader: loader)
+                FeedStoryCellController(viewModel: FeedStoryViewModel(model: model, storyLoader: loader))
             }
         }
     }
