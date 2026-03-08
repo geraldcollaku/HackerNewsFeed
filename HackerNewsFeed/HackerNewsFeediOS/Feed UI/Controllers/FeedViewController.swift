@@ -5,7 +5,6 @@
 //  Created by Gerald Collaku on 02.03.26.
 //
 
-import HackerNewsFeed
 import UIKit
 
 public final class FeedViewController: UITableViewController, UITableViewDataSourcePrefetching {
