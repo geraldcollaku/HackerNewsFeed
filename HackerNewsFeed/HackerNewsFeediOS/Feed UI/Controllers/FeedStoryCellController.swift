@@ -8,52 +8,81 @@
 import UIKit
 import HackerNewsFeed
 
-final class FeedStoryCellController {
+final class FeedStoryViewModel {
+    typealias Observer<T> = (T) -> Void
+    
     private var task: StoryLoaderTask?
     private let model: FeedId
     private let storyLoader: StoryLoader
+    
+    var onStoryLoadingStateChange: Observer<Bool>?
+    var onStoryLoad: Observer<Story>?
+    var onShouldRetryLoadStateChange: Observer<Bool>?
     
     init(model: FeedId, storyLoader: StoryLoader) {
         self.model = model
         self.storyLoader = storyLoader
     }
     
-    func view() -> UITableViewCell {
-        let cell = FeedStoryCell()
-        cell.container.isShimmering = true
-        cell.retryButton.isHidden = true
+    func loadStoryData() {
+        onStoryLoadingStateChange?(true)
+        onShouldRetryLoadStateChange?(false)
         
-        let loadStory = { [weak self, weak cell] in
-            guard let self = self else { return }
-            self.task = storyLoader.loadStory(with: model.id) { [weak cell] result in
-                if let story = try? result.get() {
-                    cell?.authorLabel.text = story.author
-                    cell?.titleLabel.text = story.title
-                    cell?.scoreLabel.text = String(story.score ?? 0)
-                    cell?.urlLabel.text = story.url?.absoluteString
-                    cell?.retryButton.isHidden = true
-                } else {
-                    cell?.retryButton.isHidden = false
-                }
-                cell?.container.isShimmering = false
+        task = storyLoader.loadStory(with: model.id) { [weak self] result in
+            if let story = try? result.get() {
+                self?.onStoryLoad?(story)
+                self?.onShouldRetryLoadStateChange?(false)
+            } else {
+                self?.onShouldRetryLoadStateChange?(true)
             }
+            
+            self?.onStoryLoadingStateChange?(false)
         }
-        
-        cell.onRetry = loadStory
-        loadStory()
-        
+    }
+    
+    func cancelStoryLoad() {
+        task?.cancel()
+        task = nil
+    }
+}
+
+final class FeedStoryCellController {
+    private let viewModel: FeedStoryViewModel
+    
+    init(model: FeedId, storyLoader: StoryLoader) {
+        self.viewModel = FeedStoryViewModel(model: model, storyLoader: storyLoader)
+    }
+    
+    func view() -> UITableViewCell {
+        let cell = binded(FeedStoryCell())
+        viewModel.loadStoryData()
         return cell
     }
     
     func preload() {
-        task = storyLoader.loadStory(with: model.id) { _ in }
+        viewModel.loadStoryData()
     }
     
     func cancelLoad() {
-        task?.cancel()
+        viewModel.cancelStoryLoad()
     }
     
-    deinit {
-        task?.cancel()
+    private func binded(_ cell: FeedStoryCell) -> FeedStoryCell {
+        viewModel.onStoryLoad = { [weak cell] story in
+            cell?.authorLabel.text = story.author
+            cell?.titleLabel.text = story.title
+            cell?.scoreLabel.text = String(story.score ?? 0)
+            cell?.urlLabel.text = story.url?.absoluteString
+        }
+        cell.onRetry = viewModel.loadStoryData
+        
+        viewModel.onStoryLoadingStateChange = { [weak cell] isLoading in
+            cell?.container.isShimmering = isLoading
+        }
+        
+        viewModel.onShouldRetryLoadStateChange = { [weak cell] shouldRetry in
+            cell?.retryButton.isHidden = !shouldRetry
+        }
+        return cell
     }
 }
