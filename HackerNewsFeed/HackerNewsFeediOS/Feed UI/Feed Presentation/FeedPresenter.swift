@@ -7,12 +7,20 @@
 
 import HackerNewsFeed
 
+public struct FeedViewModel {
+    let feed: [FeedId]
+}
+
 public protocol FeedView {
-    func display(feed: [FeedId])
+    func display(_ viewModel: FeedViewModel)
+}
+
+public struct FeedLoadingViewModel {
+    let isLoading: Bool
 }
 
 public protocol FeedLoadingView {
-    func display(isLoading: Bool)
+    func display(_ viewModel: FeedLoadingViewModel)
 }
 
 public final class FeedPresenter {
@@ -28,12 +36,12 @@ public final class FeedPresenter {
     public var loadingView: FeedLoadingView?
     
     public func loadFeed() {
-        loadingView?.display(isLoading: true)
+        loadingView?.display(FeedLoadingViewModel(isLoading: true))
         feedIdLoader.load { [weak self] result in
             if let feed = try? result.get() {
-                self?.feedView?.display(feed: feed)
+                self?.feedView?.display(FeedViewModel(feed: feed))
             }
-            self?.loadingView?.display(isLoading: false)
+            self?.loadingView?.display(FeedLoadingViewModel(isLoading: false))
 
         }
     }
