@@ -10,12 +10,14 @@ import HackerNewsFeed
 public enum FeedUIComposer {
     
     public static func feedComposedWith(loader: FeedLoader, storyLoader: StoryLoader) -> FeedViewController {
-        let presenter = FeedPresenter()
-        let presentationAdapter = FeedLoaderPresentationAdapter(feedIdLoader: loader, presenter: presenter)
+        let presentationAdapter = FeedLoaderPresentationAdapter(feedIdLoader: loader)
         let refreshController = FeedRefreshViewController(delegate: presentationAdapter)
         let feedController = FeedViewController(refreshController: refreshController)
-        presenter.loadingView = WeakRefVirtualProxy(refreshController)
-        presenter.feedView = FeedViewAdapter(controller: feedController, loader: storyLoader)
+        
+        presentationAdapter.presenter = FeedPresenter(
+            feedView: FeedViewAdapter(controller: feedController, loader: storyLoader),
+            loadingView: WeakRefVirtualProxy(refreshController))
+
         return feedController
     }
 }
@@ -52,23 +54,22 @@ private class FeedViewAdapter: FeedView {
 
 private final class FeedLoaderPresentationAdapter: FeedRefreshViewControllerDelegate {
     private let feedIdLoader: FeedLoader
-    private let presenter: FeedPresenter
+    var presenter: FeedPresenter?
     
-    init(feedIdLoader: FeedLoader, presenter: FeedPresenter) {
+    init(feedIdLoader: FeedLoader) {
         self.feedIdLoader = feedIdLoader
-        self.presenter = presenter
     }
     
     func didRequestFeedRefresh() {
-        presenter.didStartLoadingFeed()
+        presenter?.didStartLoadingFeed()
         
         feedIdLoader.load { [weak self] result in
             switch result {
             case let .success(feed):
-                self?.presenter.didFinishLoadingFeed(with: feed)
+                self?.presenter?.didFinishLoadingFeed(with: feed)
                 
             case let .failure(error):
-                self?.presenter.didFinishLoadingFeed(with: error)
+                self?.presenter?.didFinishLoadingFeed(with: error)
             }
         }
     }
