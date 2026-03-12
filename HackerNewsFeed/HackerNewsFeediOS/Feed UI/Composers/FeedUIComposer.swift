@@ -10,18 +10,27 @@ import HackerNewsFeed
 public enum FeedUIComposer {
     
     public static func feedComposedWith(loader: FeedLoader, storyLoader: StoryLoader) -> FeedViewController {
-        let feedViewModel = FeedViewModel(feedIdLoader: loader)
-        let refreshController = FeedRefreshViewController(viewModel: feedViewModel)
+        let presenter = FeedPresenter(feedIdLoader: loader)
+        let refreshController = FeedRefreshViewController(presenter: presenter)
         let feedController = FeedViewController(refreshController: refreshController)
-        feedViewModel.onFeedLoad = adaptFeedToCellControllers(forwardingTo: feedController, loader: storyLoader)
+        presenter.loadingView = refreshController
+        presenter.feedView = FeedViewAdapter(controller: feedController, loader: storyLoader)
         return feedController
     }
+}
+
+private class FeedViewAdapter: FeedView {
+    private weak var controller: FeedViewController?
+    private let loader: StoryLoader
     
-    private static func adaptFeedToCellControllers(forwardingTo controller: FeedViewController, loader: StoryLoader) -> ([FeedId]) -> Void {
-        return { [weak controller] feed in
-            controller?.tableModel = feed.map { model in
-                FeedStoryCellController(viewModel: FeedStoryViewModel(model: model, storyLoader: loader))
-            }
+    init(controller: FeedViewController, loader: StoryLoader) {
+        self.controller = controller
+        self.loader = loader
+    }
+    
+    func display(feed: [FeedId]) {
+        controller?.tableModel = feed.map { model in
+            FeedStoryCellController(viewModel: FeedStoryViewModel(model: model, storyLoader: loader))
         }
     }
 }
