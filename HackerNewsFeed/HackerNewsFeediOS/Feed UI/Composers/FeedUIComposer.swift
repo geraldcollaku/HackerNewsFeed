@@ -10,8 +10,9 @@ import HackerNewsFeed
 public enum FeedUIComposer {
     
     public static func feedComposedWith(loader: FeedLoader, storyLoader: StoryLoader) -> FeedViewController {
-        let presenter = FeedPresenter(feedIdLoader: loader)
-        let refreshController = FeedRefreshViewController(loadFeed: presenter.loadFeed)
+        let presenter = FeedPresenter()
+        let presentationAdapter = FeedLoaderPresentationAdapter(feedIdLoader: loader, presenter: presenter)
+        let refreshController = FeedRefreshViewController(loadFeed: presentationAdapter.loadFeed)
         let feedController = FeedViewController(refreshController: refreshController)
         presenter.loadingView = WeakRefVirtualProxy(refreshController)
         presenter.feedView = FeedViewAdapter(controller: feedController, loader: storyLoader)
@@ -45,6 +46,30 @@ private class FeedViewAdapter: FeedView {
     func display(_ viewModel: FeedViewModel) {
         controller?.tableModel = viewModel.feed.map { model in
             FeedStoryCellController(viewModel: FeedStoryViewModel(model: model, storyLoader: loader))
+        }
+    }
+}
+
+private final class FeedLoaderPresentationAdapter {
+    private let feedIdLoader: FeedLoader
+    private let presenter: FeedPresenter
+    
+    init(feedIdLoader: FeedLoader, presenter: FeedPresenter) {
+        self.feedIdLoader = feedIdLoader
+        self.presenter = presenter
+    }
+    
+    func loadFeed() {
+        presenter.didStartLoadingFeed()
+        
+        feedIdLoader.load { [weak self] result in
+            switch result {
+            case let .success(feed):
+                self?.presenter.didFinishLoadingFeed(with: feed)
+                
+            case let .failure(error):
+                self?.presenter.didFinishLoadingFeed(with: error)
+            }
         }
     }
 }
