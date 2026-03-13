@@ -14,18 +14,9 @@ protocol FeedStoryView {
 }
 
 final class FeedStoryPresenter {
-    private var task: StoryLoaderTask?
-    private let model: FeedId
-    private let storyLoader: StoryLoader
-    
     var view: FeedStoryView?
     
-    init(model: FeedId, storyLoader: StoryLoader) {
-        self.model = model
-        self.storyLoader = storyLoader
-    }
-    
-    func loadStoryData() {
+    func didStartLoadingStory() {
         view?.display(FeedStoryViewModel(
             author: nil,
             title: nil,
@@ -33,32 +24,25 @@ final class FeedStoryPresenter {
             url: nil,
             isLoading: true,
             shouldRetry: false))
-   
-        task = storyLoader.loadStory(with: model.id) { [weak self] result in
-            if let story = try? result.get() {
-                
-                self?.view?.display(FeedStoryViewModel(
-                    author: story.author,
-                    title: story.title,
-                    score: String(story.score ?? 0),
-                    url: story.url?.absoluteString,
-                    isLoading: false,
-                    shouldRetry: false))
-                
-            } else {
-                self?.view?.display(FeedStoryViewModel(
-                    author: nil,
-                    title: nil,
-                    score: nil,
-                    url: nil,
-                    isLoading: false,
-                    shouldRetry: true))
-            }
-        }
     }
     
-    func cancelStoryLoad() {
-        task?.cancel()
-        task = nil
+    func didFinishLoadingStory(with model: Story) {
+        view?.display(FeedStoryViewModel(
+            author: model.author,
+            title: model.title,
+            score: String(model.score ?? 0),
+            url: model.url?.absoluteString,
+            isLoading: false,
+            shouldRetry: false))
+    }
+    
+    func didFinishLoadingStory(with error: Error) {
+        view?.display(FeedStoryViewModel(
+            author: nil,
+            title: nil,
+            score: nil,
+            url: nil,
+            isLoading: false,
+            shouldRetry: true))
     }
 }

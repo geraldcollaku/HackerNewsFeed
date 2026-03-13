@@ -53,14 +53,48 @@ private class FeedViewAdapter: FeedView {
     
     func display(_ viewModel: FeedViewModel) {
         controller?.tableModel = viewModel.feed.map { model in
-            let presenter = FeedStoryPresenter(model: model, storyLoader: loader)
+            let presenter = FeedStoryPresenter()
+            let adapter = FeedStoryLoaderPresentationAdapter(model: model, storyLoader: loader)
             let controller = FeedStoryCellController(
-                didRequestStory: presenter.loadStoryData,
-                didCancelStoryRequest: presenter.cancelStoryLoad
+                didRequestStory: adapter.loadStoryData,
+                didCancelStoryRequest: adapter.cancelStoryLoad
             )
             presenter.view = WeakRefVirtualProxy(controller)
+
+            adapter.presenter = presenter
             return controller
         }
+    }
+}
+
+private final class FeedStoryLoaderPresentationAdapter {
+    private let model: FeedId
+    private let storyLoader: StoryLoader
+    private var task: StoryLoaderTask?
+    
+    var presenter: FeedStoryPresenter?
+    
+    init(model: FeedId, storyLoader: StoryLoader) {
+        self.model = model
+        self.storyLoader = storyLoader
+    }
+    
+    func loadStoryData() {
+        presenter?.didStartLoadingStory()
+        
+        task = storyLoader.loadStory(with: model.id) { [weak self] result in
+            switch result {
+            case let .success(story):
+                self?.presenter?.didFinishLoadingStory(with: story)
+            case let .failure(error):
+                self?.presenter?.didFinishLoadingStory(with: error)
+            }
+        }
+    }
+    
+    func cancelStoryLoad() {
+        task?.cancel()
+        task = nil
     }
 }
 
