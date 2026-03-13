@@ -8,24 +8,27 @@
 import UIKit
 
 final class FeedStoryCellController: FeedStoryView {
-    private let presenter: FeedStoryPresenter
     private lazy var cell = FeedStoryCell()
     
-    init(presenter: FeedStoryPresenter) {
-        self.presenter = presenter
+    let didRequestStory: () -> Void
+    let didCancelStoryRequest: () -> Void
+    
+    init(didRequestStory: @escaping () -> Void, didCancelStoryRequest: @escaping () -> Void) {
+        self.didRequestStory = didRequestStory
+        self.didCancelStoryRequest = didCancelStoryRequest
     }
     
     func view() -> UITableViewCell {
-        presenter.loadStoryData()
+        didRequestStory()
         return cell
     }
     
     func preload() {
-        presenter.loadStoryData()
+        didRequestStory()
     }
     
     func cancelLoad() {
-        presenter.cancelStoryLoad()
+        didCancelStoryRequest()
     }
     
     func display(_ viewModel: FeedStoryViewModel) {
@@ -37,6 +40,6 @@ final class FeedStoryCellController: FeedStoryView {
         cell.container.isShimmering = viewModel.isLoading
         
         cell.retryButton.isHidden = !viewModel.shouldRetry
-        cell.onRetry = presenter.loadStoryData
+        cell.onRetry = didRequestStory
     }
 }

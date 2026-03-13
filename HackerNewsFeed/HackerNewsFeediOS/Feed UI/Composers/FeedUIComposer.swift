@@ -54,7 +54,10 @@ private class FeedViewAdapter: FeedView {
     func display(_ viewModel: FeedViewModel) {
         controller?.tableModel = viewModel.feed.map { model in
             let presenter = FeedStoryPresenter(model: model, storyLoader: loader)
-            let controller = FeedStoryCellController(presenter: presenter)
+            let controller = FeedStoryCellController(
+                didRequestStory: presenter.loadStoryData,
+                didCancelStoryRequest: presenter.cancelStoryLoad
+            )
             presenter.view = WeakRefVirtualProxy(controller)
             return controller
         }
