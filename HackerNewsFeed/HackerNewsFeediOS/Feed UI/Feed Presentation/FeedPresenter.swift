@@ -7,16 +7,8 @@
 
 import HackerNewsFeed
 
-public struct FeedViewModel {
-    let feed: [FeedId]
-}
-
 public protocol FeedView {
     func display(_ viewModel: FeedViewModel)
-}
-
-public struct FeedLoadingViewModel {
-    let isLoading: Bool
 }
 
 public protocol FeedLoadingView {
