@@ -55,10 +55,7 @@ private class FeedViewAdapter: FeedView {
         controller?.tableModel = viewModel.feed.map { model in
             let presenter = FeedStoryPresenter()
             let adapter = FeedStoryLoaderPresentationAdapter(model: model, storyLoader: loader)
-            let controller = FeedStoryCellController(
-                didRequestStory: adapter.loadStoryData,
-                didCancelStoryRequest: adapter.cancelStoryLoad
-            )
+            let controller = FeedStoryCellController(delegate: adapter)
             presenter.view = WeakRefVirtualProxy(controller)
 
             adapter.presenter = presenter
@@ -67,7 +64,7 @@ private class FeedViewAdapter: FeedView {
     }
 }
 
-private final class FeedStoryLoaderPresentationAdapter {
+private final class FeedStoryLoaderPresentationAdapter: FeedStoryCellControllerDelegate {
     private let model: FeedId
     private let storyLoader: StoryLoader
     private var task: StoryLoaderTask?
@@ -79,7 +76,7 @@ private final class FeedStoryLoaderPresentationAdapter {
         self.storyLoader = storyLoader
     }
     
-    func loadStoryData() {
+    func didRequestStory() {
         presenter?.didStartLoadingStory()
         
         task = storyLoader.loadStory(with: model.id) { [weak self] result in
@@ -92,7 +89,7 @@ private final class FeedStoryLoaderPresentationAdapter {
         }
     }
     
-    func cancelStoryLoad() {
+    func didCancelStoryRequest() {
         task?.cancel()
         task = nil
     }

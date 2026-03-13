@@ -7,28 +7,30 @@
 
 import UIKit
 
+protocol FeedStoryCellControllerDelegate {
+    func didRequestStory()
+    func didCancelStoryRequest()
+}
+
 final class FeedStoryCellController: FeedStoryView {
     private lazy var cell = FeedStoryCell()
+    private let delegate: FeedStoryCellControllerDelegate
     
-    let didRequestStory: () -> Void
-    let didCancelStoryRequest: () -> Void
-    
-    init(didRequestStory: @escaping () -> Void, didCancelStoryRequest: @escaping () -> Void) {
-        self.didRequestStory = didRequestStory
-        self.didCancelStoryRequest = didCancelStoryRequest
+    init(delegate: FeedStoryCellControllerDelegate) {
+        self.delegate = delegate
     }
     
     func view() -> UITableViewCell {
-        didRequestStory()
+        delegate.didRequestStory()
         return cell
     }
     
     func preload() {
-        didRequestStory()
+        delegate.didRequestStory()
     }
     
     func cancelLoad() {
-        didCancelStoryRequest()
+        delegate.didCancelStoryRequest()
     }
     
     func display(_ viewModel: FeedStoryViewModel) {
@@ -40,6 +42,6 @@ final class FeedStoryCellController: FeedStoryView {
         cell.container.isShimmering = viewModel.isLoading
         
         cell.retryButton.isHidden = !viewModel.shouldRetry
-        cell.onRetry = didRequestStory
+        cell.onRetry = delegate.didRequestStory
     }
 }
