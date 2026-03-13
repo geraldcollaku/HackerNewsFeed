@@ -7,10 +7,10 @@
 
 import HackerNewsFeed
 
+import Foundation
+
 protocol FeedStoryView {
-    func display(isLoading: Bool)
-    func display(_ story: Story)
-    func display(shouldRetry: Bool)
+    func display(_ viewModel: FeedStoryViewModel)
 }
 
 final class FeedStoryPresenter {
@@ -26,17 +26,34 @@ final class FeedStoryPresenter {
     }
     
     func loadStoryData() {
-        view?.display(isLoading: true)
-        view?.display(shouldRetry: false)
-        
+        view?.display(FeedStoryViewModel(
+            author: nil,
+            title: nil,
+            score: nil,
+            url: nil,
+            isLoading: true,
+            shouldRetry: false))
+   
         task = storyLoader.loadStory(with: model.id) { [weak self] result in
             if let story = try? result.get() {
-                self?.view?.display(story)
+                
+                self?.view?.display(FeedStoryViewModel(
+                    author: story.author,
+                    title: story.title,
+                    score: String(story.score ?? 0),
+                    url: story.url?.absoluteString,
+                    isLoading: false,
+                    shouldRetry: false))
+                
             } else {
-                self?.view?.display(shouldRetry: true)
+                self?.view?.display(FeedStoryViewModel(
+                    author: nil,
+                    title: nil,
+                    score: nil,
+                    url: nil,
+                    isLoading: false,
+                    shouldRetry: true))
             }
-            
-            self?.view?.display(isLoading: false)
         }
     }
     

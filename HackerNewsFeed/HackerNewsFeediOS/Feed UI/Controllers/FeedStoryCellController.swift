@@ -17,7 +17,6 @@ final class FeedStoryCellController: FeedStoryView {
     
     func view() -> UITableViewCell {
         presenter.loadStoryData()
-        cell.onRetry = presenter.loadStoryData
         return cell
     }
     
@@ -29,18 +28,15 @@ final class FeedStoryCellController: FeedStoryView {
         presenter.cancelStoryLoad()
     }
     
-    func display(_ story: Story) {
-        cell.authorLabel.text = story.author
-        cell.titleLabel.text = story.title
-        cell.scoreLabel.text = String(story.score ?? 0)
-        cell.urlLabel.text = story.url?.absoluteString
-    }
-    
-    func display(isLoading: Bool) {
-        cell.container.isShimmering = isLoading
-    }
-    
-    func display(shouldRetry: Bool) {
-        cell.retryButton.isHidden = !shouldRetry
+    func display(_ viewModel: FeedStoryViewModel) {
+        cell.authorLabel.text = viewModel.author
+        cell.titleLabel.text = viewModel.title
+        cell.scoreLabel.text = viewModel.score
+        cell.urlLabel.text = viewModel.url
+        
+        cell.container.isShimmering = viewModel.isLoading
+        
+        cell.retryButton.isHidden = !viewModel.shouldRetry
+        cell.onRetry = presenter.loadStoryData
     }
 }

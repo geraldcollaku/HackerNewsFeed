@@ -37,16 +37,8 @@ extension WeakRefVirtualProxy: FeedLoadingView where T: FeedLoadingView {
 }
 
 extension WeakRefVirtualProxy: FeedStoryView where T: FeedStoryView {
-    func display(isLoading: Bool) {
-        object?.display(isLoading: isLoading)
-    }
-    
-    func display(_ story: Story) {
-        object?.display(story)
-    }
-    
-    func display(shouldRetry: Bool) {
-        object?.display(shouldRetry: shouldRetry)
+    func display(_ viewModel: FeedStoryViewModel) {
+        object?.display(viewModel)
     }
 }
 
