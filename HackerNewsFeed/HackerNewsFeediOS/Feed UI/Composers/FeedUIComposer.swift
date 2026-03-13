@@ -53,13 +53,11 @@ private class FeedViewAdapter: FeedView {
     
     func display(_ viewModel: FeedViewModel) {
         controller?.tableModel = viewModel.feed.map { model in
-            let presenter = FeedStoryPresenter()
             let adapter = FeedStoryLoaderPresentationAdapter(model: model, storyLoader: loader)
-            let controller = FeedStoryCellController(delegate: adapter)
-            presenter.view = WeakRefVirtualProxy(controller)
+            let view = FeedStoryCellController(delegate: adapter)
 
-            adapter.presenter = presenter
-            return controller
+            adapter.presenter = FeedStoryPresenter(view: WeakRefVirtualProxy(view))
+            return view
         }
     }
 }

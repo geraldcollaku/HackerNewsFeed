@@ -14,10 +14,14 @@ protocol FeedStoryView {
 }
 
 final class FeedStoryPresenter {
-    var view: FeedStoryView?
+    private let view: FeedStoryView
+
+    init(view: FeedStoryView) {
+        self.view = view
+    }
     
     func didStartLoadingStory() {
-        view?.display(FeedStoryViewModel(
+        view.display(FeedStoryViewModel(
             author: nil,
             title: nil,
             score: nil,
@@ -27,7 +31,7 @@ final class FeedStoryPresenter {
     }
     
     func didFinishLoadingStory(with model: Story) {
-        view?.display(FeedStoryViewModel(
+        view.display(FeedStoryViewModel(
             author: model.author,
             title: model.title,
             score: String(model.score ?? 0),
@@ -37,7 +41,7 @@ final class FeedStoryPresenter {
     }
     
     func didFinishLoadingStory(with error: Error) {
-        view?.display(FeedStoryViewModel(
+        view.display(FeedStoryViewModel(
             author: nil,
             title: nil,
             score: nil,
