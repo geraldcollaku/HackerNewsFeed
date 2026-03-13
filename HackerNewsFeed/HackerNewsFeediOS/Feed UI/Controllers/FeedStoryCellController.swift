@@ -7,43 +7,40 @@
 
 import UIKit
 
-final class FeedStoryCellController {
-    private let viewModel: FeedStoryViewModel
+final class FeedStoryCellController: FeedStoryView {
+    private let presenter: FeedStoryPresenter
+    private lazy var cell = FeedStoryCell()
     
-    init(viewModel: FeedStoryViewModel) {
-        self.viewModel = viewModel
+    init(presenter: FeedStoryPresenter) {
+        self.presenter = presenter
     }
     
     func view() -> UITableViewCell {
-        let cell = binded(FeedStoryCell())
-        viewModel.loadStoryData()
+        presenter.loadStoryData()
+        cell.onRetry = presenter.loadStoryData
         return cell
     }
     
     func preload() {
-        viewModel.loadStoryData()
+        presenter.loadStoryData()
     }
     
     func cancelLoad() {
-        viewModel.cancelStoryLoad()
+        presenter.cancelStoryLoad()
     }
     
-    private func binded(_ cell: FeedStoryCell) -> FeedStoryCell {
-        viewModel.onStoryLoad = { [weak cell] story in
-            cell?.authorLabel.text = story.author
-            cell?.titleLabel.text = story.title
-            cell?.scoreLabel.text = String(story.score ?? 0)
-            cell?.urlLabel.text = story.url?.absoluteString
-        }
-        cell.onRetry = viewModel.loadStoryData
-        
-        viewModel.onStoryLoadingStateChange = { [weak cell] isLoading in
-            cell?.container.isShimmering = isLoading
-        }
-        
-        viewModel.onShouldRetryLoadStateChange = { [weak cell] shouldRetry in
-            cell?.retryButton.isHidden = !shouldRetry
-        }
-        return cell
+    func display(_ story: Story) {
+        cell.authorLabel.text = story.author
+        cell.titleLabel.text = story.title
+        cell.scoreLabel.text = String(story.score ?? 0)
+        cell.urlLabel.text = story.url?.absoluteString
+    }
+    
+    func display(isLoading: Bool) {
+        cell.container.isShimmering = isLoading
+    }
+    
+    func display(shouldRetry: Bool) {
+        cell.retryButton.isHidden = !shouldRetry
     }
 }

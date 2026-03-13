@@ -36,6 +36,20 @@ extension WeakRefVirtualProxy: FeedLoadingView where T: FeedLoadingView {
     }
 }
 
+extension WeakRefVirtualProxy: FeedStoryView where T: FeedStoryView {
+    func display(isLoading: Bool) {
+        object?.display(isLoading: isLoading)
+    }
+    
+    func display(_ story: Story) {
+        object?.display(story)
+    }
+    
+    func display(shouldRetry: Bool) {
+        object?.display(shouldRetry: shouldRetry)
+    }
+}
+
 private class FeedViewAdapter: FeedView {
     private weak var controller: FeedViewController?
     private let loader: StoryLoader
@@ -47,7 +61,10 @@ private class FeedViewAdapter: FeedView {
     
     func display(_ viewModel: FeedViewModel) {
         controller?.tableModel = viewModel.feed.map { model in
-            FeedStoryCellController(viewModel: FeedStoryViewModel(model: model, storyLoader: loader))
+            let presenter = FeedStoryPresenter(model: model, storyLoader: loader)
+            let controller = FeedStoryCellController(presenter: presenter)
+            presenter.view = WeakRefVirtualProxy(controller)
+            return controller
         }
     }
 }
