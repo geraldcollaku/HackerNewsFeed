@@ -53,6 +53,7 @@ final class FeedStoryCellController: FeedStoryView {
     }
     
     private func releaseCellForReuse() {
+        cell?.onReuse = nil
         cell = nil
     }
 }
