@@ -226,6 +226,28 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertNil(view?.urlText, "Expected no url when a story load finishes after story view is not visible anymore")
     }
     
+    func test_storyView_doesNotShowDataFromPreviousRequestWhenCellIsReused() throws {
+        let (sut, loader) = makeSUT()
+        let story0 = makeStory(id: 0,
+                               title: "a title",
+                               author: "an author",
+                               score: 0,
+                               url: URL(string: "https://a-url.com")!)
+        
+        sut.simulateApperance()
+        loader.completeFeedLoading(with: [makeFeedId(id: story0.id)], at: 0)
+
+        let view0 = try XCTUnwrap(sut.simulateStoryViewVisible(at: 0))
+        view0.prepareForReuse()
+        
+        loader.completeStoryLoading(with: story0)
+        
+        XCTAssertNil(view0.authorText, "Expected no author for reused view once story loading completes successfully")
+        XCTAssertNil(view0.scoreText, "Expected no score for reused view once story loading completes successfully")
+        XCTAssertNil(view0.titleText, "Expected no title for reused view once story loading completes successfully")
+        XCTAssertNil(view0.urlText, "Expected no url for reused view once story loading completes successfully")
+    }
+    
     // MARK: - Helpers
     
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: LoaderSpy) {

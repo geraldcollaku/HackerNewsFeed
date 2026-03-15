@@ -16,8 +16,15 @@ public final class FeedStoryCell: UITableViewCell {
     @IBOutlet private(set) public var retryButton: UIButton!
     
     var onRetry: (() -> Void)?
+    var onReuse: (() -> Void)?
     
     @IBAction private func retryButtonTapped() {
         onRetry?()
+    }
+    
+    public override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        onReuse?()
     }
 }

@@ -46,6 +46,10 @@ final class FeedStoryCellController: FeedStoryView {
         
         cell?.retryButton.isHidden = !viewModel.shouldRetry
         cell?.onRetry = delegate.didRequestStory
+        
+        cell?.onReuse = { [weak self] in
+            self?.releaseCellForReuse()
+        }
     }
     
     private func releaseCellForReuse() {
