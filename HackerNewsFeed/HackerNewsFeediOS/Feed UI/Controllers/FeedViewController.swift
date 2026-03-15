@@ -8,7 +8,7 @@
 import UIKit
 
 public final class FeedViewController: UITableViewController, UITableViewDataSourcePrefetching {
-    public var refreshController: FeedRefreshViewController?
+    @IBOutlet public var refreshController: FeedRefreshViewController?
     
     var tableModel = [FeedStoryCellController]() {
         didSet {
@@ -18,20 +18,10 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
     
     private var onViewDidAppear: ((FeedViewController) -> Void)?
     
-    public init?(coder: NSCoder, refreshController: FeedRefreshViewController) {
-        self.refreshController = refreshController
-        super.init(coder: coder)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("Use init(coder:onRefresh:refreshController:) instead")
-    }
-    
     public override func viewDidLoad() {
         super.viewDidLoad()
         
         tableView.prefetchDataSource = self
-        refreshControl = refreshController?.view
         
         onViewDidAppear = { vc in
             vc.onViewDidAppear = nil
