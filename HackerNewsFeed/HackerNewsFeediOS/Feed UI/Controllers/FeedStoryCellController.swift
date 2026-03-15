@@ -13,14 +13,17 @@ protocol FeedStoryCellControllerDelegate {
 }
 
 final class FeedStoryCellController: FeedStoryView {
-    private lazy var cell = FeedStoryCell()
     private let delegate: FeedStoryCellControllerDelegate
     
+    private var cell: FeedStoryCell?
+
     init(delegate: FeedStoryCellControllerDelegate) {
         self.delegate = delegate
     }
     
-    func view() -> UITableViewCell {
+    func view(in tableView: UITableView) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "FeedStoryCell") as! FeedStoryCell
+        self.cell = cell
         delegate.didRequestStory()
         return cell
     }
@@ -30,18 +33,23 @@ final class FeedStoryCellController: FeedStoryView {
     }
     
     func cancelLoad() {
+        releaseCellForReuse()
         delegate.didCancelStoryRequest()
     }
     
     func display(_ viewModel: FeedStoryViewModel) {
-        cell.authorLabel.text = viewModel.author
-        cell.titleLabel.text = viewModel.title
-        cell.scoreLabel.text = viewModel.score
-        cell.urlLabel.text = viewModel.url
+        cell?.authorLabel.text = viewModel.author
+        cell?.titleLabel.text = viewModel.title
+        cell?.scoreLabel.text = viewModel.score
+        cell?.urlLabel.text = viewModel.url
         
-        cell.container.isShimmering = viewModel.isLoading
+        cell?.container.isShimmering = viewModel.isLoading
         
-        cell.retryButton.isHidden = !viewModel.shouldRetry
-        cell.onRetry = delegate.didRequestStory
+        cell?.retryButton.isHidden = !viewModel.shouldRetry
+        cell?.onRetry = delegate.didRequestStory
+    }
+    
+    private func releaseCellForReuse() {
+        cell = nil
     }
 }

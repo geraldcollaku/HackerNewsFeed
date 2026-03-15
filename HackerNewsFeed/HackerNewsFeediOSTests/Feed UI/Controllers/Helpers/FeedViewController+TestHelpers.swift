@@ -13,12 +13,15 @@ extension FeedViewController {
         refreshControl?.simulatePullToRefresh()
     }
     
-    func simulateStoryViewNotVisible(at row: Int) {
+    @discardableResult
+    func simulateStoryViewNotVisible(at row: Int) -> FeedStoryCell? {
         let view = simulateStoryViewVisible(at: row)
         
         let delegate = tableView.delegate
         let index = IndexPath(row: row, section: feedSection)
         delegate?.tableView?(tableView, didEndDisplaying: view!, forRowAt: index)
+        
+        return view
     }
     
     @discardableResult

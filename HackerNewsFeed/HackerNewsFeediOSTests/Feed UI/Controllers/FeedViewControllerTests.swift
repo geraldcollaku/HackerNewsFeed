@@ -206,6 +206,26 @@ final class FeedViewControllerTests: XCTestCase {
         XCTAssertEqual(loader.cancelledStoriesIds, [story0, story1], "Expected second story request once second view is visible")
     }
     
+    func test_storyView_doesNotRenderLoadedStoryWhenNotVisibleAnymore() {
+        let (sut, loader) = makeSUT()
+        let story0 = makeStory(id: 0,
+                               title: "a title",
+                               author: "an author",
+                               score: 0,
+                               url: URL(string: "https://a-url.com")!)
+
+        sut.simulateApperance()
+        loader.completeFeedLoading(with: [makeFeedId(id: story0.id)], at: 0)
+        
+        let view = sut.simulateStoryViewNotVisible(at: 0)
+        loader.completeStoryLoading(with: story0)
+        
+        XCTAssertNil(view?.authorText, "Expected no author when a story load finishes after story view is not visible anymore")
+        XCTAssertNil(view?.scoreText, "Expected no score when a story load finishes after story view is not visible anymore")
+        XCTAssertNil(view?.titleText, "Expected no title when a story load finishes after story view is not visible anymore")
+        XCTAssertNil(view?.urlText, "Expected no url when a story load finishes after story view is not visible anymore")
+    }
+    
     // MARK: - Helpers
     
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: LoaderSpy) {
