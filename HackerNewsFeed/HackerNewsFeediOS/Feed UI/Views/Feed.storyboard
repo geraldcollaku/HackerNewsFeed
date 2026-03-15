@@ -99,19 +99,11 @@
                     <refreshControl key="refreshControl" opaque="NO" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" id="J3j-Af-K0x">
                         <autoresizingMask key="autoresizingMask"/>
                         <connections>
-                            <action selector="refresh" destination="C3m-kd-hI9" eventType="valueChanged" id="Sg0-Oj-VcY"/>
+                            <action selector="refresh" destination="FEED-TVC" eventType="valueChanged" id="uff-BH-yOh"/>
                         </connections>
                     </refreshControl>
-                    <connections>
-                        <outlet property="refreshController" destination="C3m-kd-hI9" id="vE3-Vx-XqK"/>
-                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FEED-FR" userLabel="First Responder" sceneMemberID="firstResponder"/>
-                <customObject id="C3m-kd-hI9" customClass="FeedRefreshViewController" customModule="HackerNewsFeediOS" customModuleProvider="target">
-                    <connections>
-                        <outlet property="view" destination="J3j-Af-K0x" id="bzL-YY-QLr"/>
-                    </connections>
-                </customObject>
             </objects>
             <point key="canvasLocation" x="50" y="50"/>
         </scene>

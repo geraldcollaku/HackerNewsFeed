@@ -17,12 +17,11 @@ public enum FeedUIComposer {
         let bundle = Bundle(for: FeedViewController.self)
         let storyboard = UIStoryboard(name: "Feed", bundle: bundle)
         let feedController = storyboard.instantiateInitialViewController() as! FeedViewController
-        let refreshController = feedController.refreshController!
-        refreshController.delegate = presentationAdapter
+        feedController.delegate = presentationAdapter
         
         presentationAdapter.presenter = FeedPresenter(
             feedView: FeedViewAdapter(controller: feedController, loader: storyLoader),
-            loadingView: WeakRefVirtualProxy(refreshController))
+            loadingView: WeakRefVirtualProxy(feedController))
 
         return feedController
     }
@@ -99,7 +98,7 @@ private final class FeedStoryLoaderPresentationAdapter: FeedStoryCellControllerD
     }
 }
 
-private final class FeedLoaderPresentationAdapter: FeedRefreshViewControllerDelegate {
+private final class FeedLoaderPresentationAdapter: FeedViewControllerDelegate {
     private let feedIdLoader: FeedLoader
     var presenter: FeedPresenter?
     
