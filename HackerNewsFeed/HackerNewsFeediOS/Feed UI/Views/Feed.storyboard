@@ -93,6 +93,7 @@
                         <connections>
                             <outlet property="dataSource" destination="FEED-TVC" id="5wH-9F-4xF"/>
                             <outlet property="delegate" destination="FEED-TVC" id="kIP-hH-i1s"/>
+                            <outlet property="prefetchDataSource" destination="FEED-TVC" id="7ch-Zq-XSZ"/>
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Feed" id="FEED-NAV"/>
