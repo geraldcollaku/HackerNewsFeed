@@ -1,5 +1,5 @@
 //
-//  FeedImage.swift
+//  FeedId.swift
 //  HackerNewsFeed
 //
 //  Created by Gerald Collaku on 25.12.25.
