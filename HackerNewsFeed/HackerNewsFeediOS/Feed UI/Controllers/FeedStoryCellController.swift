@@ -22,10 +22,9 @@ final class FeedStoryCellController: FeedStoryView {
     }
     
     func view(in tableView: UITableView) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "FeedStoryCell") as! FeedStoryCell
-        self.cell = cell
+        cell = tableView.dequeueReusableCell()
         delegate.didRequestStory()
-        return cell
+        return cell!
     }
     
     func preload() {
