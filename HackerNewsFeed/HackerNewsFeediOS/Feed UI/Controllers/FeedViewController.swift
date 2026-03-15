@@ -18,9 +18,13 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
     
     private var onViewDidAppear: ((FeedViewController) -> Void)?
     
-    public convenience init(refreshController: FeedRefreshViewController) {
-        self.init()
+    public init?(coder: NSCoder, refreshController: FeedRefreshViewController) {
         self.refreshController = refreshController
+        super.init(coder: coder)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("Use init(coder:onRefresh:refreshController:) instead")
     }
     
     public override func viewDidLoad() {

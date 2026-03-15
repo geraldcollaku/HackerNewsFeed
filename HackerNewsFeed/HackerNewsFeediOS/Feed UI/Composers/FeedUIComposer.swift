@@ -6,13 +6,20 @@
 //
 
 import HackerNewsFeed
+import Foundation
+import UIKit
 
 public enum FeedUIComposer {
     
     public static func feedComposedWith(loader: FeedLoader, storyLoader: StoryLoader) -> FeedViewController {
         let presentationAdapter = FeedLoaderPresentationAdapter(feedIdLoader: loader)
         let refreshController = FeedRefreshViewController(delegate: presentationAdapter)
-        let feedController = FeedViewController(refreshController: refreshController)
+        
+        let bundle = Bundle(for: FeedViewController.self)
+        let storyboard = UIStoryboard(name: "Feed", bundle: bundle)
+        let feedController = storyboard.instantiateInitialViewController { coder in
+            FeedViewController(coder: coder, refreshController: refreshController)
+        }! as FeedViewController
         
         presentationAdapter.presenter = FeedPresenter(
             feedView: FeedViewAdapter(controller: feedController, loader: storyLoader),
