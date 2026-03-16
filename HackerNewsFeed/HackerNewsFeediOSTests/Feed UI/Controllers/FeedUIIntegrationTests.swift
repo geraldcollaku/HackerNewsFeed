@@ -1,5 +1,5 @@
 //
-//  FeedViewControllerTests.swift
+//  FeedUIIntegrationTests.swift
 //  HackerNewsFeed
 //
 //  Created by Gerald Collaku on 27.02.26.
@@ -9,7 +9,7 @@ import XCTest
 import HackerNewsFeed
 import HackerNewsFeediOS
 
-final class FeedViewControllerTests: XCTestCase {
+final class FeedUIIntegrationTests: XCTestCase {
     
     func test_feedView_hasTitle() {
         let (sut, _) = makeSUT()
