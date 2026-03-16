@@ -439,6 +439,8 @@
 			knownRegions = (
 				en,
 				Base,
+				"sq-AL",
+				de,
 			);
 			mainGroup = 68E965D42EFAC76A006095E4;
 			minimizedProjectReferenceProxies = 1;

@@ -4,10 +4,22 @@
     "FEED_VIEW_TITLE" : {
       "comment" : "Title for the feed view",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mein Feed"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "My Feed"
+          }
+        },
+        "sq-AL" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feedi im"
           }
         }
       }
