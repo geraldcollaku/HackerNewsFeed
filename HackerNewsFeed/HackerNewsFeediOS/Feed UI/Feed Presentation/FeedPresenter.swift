@@ -6,6 +6,7 @@
 //
 
 import HackerNewsFeed
+import Foundation
 
 public protocol FeedView {
     func display(_ viewModel: FeedViewModel)
@@ -25,7 +26,10 @@ public final class FeedPresenter {
     }
     
     static var title: String {
-        "My Feed"
+        NSLocalizedString("FEED_VIEW_TITLE",
+                          tableName: "Feed",
+                          bundle: Bundle(for: FeedPresenter.self),
+                          comment: "Title for the feed view")
     }
     
     public func didStartLoadingFeed() {
