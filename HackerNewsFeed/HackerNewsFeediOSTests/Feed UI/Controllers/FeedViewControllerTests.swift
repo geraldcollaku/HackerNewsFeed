@@ -11,6 +11,14 @@ import HackerNewsFeediOS
 
 final class FeedViewControllerTests: XCTestCase {
     
+    func test_feedView_hasTitle() {
+        let (sut, _) = makeSUT()
+
+        sut.simulateApperance()
+
+        XCTAssertEqual(sut.title, "My Feed")
+    }
+    
     func test_loadFeedActions_loadsFeedFromLoader() {
         let (sut, loader) = makeSUT()
         XCTAssertEqual(loader.loadFeedIdCallCount, 0, "Expected no loading indicator before view is loaded")
