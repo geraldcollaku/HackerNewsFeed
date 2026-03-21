@@ -285,6 +285,20 @@ final class FeedUIIntegrationTests: XCTestCase {
         XCTAssertEqual(newView.urlText, story1.url?.absoluteString)
     }
     
+    func test_loadFeedCompletion_dispatchesFromBackgroundToMainThread() {
+        let (sut, loader) = makeSUT()
+
+        sut.simulateApperance()
+        
+        let exp = expectation(description: "Waith for background queue")
+        DispatchQueue.global().async {
+            loader.completeFeedLoading()
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 1.0)
+    }
+    
     // MARK: - Helpers
     
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: LoaderSpy) {
