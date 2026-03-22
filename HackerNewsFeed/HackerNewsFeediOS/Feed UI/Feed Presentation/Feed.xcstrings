@@ -2,6 +2,7 @@
   "sourceLanguage" : "en",
   "strings" : {
     "FEED_VIEW_CONNECTION_ERROR" : {
+      "comment" : "Error message displayed when we can't load feed from the server",
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
