@@ -1,6 +1,29 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "FEED_VIEW_CONNECTION_ERROR" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Verbindung zum Server möglich"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't connect to server"
+          }
+        },
+        "sq-AL" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuk u bë lidhja me serverin"
+          }
+        }
+      }
+    },
     "FEED_VIEW_TITLE" : {
       "comment" : "Title for the feed view",
       "localizations" : {
