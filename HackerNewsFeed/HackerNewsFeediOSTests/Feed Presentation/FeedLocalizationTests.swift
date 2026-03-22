@@ -6,7 +6,7 @@
 //
 
 import XCTest
-import HackerNewsFeediOS
+import HackerNewsFeed
 
 final class FeedLocalizationTests: XCTestCase {
     
