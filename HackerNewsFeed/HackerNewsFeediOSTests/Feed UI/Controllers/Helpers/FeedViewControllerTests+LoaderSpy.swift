@@ -24,6 +24,11 @@ class LoaderSpy: FeedLoader, StoryLoader {
         feedIdRequests[index](.success(news))
     }
     
+    func completeFeedLoadingWithError(at index: Int = 0) {
+        let error = NSError(domain: "an error", code: 0)
+        feedIdRequests[index](.failure(error))
+    }
+    
     // MARK: - StoryLoader
     
     private struct StoryLoaderTaskSpy: StoryLoaderTask {
