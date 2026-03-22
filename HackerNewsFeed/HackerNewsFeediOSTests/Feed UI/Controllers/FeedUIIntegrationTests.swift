@@ -59,7 +59,7 @@ final class FeedUIIntegrationTests: XCTestCase {
         XCTAssertEqual(sut.numberOfRenderedViews(), 1)
     }
     
-    func test_loadFeedCompletion_rendersErrorOnMessageErrorUJnitlNextReload() {
+    func test_loadFeedCompletion_rendersErrorOnMessageErrorUnitilNextReload() {
         let (sut, loader) = makeSUT()
         sut.simulateApperance()
         
