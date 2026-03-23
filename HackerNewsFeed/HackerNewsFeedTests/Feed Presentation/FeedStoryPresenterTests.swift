@@ -29,33 +29,66 @@ protocol FeedStoryView {
 
 struct FeedStoryLoadingViewModel {
     let isLoading: Bool
+    
+    static var loading = FeedStoryLoadingViewModel(isLoading: true)
+    static var stopped = FeedStoryLoadingViewModel(isLoading: false)
 }
 
 protocol FeedStoryLoadingView {
     func display(_ viewModel: FeedStoryLoadingViewModel)
 }
 
-final class FeedStoryPresenter {
-    private let view: FeedStoryView
-    private let loadingView: FeedStoryLoadingView
+struct FeedStoryErrorViewModel {
+    let errorMessage: String?
     
-    init(view: FeedStoryView, loadingView: FeedStoryLoadingView) {
-        self.view = view
+    static var none = FeedStoryErrorViewModel(errorMessage: nil)
+    
+    static func error(message: String?) -> FeedStoryErrorViewModel {
+        FeedStoryErrorViewModel(errorMessage: message)
+    }
+}
+
+protocol FeedStoryErrorView {
+    func display(_ viewModel: FeedStoryErrorViewModel)
+}
+
+final class FeedStoryPresenter {
+    private let storyView: FeedStoryView
+    private let loadingView: FeedStoryLoadingView
+    private let errorView: FeedStoryErrorView
+    
+    private var storyErrorMessage: String {
+        NSLocalizedString("FEED_STORY_VIEW_CONNECTION_ERROR",
+                          tableName: "Story",
+                          bundle: Bundle(for: FeedStoryPresenter.self),
+                          comment: "Error message displayed when we can't load story from the server")
+    }
+    
+    init(storyView: FeedStoryView, loadingView: FeedStoryLoadingView, errorView: FeedStoryErrorView) {
+        self.storyView = storyView
         self.loadingView = loadingView
+        self.errorView = errorView
     }
     
     func didStartLoadingStory() {
-        loadingView.display(FeedStoryLoadingViewModel(isLoading: true))
-        view.display(.noStory)
+        loadingView.display(.loading)
+        errorView.display(.none)
+        storyView.display(.noStory)
     }
     
     func didFinishLoadingStory(with model: Story) {
-        loadingView.display(FeedStoryLoadingViewModel(isLoading: false))
-        view.display(FeedStoryViewModel(
+        loadingView.display(.stopped)
+        errorView.display(.none)
+        storyView.display(FeedStoryViewModel(
             author: model.author,
             title: model.title,
             score: String(model.score ?? 0),
             url: model.url?.absoluteString))
+    }
+    
+    func didFinishLoadingStory(with error: Error) {
+        loadingView.display(.stopped)
+        errorView.display(.error(message: storyErrorMessage))
     }
 }
 
@@ -74,7 +107,8 @@ final class FeedStoryPresenterTests: XCTestCase {
         
         XCTAssertEqual(view.messages, [
             .display(isLoading: true),
-            .display(viewModel: .noStory)
+            .display(viewModel: .noStory),
+            .display(errorMessage: .none)
         ])
     }
     
@@ -86,7 +120,20 @@ final class FeedStoryPresenterTests: XCTestCase {
         
         XCTAssertEqual(view.messages, [
             .display(isLoading: false),
+            .display(errorMessage: .none),
             .display(viewModel: validStory.viewModel)
+        ])
+    }
+    
+    func test_didFinishLoadingStoryWithError_displaysNoStoryAndDisplayRetry() {
+        let (sut, view) = makeSUT()
+        let error = anyNSError()
+        
+        sut.didFinishLoadingStory(with: error)
+        
+        XCTAssertEqual(view.messages, [
+            .display(isLoading: false),
+            .display(errorMessage: localized("FEED_STORY_VIEW_CONNECTION_ERROR"))
         ])
     }
 
@@ -94,10 +141,21 @@ final class FeedStoryPresenterTests: XCTestCase {
     
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: FeedStoryPresenter, view: ViewSpy) {
         let view = ViewSpy()
-        let sut = FeedStoryPresenter(view: view, loadingView: view)
+        let sut = FeedStoryPresenter(storyView: view, loadingView: view, errorView: view)
         trackForMemoryLeaks(view, file: file, line: line)
         trackForMemoryLeaks(sut, file: file, line: line)
         return (sut, view)
+    }
+    
+    func localized(_ key: String, file: StaticString = #file, line: UInt = #line) -> String {
+        let table = "Story"
+        let bundle = Bundle(for: FeedStoryPresenter.self)
+        let value = bundle.localizedString(forKey: key, value: nil, table: table)
+        if value == key {
+            XCTFail("Missing localized string for key: \(key) in table: \(table)", file: file, line: line)
+        }
+        
+        return value
     }
     
     private func makeValidStory(id: Int = 0,
@@ -118,11 +176,13 @@ final class FeedStoryPresenterTests: XCTestCase {
         return (model, viewModel)
     }
     
-    private class ViewSpy: FeedStoryView, FeedStoryLoadingView {
+    private class ViewSpy: FeedStoryView, FeedStoryLoadingView, FeedStoryErrorView {
         enum Message: Hashable {
             case display(viewModel: FeedStoryViewModel)
             case display(isLoading: Bool)
+            case display(errorMessage: String?)
         }
+        
         private(set) var messages = Set<Message>()
         
         func display(_ viewModel: FeedStoryViewModel) {
@@ -131,6 +191,10 @@ final class FeedStoryPresenterTests: XCTestCase {
         
         func display(_ viewModel: FeedStoryLoadingViewModel) {
             messages.insert(.display(isLoading: viewModel.isLoading))
+        }
+        
+        func display(_ viewModel: FeedStoryErrorViewModel) {
+            messages.insert(.display(errorMessage: viewModel.errorMessage))
         }
     }
 }
