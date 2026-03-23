@@ -6,13 +6,14 @@
 //
 
 import UIKit
+import HackerNewsFeed
 
 protocol FeedStoryCellControllerDelegate {
     func didRequestStory()
     func didCancelStoryRequest()
 }
 
-final class FeedStoryCellController: FeedStoryView {
+final class FeedStoryCellController: FeedStoryView, FeedStoryLoadingView, FeedStoryErrorView {
     private let delegate: FeedStoryCellControllerDelegate
     
     private var cell: FeedStoryCell?
@@ -36,20 +37,25 @@ final class FeedStoryCellController: FeedStoryView {
         delegate.didCancelStoryRequest()
     }
     
+    func display(_ viewModel: FeedStoryLoadingViewModel) {
+        cell?.container.isShimmering = viewModel.isLoading
+    }
+    
     func display(_ viewModel: FeedStoryViewModel) {
         cell?.authorLabel.text = viewModel.author
         cell?.titleLabel.text = viewModel.title
         cell?.scoreLabel.text = viewModel.score
         cell?.urlLabel.text = viewModel.url
         
-        cell?.container.isShimmering = viewModel.isLoading
-        
-        cell?.retryButton.isHidden = !viewModel.shouldRetry
         cell?.onRetry = delegate.didRequestStory
         
         cell?.onReuse = { [weak self] in
             self?.releaseCellForReuse()
         }
+    }
+    
+    func display(_ viewModel: FeedStoryErrorViewModel) {
+        cell?.retryButton.isHidden = viewModel.errorMessage == nil
     }
     
     private func releaseCellForReuse() {

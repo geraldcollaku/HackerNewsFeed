@@ -21,7 +21,11 @@ class FeedViewAdapter: FeedView {
             let adapter = FeedStoryLoaderPresentationAdapter(model: model, storyLoader: loader)
             let view = FeedStoryCellController(delegate: adapter)
 
-            adapter.presenter = FeedStoryPresenter(view: WeakRefVirtualProxy(view))
+            adapter.presenter = FeedStoryPresenter(
+                storyView: WeakRefVirtualProxy(view),
+                loadingView: WeakRefVirtualProxy(view),
+                errorView: WeakRefVirtualProxy(view)
+            )
             return view
         }
     }
