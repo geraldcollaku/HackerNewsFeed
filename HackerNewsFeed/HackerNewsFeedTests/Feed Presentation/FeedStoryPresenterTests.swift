@@ -48,6 +48,15 @@ final class FeedStoryPresenter {
         loadingView.display(FeedStoryLoadingViewModel(isLoading: true))
         view.display(.noStory)
     }
+    
+    func didFinishLoadingStory(with model: Story) {
+        loadingView.display(FeedStoryLoadingViewModel(isLoading: false))
+        view.display(FeedStoryViewModel(
+            author: model.author,
+            title: model.title,
+            score: String(model.score ?? 0),
+            url: model.url?.absoluteString))
+    }
 }
 
 final class FeedStoryPresenterTests: XCTestCase {
@@ -68,6 +77,18 @@ final class FeedStoryPresenterTests: XCTestCase {
             .display(viewModel: .noStory)
         ])
     }
+    
+    func test_didFinishLoadingStory_displaysStoryAndStopsLoading() {
+        let (sut, view) = makeSUT()
+        let validStory = makeValidStory()
+        
+        sut.didFinishLoadingStory(with: validStory.model)
+        
+        XCTAssertEqual(view.messages, [
+            .display(isLoading: false),
+            .display(viewModel: validStory.viewModel)
+        ])
+    }
 
     // MARK: - Helpers
     
@@ -79,16 +100,22 @@ final class FeedStoryPresenterTests: XCTestCase {
         return (sut, view)
     }
     
-    private func makeStory(id: Int = 0,
-                           title: String? = nil,
-                           author: String? = nil,
-                           score: Int? = nil,
-                           createdAt: Date = Date(),
-                           totalComments: Int? = nil,
-                           comments: [Int] = [],
-                           type: String? = nil,
-                           url: URL = URL(string: "https://any-url.com")!) -> Story {
-        Story(id: id, title: title, text: title, author: author, score: score, createdAt: createdAt, totalComments: totalComments, comments: comments, type: type, url: url)
+    private func makeValidStory(id: Int = 0,
+                                title: String? = "a title",
+                                author: String? = "an author",
+                                score: Int? = 0,
+                                createdAt: Date = Date(),
+                                totalComments: Int? = 0,
+                                comments: [Int] = [],
+                                type: String? = "a type",
+                                url: URL = URL(string: "https://any-url.com")!) -> (model: Story, viewModel: FeedStoryViewModel) {
+       let model = Story(id: id, title: title, text: title, author: author, score: score, createdAt: createdAt, totalComments: totalComments, comments: comments, type: type, url: url)
+        let viewModel = FeedStoryViewModel(
+            author: model.author,
+            title: model.title,
+            score: String(model.score!),
+            url: model.url?.absoluteString)
+        return (model, viewModel)
     }
     
     private class ViewSpy: FeedStoryView, FeedStoryLoadingView {
