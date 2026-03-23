@@ -6,10 +6,37 @@
 //
 
 import XCTest
+import HackerNewsFeed
+
+struct FeedStoryViewModel {
+    let author: String?
+    let title: String?
+    let score: String?
+    let url: String?
+    
+    let isLoading: Bool
+    let shouldRetry: Bool
+}
+
+protocol FeedStoryView {
+    func display(_ viewModel: FeedStoryViewModel)
+}
 
 final class FeedStoryPresenter {
-    init(view: Any) {
-        
+    private let view: FeedStoryView
+    
+    init(view: FeedStoryView) {
+        self.view = view
+    }
+    
+    func didStartLoadingStory() {
+        view.display(FeedStoryViewModel(
+            author: nil,
+            title: nil,
+            score: nil,
+            url: nil,
+            isLoading: true,
+            shouldRetry: false))
     }
 }
 
@@ -19,6 +46,21 @@ final class FeedStoryPresenterTests: XCTestCase {
         let (_, view) = makeSUT()
         
         XCTAssertTrue(view.messages.isEmpty, "Expected no view messages")
+    }
+    
+    func test_didStartLoadingStory_displaysLoadingStory() {
+        let (sut, view) = makeSUT()
+        
+        sut.didStartLoadingStory()
+        
+        let message = view.messages.first
+        
+        XCTAssertNil(message?.author)
+        XCTAssertNil(message?.title)
+        XCTAssertNil(message?.score)
+        XCTAssertNil(message?.url)
+        XCTAssertEqual(message?.isLoading, true)
+        XCTAssertEqual(message?.shouldRetry, false)
     }
     
     // MARK: - Helpers
@@ -31,7 +73,11 @@ final class FeedStoryPresenterTests: XCTestCase {
         return (sut, view)
     }
     
-    private class ViewSpy {
-        let messages = [Any]()
+    private class ViewSpy: FeedStoryView {
+        private(set) var messages = [FeedStoryViewModel]()
+        
+        func display(_ viewModel: FeedStoryViewModel) {
+            messages.append(viewModel)
+        }
     }
 }
