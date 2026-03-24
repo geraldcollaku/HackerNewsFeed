@@ -98,30 +98,55 @@ GET /v0/newstories
 ]
 ```
 
+---
+
+### Load Story From Remote Use Case
+
+#### Data
+- ID
+
+#### Primary Course
+1. Execute `Load Story` command with the provided ID
+2. System downloads data from the URL
+3. System validates the downloaded data
+4. System creates story model
+5. System delivers story model
+
+#### Cancellation Course
+1. System doesn't deliver story nor error
+
+#### Invalid Data - error course (sad path):
+1. System delivers invalid data error
+
+#### No Connectivity - error course (sad path):
+1. System delivers no connectivity error
+
+---
+
 ### Load Feed From Cache
 
 **Max Age:** 7 days
 
-**Primary Course:**
+#### Primary Course:
 1. Execute "Load Feed Ids" command
 2. System fetches feed data from cache
 3. System validates cache is less than 7 days old
 4. System creates feed ids from cached data
 5. System delivers feed ids
 
-**Error Courses:**
+#### Error Courses:
 - **Retrieval Error:** System deletes cache and delivers error
 - **Expired Cache:** System deletes cache and delivers no feed ids
 - **Empty Cache:** System delivers no feed ids
 
 ### Validate Feed Cache
 
-**Primary Course:**
+#### Primary Course:
 1. Execute "Validate Cache" command
 2. System fetches feed data from cache
 3. System validates cache is less than 7 days old
 
-**Error Courses:**
+#### Error Courses:
 - **Retrieval Error:** System deletes cache
 - **Expired Cache:** System deletes cache
 
@@ -130,7 +155,7 @@ GET /v0/newstories
 **Data:**
 - Feed Ids
 
-**Primary Course:**
+#### Primary Course:
 1. Execute `Save Feed Ids` command
 2. System deletes old cache data
 3. System encodes feed ids
@@ -138,9 +163,30 @@ GET /v0/newstories
 5. System saves new cache data
 6. System delivers success message
 
-**Error Courses:**
+#### Error Courses:
 - **Delete Error:** System delivers error
 - **Saving Error:** System delivers error
+
+---
+
+### Load Feed from cache use case
+
+#### Data
+- ID
+
+#### Primary Course (happy path):
+1. Execute `Load Story` command with the data above
+2. System fetches data from cache
+3. System delivers data from cache
+
+#### Cancel Course:
+1. System doesn't deliver story nor error
+
+#### Retrieval Error - error course (sad path):
+1. System delivers retrieval error
+
+#### Expired Cache - error course (sad path):
+1. System delivers no story data
 
 ---
 
