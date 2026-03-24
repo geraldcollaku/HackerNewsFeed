@@ -169,7 +169,7 @@ GET /v0/newstories
 
 ---
 
-### Load Feed from cache use case
+### Load Story from cache
 
 #### Data
 - ID
