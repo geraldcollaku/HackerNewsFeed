@@ -11,6 +11,10 @@ import HackerNewsFeed
 class RemoteStoryDataLoader {
     private let client: HTTPClient
     
+    enum Error: Swift.Error {
+        case invalidData
+    }
+    
     init(client: HTTPClient) {
         self.client = client
     }
@@ -18,9 +22,10 @@ class RemoteStoryDataLoader {
     func loadStory(from url: URL, completion: @escaping (StoryLoader.Result) -> Void) {
         client.get(from: url) { result in
             switch result {
+            case .success:
+                completion(.failure(Error.invalidData))
             case let .failure(error):
                 completion(.failure(error))
-            default: break
             }
         }
     }
@@ -53,13 +58,24 @@ final class RemoteStoryDataLoaderTests: XCTestCase {
         
         XCTAssertEqual(client.requestedURLs, [url, url])
     }
-
+    
     func test_loadStoryFromURL_deliversErrorOnClientError() {
         let (sut, client) = makeSUT()
         let clientError = NSError(domain: "a client error", code: 0)
         
         expect(sut, toCompleteWith: .failure(clientError)) {
             client.complete(with: clientError)
+        }
+    }
+    
+    func test_loadStoryFromURL_deliversInvalidDataErrorOnNon200HTTPResponse() {
+        let (sut, client) = makeSUT()
+        let samples = [199, 201, 300, 400, 500]
+        
+        samples.enumerated().forEach { index, code in
+            expect(sut, toCompleteWith: failure(.invalidData), when: {
+                client.complete(with: anyData(), statusCode: code, at: index)
+            })
         }
     }
     
@@ -71,6 +87,14 @@ final class RemoteStoryDataLoaderTests: XCTestCase {
         return (sut, client)
     }
     
+    private func anyData() -> Data {
+        Data("any data".utf8)
+    }
+    
+    private func failure(_ error: RemoteStoryDataLoader.Error) -> StoryLoader.Result {
+        .failure(error)
+    }
+
     private func expect(_ sut: RemoteStoryDataLoader, toCompleteWith expectedResult: StoryLoader.Result, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
         let exp = expectation(description: "Wait for load completion")
         
@@ -104,6 +128,11 @@ final class RemoteStoryDataLoaderTests: XCTestCase {
         
         func complete(with error: Error, at index: Int = 0) {
             messages[index].completion(.failure(error))
+        }
+        
+        func complete(with data: Data, statusCode: Int, at index: Int = 0) {
+            let response = HTTPURLResponse(url: messages[index].url, statusCode: statusCode, httpVersion: nil, headerFields: nil)!
+            messages[index].completion(.success((data, response)))
         }
     }
 }
