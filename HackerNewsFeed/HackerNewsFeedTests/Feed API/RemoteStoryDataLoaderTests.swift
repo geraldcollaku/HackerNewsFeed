@@ -91,6 +91,16 @@ final class RemoteStoryDataLoaderTests: XCTestCase {
         }
     }
     
+    func test_loadStoryFromURL_deliversInvalidDataErrorOn200HTTPResponseWithEmptyData() {
+        let (sut, client) = makeSUT()
+        
+        expect(sut, toCompleteWith: failure(.invalidData), when: {
+            let emptyData = Data()
+            
+            client.complete(with: emptyData, statusCode: 200)
+        })
+    }
+    
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: RemoteStoryDataLoader, client: HTTPClientSpy) {
         let client = HTTPClientSpy()
         let sut = RemoteStoryDataLoader(client: client)
