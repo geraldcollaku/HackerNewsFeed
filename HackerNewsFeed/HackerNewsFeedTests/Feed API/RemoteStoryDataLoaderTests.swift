@@ -8,7 +8,9 @@
 import XCTest
 import HackerNewsFeed
 
-class RemoteStoryDataLoader {
+enum StoryItemMapper {
+    private static var OK_200: Int { 200 }
+
     private struct Item: Decodable {
         private let id: Int
         private let title: String?
@@ -37,6 +39,22 @@ class RemoteStoryDataLoader {
         }
     }
     
+    enum Error: Swift.Error {
+        case invalidData
+    }
+    
+    static func map(_ data: Data, from response: HTTPURLResponse) throws -> Story {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .secondsSince1970
+        
+        guard response.statusCode == OK_200, let item = try? decoder.decode(Item.self, from: data) else {
+            throw Error.invalidData
+        }
+        return item.model
+    }
+}
+
+class RemoteStoryDataLoader {
     private let client: HTTPClient
     
     enum Error: Swift.Error {
@@ -51,16 +69,19 @@ class RemoteStoryDataLoader {
         client.get(from: url) { result in
             switch result {
             case let .success((data, response)):
-                let decoder = JSONDecoder()
-                decoder.dateDecodingStrategy = .secondsSince1970
-                if response.statusCode == 200, let item = try? decoder.decode(Item.self, from: data) {
-                    completion(.success(item.model))
-                } else {
-                    completion(.failure(Error.invalidData))
-                }
+                completion(Self.map(data, from: response))
             case let .failure(error):
                 completion(.failure(error))
             }
+        }
+    }
+    
+    private static func map(_ data: Data, from response: HTTPURLResponse) -> StoryLoader.Result {
+        do {
+            let item = try StoryItemMapper.map(data, from: response)
+            return .success(item)
+        } catch {
+            return .failure(Error.invalidData)
         }
     }
 }
