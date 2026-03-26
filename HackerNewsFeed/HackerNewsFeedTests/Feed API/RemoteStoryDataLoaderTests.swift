@@ -86,6 +86,8 @@ final class RemoteStoryDataLoaderTests: XCTestCase {
         })
     }
     
+    
+    
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: RemoteStoryDataLoader, client: HTTPClientSpy) {
         let client = HTTPClientSpy()
         let sut = RemoteStoryDataLoader(client: client)
