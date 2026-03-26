@@ -19,7 +19,9 @@ public class RemoteStoryDataLoader {
     }
     
     public func loadStory(from url: URL, completion: @escaping (StoryLoader.Result) -> Void) {
-        client.get(from: url) { result in
+        client.get(from: url) { [weak self] result in
+            guard self != nil else { return }
+            
             switch result {
             case let .success((data, response)):
                 completion(Self.map(data, from: response))

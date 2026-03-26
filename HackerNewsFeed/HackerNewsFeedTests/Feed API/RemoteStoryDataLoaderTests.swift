@@ -86,7 +86,22 @@ final class RemoteStoryDataLoaderTests: XCTestCase {
         })
     }
     
-    
+    func test_loadStoryFromURL_doesNotDeliverResultAfterSUTInstanceHasBeenDeallocated() {
+        let client = HTTPClientSpy()
+        var sut: RemoteStoryDataLoader? = RemoteStoryDataLoader(client: client)
+        
+        var capturedResults = [StoryLoader.Result]()
+        
+        sut?.loadStory(from: anyURL()) {
+            capturedResults.append($0)
+        }
+        
+        sut = nil
+        
+        client.complete(with: anyData(), statusCode: 200)
+        
+        XCTAssertTrue(capturedResults.isEmpty)
+    }
     
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: RemoteStoryDataLoader, client: HTTPClientSpy) {
         let client = HTTPClientSpy()
