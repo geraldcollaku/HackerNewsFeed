@@ -183,10 +183,6 @@ final class RemoteStoryDataLoaderTests: XCTestCase {
         try! JSONSerialization.data(withJSONObject: item)
     }
     
-    private func anyData() -> Data {
-        Data("any data".utf8)
-    }
-    
     private func failure(_ error: RemoteStoryDataLoader.Error) -> StoryLoader.Result {
         .failure(error)
     }
