@@ -116,6 +116,24 @@ final class RemoteStoryDataLoaderTests: XCTestCase {
         XCTAssertEqual(client.cancelledURLs, [url], "Expected cancelled URL request after task is cancelled")
     }
     
+    func test_loadStory_doesNotDeliverResultAfterCancellingTask() {
+        let (sut, client) = makeSUT()
+        let story = makeItem().data
+        
+        var received = [StoryLoader.Result]()
+        let task = sut.loadStory(from: anyURL()) {
+            received.append($0)
+        }
+        task.cancel()
+        
+        client.complete(with: anyData(), statusCode: 404)
+        
+        client.complete(with: story, statusCode: 200)
+        client.complete(with: anyNSError())
+        
+        XCTAssertTrue(received.isEmpty, "Expected no received result after cancelling the task")
+    }
+    
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: StoryLoader, client: HTTPClientSpy) {
         let client = HTTPClientSpy()
         let sut = RemoteStoryDataLoader(client: client)

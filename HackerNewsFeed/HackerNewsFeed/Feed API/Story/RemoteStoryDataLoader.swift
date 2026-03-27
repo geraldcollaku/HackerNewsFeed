@@ -18,17 +18,41 @@ public class RemoteStoryDataLoader: StoryLoader {
         self.client = client
     }
     
-    public func loadStory(from url: URL, completion: @escaping (StoryLoader.Result) -> Void) -> HTTPClientTask {
-        return client.get(from: url) { [weak self] result in
+    private final class HTTPClientTaskWrapper: StoryLoaderTask {
+        var wrapped: HTTPClientTask?
+        private var completion: ((StoryLoader.Result) -> Void)?
+        
+        init(_ completion: @escaping (StoryLoader.Result) -> Void) {
+            self.completion = completion
+        }
+        
+        func complete(with result: StoryLoader.Result) {
+            completion?(result)
+        }
+        
+        func cancel() {
+            preventFurtherCompletions()
+            wrapped?.cancel()
+        }
+        
+        private func preventFurtherCompletions() {
+            completion = nil
+        }
+    }
+    
+    public func loadStory(from url: URL, completion: @escaping (StoryLoader.Result) -> Void) -> StoryLoaderTask {
+        let task = HTTPClientTaskWrapper(completion)
+        task.wrapped = client.get(from: url) { [weak self] result in
             guard self != nil else { return }
             
             switch result {
             case let .success((data, response)):
-                completion(Self.map(data, from: response))
+                task.complete(with: Self.map(data, from: response))
             case let .failure(error):
-                completion(.failure(error))
+                task.complete(with: .failure(error))
             }
         }
+        return task
     }
     
     private static func map(_ data: Data, from response: HTTPURLResponse) -> StoryLoader.Result {
