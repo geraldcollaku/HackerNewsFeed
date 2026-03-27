@@ -11,6 +11,7 @@ public class RemoteStoryDataLoader: StoryLoader {
     private let client: HTTPClient
     
     public enum Error: Swift.Error {
+        case connectivity
         case invalidData
     }
     
@@ -48,8 +49,8 @@ public class RemoteStoryDataLoader: StoryLoader {
             switch result {
             case let .success((data, response)):
                 task.complete(with: Self.map(data, from: response))
-            case let .failure(error):
-                task.complete(with: .failure(error))
+            case .failure:
+                task.complete(with: .failure(Error.connectivity))
             }
         }
         return task
