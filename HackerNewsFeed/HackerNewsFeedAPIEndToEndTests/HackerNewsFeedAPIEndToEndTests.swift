@@ -44,9 +44,9 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
     // MARK: - Helpers
     
     private func getFeedResult(file: StaticString = #filePath, line: UInt = #line) -> FeedLoader.Result? {
-        let testServerURL = URL(string: "https://hackernews-fa652-default-rtdb.europe-west1.firebasedatabase.app/items.json")!
+        let url = feedTestServerURL.appendingPathComponent("items.json")
         let client = URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
-        let loader = RemoteFeedLoader(url: testServerURL, client: client)
+        let loader = RemoteFeedLoader(url: url, client: client)
         trackForMemoryLeaks(client, file: file, line: line)
         trackForMemoryLeaks(client, file: file, line: line)
 
@@ -63,7 +63,8 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
     }
     
     private func getStoryDataResult(file: StaticString = #file, line: UInt = #line) -> StoryLoader.Result? {
-        let testServerURL = URL(string: "https://hackernews-fa652-default-rtdb.europe-west1.firebasedatabase.app/item/46383452.json")!
+        let url = feedTestServerURL.appendingPathComponent("item/46383452.json")
+        
         let client = URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
         let loader = RemoteStoryDataLoader(client: client)
         trackForMemoryLeaks(client)
@@ -71,7 +72,7 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
         
         let exp = expectation(description: "Wait for load completion")
         var receivedResult: StoryLoader.Result?
-        _ = loader.loadStory(from: testServerURL) { result in
+        _ = loader.loadStory(from: url) { result in
             receivedResult = result
             exp.fulfill()
         }
@@ -79,6 +80,10 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
         
         return receivedResult
+    }
+    
+    private var feedTestServerURL: URL {
+        URL(string: "https://hackernews-fa652-default-rtdb.europe-west1.firebasedatabase.app")!
     }
     
     private func expectedId(at index: Int) -> FeedId {
