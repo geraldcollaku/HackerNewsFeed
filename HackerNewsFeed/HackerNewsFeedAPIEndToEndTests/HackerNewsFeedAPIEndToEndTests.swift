@@ -30,11 +30,22 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
         }
     }
     
+    func test_endToEndTestServerGETStoryResult_MatchesFixedTestData() {
+        switch getStoryDataResult() {
+        case let .success(story):
+            XCTAssertEqual(story, expectedStory())
+        case let .failure(error)?:
+            XCTFail("Expected successful story result, got \(error) instead")
+        default:
+            XCTFail("Expected successful story result, got no result instead")
+        }
+    }
+    
     // MARK: - Helpers
     
     private func getFeedResult(file: StaticString = #filePath, line: UInt = #line) -> FeedLoader.Result? {
         let testServerURL = URL(string: "https://hackernews-fa652-default-rtdb.europe-west1.firebasedatabase.app/items.json")!
-        let client = URLSessionHTTPClient()
+        let client = URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
         let loader = RemoteFeedLoader(url: testServerURL, client: client)
         trackForMemoryLeaks(client, file: file, line: line)
         trackForMemoryLeaks(client, file: file, line: line)
@@ -47,6 +58,25 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
             exp.fulfill()
         }
         wait(for: [exp], timeout: 10.0)
+        
+        return receivedResult
+    }
+    
+    private func getStoryDataResult(file: StaticString = #file, line: UInt = #line) -> StoryLoader.Result? {
+        let testServerURL = URL(string: "https://hackernews-fa652-default-rtdb.europe-west1.firebasedatabase.app/item/46383452.json")!
+        let client = URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
+        let loader = RemoteStoryDataLoader(client: client)
+        trackForMemoryLeaks(client)
+        trackForMemoryLeaks(loader)
+        
+        let exp = expectation(description: "Wait for load completion")
+        var receivedResult: StoryLoader.Result?
+        _ = loader.loadStory(from: testServerURL) { result in
+            receivedResult = result
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 1.0)
         
         return receivedResult
     }
@@ -65,5 +95,18 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
             46413685,
             46412006
         ][index]
+    }
+    
+    private func expectedStory() -> Story {
+        Story(id: 46383452,
+              title: "Gerald is hacking",
+              text: nil,
+              author: "gerald",
+              score: 2,
+              createdAt: Date(timeIntervalSince1970: 1772959850),
+              totalComments: 0,
+              comments: nil,
+              type: "story",
+              url: URL(string: "https://www.msn.com/en-us/news/insight/blackrock-caps-exits-as-redemptions-surge/gm-GM1184A108")!)
     }
 }
