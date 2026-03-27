@@ -5,6 +5,8 @@
 //  Created by Gerald Collaku on 06.03.26.
 //
 
+import Foundation
+
 public protocol StoryLoaderTask {
     func cancel()
 }
@@ -12,5 +14,6 @@ public protocol StoryLoaderTask {
 public protocol StoryLoader {
     typealias Result = Swift.Result<Story, Error>
     
-    func loadStory(with id: Int, completion: @escaping (Result) -> Void) -> StoryLoaderTask
+    @discardableResult
+    func loadStory(from url: URL, completion: @escaping (Result) -> Void) -> HTTPClientTask
 }

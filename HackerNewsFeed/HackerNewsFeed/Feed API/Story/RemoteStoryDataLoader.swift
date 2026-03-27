@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class RemoteStoryDataLoader {
+public class RemoteStoryDataLoader: StoryLoader {
     private let client: HTTPClient
     
     public enum Error: Swift.Error {
@@ -18,8 +18,8 @@ public class RemoteStoryDataLoader {
         self.client = client
     }
     
-    public func loadStory(from url: URL, completion: @escaping (StoryLoader.Result) -> Void) {
-        client.get(from: url) { [weak self] result in
+    public func loadStory(from url: URL, completion: @escaping (StoryLoader.Result) -> Void) -> HTTPClientTask {
+        return client.get(from: url) { [weak self] result in
             guard self != nil else { return }
             
             switch result {
