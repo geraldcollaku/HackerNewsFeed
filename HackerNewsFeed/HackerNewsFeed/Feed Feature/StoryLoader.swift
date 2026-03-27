@@ -15,5 +15,5 @@ public protocol StoryLoader {
     typealias Result = Swift.Result<Story, Error>
     
     @discardableResult
-    func loadStory(from url: URL, completion: @escaping (Result) -> Void) -> StoryLoaderTask
+    func loadStory(with id: Int, completion: @escaping (Result) -> Void) -> StoryLoaderTask
 }

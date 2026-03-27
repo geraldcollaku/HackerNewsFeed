@@ -63,16 +63,17 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
     }
     
     private func getStoryDataResult(file: StaticString = #file, line: UInt = #line) -> StoryLoader.Result? {
-        let url = feedTestServerURL.appendingPathComponent("item/46383452.json")
+        let id = 46383452
+        let url = feedTestServerURL.appendingPathComponent("item/\(id).json")
         
         let client = URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
-        let loader = RemoteStoryDataLoader(client: client)
+        let loader = RemoteStoryDataLoader(url: url, client: client)
         trackForMemoryLeaks(client)
         trackForMemoryLeaks(loader)
         
         let exp = expectation(description: "Wait for load completion")
         var receivedResult: StoryLoader.Result?
-        _ = loader.loadStory(from: url) { result in
+        _ = loader.loadStory(with: id) { result in
             receivedResult = result
             exp.fulfill()
         }

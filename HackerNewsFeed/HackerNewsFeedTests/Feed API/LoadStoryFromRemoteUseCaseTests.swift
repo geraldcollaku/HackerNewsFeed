@@ -17,20 +17,21 @@ final class LoadStoryFromRemoteUseCaseTests: XCTestCase {
     }
     
     func test_loadStoryFromURL_requestsDataFromURL() {
-        let (sut, client) = makeSUT()
         let url = URL(string: "https://a-given-url.com")!
+
+        let (sut, client) = makeSUT(url: url)
         
-        sut.loadStory(from: url) { _ in }
+        sut.loadStory(with: 0) { _ in }
         
         XCTAssertEqual(client.requestedURLs, [url])
     }
     
     func test_loadStoryFromURLTwice_requestsDataFromURLTwice() {
-        let (sut, client) = makeSUT()
         let url = URL(string: "https://a-given-url.com")!
+        let (sut, client) = makeSUT(url: url)
         
-        sut.loadStory(from: url) { _ in }
-        sut.loadStory(from: url) { _ in }
+        sut.loadStory(with: 0) { _ in }
+        sut.loadStory(with: 1) { _ in }
         
         XCTAssertEqual(client.requestedURLs, [url, url])
     }
@@ -88,11 +89,11 @@ final class LoadStoryFromRemoteUseCaseTests: XCTestCase {
     
     func test_loadStoryFromURL_doesNotDeliverResultAfterSUTInstanceHasBeenDeallocated() {
         let client = HTTPClientSpy()
-        var sut: RemoteStoryDataLoader? = RemoteStoryDataLoader(client: client)
+        var sut: RemoteStoryDataLoader? = RemoteStoryDataLoader(url: anyURL(), client: client)
         
         var capturedResults = [StoryLoader.Result]()
         
-        _ = sut?.loadStory(from: anyURL()) {
+        _ = sut?.loadStory(with: 0) {
             capturedResults.append($0)
         }
         
@@ -104,10 +105,10 @@ final class LoadStoryFromRemoteUseCaseTests: XCTestCase {
     }
     
     func test_cancelLoadStoryDataTask_cancelsClientURLRequest() {
-        let (sut, client) = makeSUT()
         let url = URL(string: "https://a-given-url.com")!
+        let (sut, client) = makeSUT(url: url)
         
-        let task = sut.loadStory(from: url) { _ in }
+        let task = sut.loadStory(with: 0) { _ in }
         
         XCTAssertTrue(client.cancelledURLs.isEmpty, "Expected no cancelled URL request until task is cancelled")
         
@@ -121,7 +122,7 @@ final class LoadStoryFromRemoteUseCaseTests: XCTestCase {
         let story = makeItem().data
         
         var received = [StoryLoader.Result]()
-        let task = sut.loadStory(from: anyURL()) {
+        let task = sut.loadStory(with: 0) {
             received.append($0)
         }
         task.cancel()
@@ -134,9 +135,9 @@ final class LoadStoryFromRemoteUseCaseTests: XCTestCase {
         XCTAssertTrue(received.isEmpty, "Expected no received result after cancelling the task")
     }
     
-    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: StoryLoader, client: HTTPClientSpy) {
+    private func makeSUT(url: URL = URL(string: "http://a-url.com")!, file: StaticString = #filePath, line: UInt = #line) -> (sut: StoryLoader, client: HTTPClientSpy) {
         let client = HTTPClientSpy()
-        let sut = RemoteStoryDataLoader(client: client)
+        let sut = RemoteStoryDataLoader(url: url, client: client)
         trackForMemoryLeaks(client, file: file, line: line)
         trackForMemoryLeaks(sut, file: file, line: line)
         return (sut, client)
@@ -190,7 +191,7 @@ final class LoadStoryFromRemoteUseCaseTests: XCTestCase {
     private func expect(_ sut: StoryLoader, toCompleteWith expectedResult: StoryLoader.Result, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
         let exp = expectation(description: "Wait for load completion")
         
-        sut.loadStory(from: anyURL()) { receivedResult in
+        sut.loadStory(with: 0) { receivedResult in
             switch (receivedResult, expectedResult) {
             case let (.success(receivedData), .success(expectedData)):
                 XCTAssertEqual(receivedData, expectedData, file: file, line: line)
