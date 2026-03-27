@@ -1,5 +1,5 @@
 //
-//  RemoteStoryDataLoaderTests.swift
+//  LoadStoryFromRemoteUseCaseTests.swift
 //  HackerNewsFeed
 //
 //  Created by Gerald Collaku on 24.03.26.
@@ -8,7 +8,7 @@
 import XCTest
 import HackerNewsFeed
 
-final class RemoteStoryDataLoaderTests: XCTestCase {
+final class LoadStoryFromRemoteUseCaseTests: XCTestCase {
     
     func test_init_doesNotPerformAnyURLRequest() {
         let (_, client) = makeSUT()
