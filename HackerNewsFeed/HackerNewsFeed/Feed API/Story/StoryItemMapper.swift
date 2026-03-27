@@ -8,8 +8,6 @@
 import Foundation
 
 public enum StoryItemMapper {
-    private static var OK_200: Int { 200 }
-
     private struct Item: Decodable {
         private let id: Int
         private let title: String?
@@ -46,7 +44,7 @@ public enum StoryItemMapper {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .secondsSince1970
         
-        guard response.statusCode == OK_200, let item = try? decoder.decode(Item.self, from: data) else {
+        guard response.isOK, let item = try? decoder.decode(Item.self, from: data) else {
             throw Error.invalidData
         }
         return item.model

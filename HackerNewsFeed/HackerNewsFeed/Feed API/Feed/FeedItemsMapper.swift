@@ -8,10 +8,9 @@
 import Foundation
 
 enum FeedItemsMapper {
-    private static var OK_200: Int { 200 }
     
     static func map(_ data: Data, from response: HTTPURLResponse) throws -> [RemoteFeedItem] {
-        guard response.statusCode == OK_200, let items = try? JSONDecoder().decode([RemoteFeedItem].self, from: data) else {
+        guard response.isOK, let items = try? JSONDecoder().decode([RemoteFeedItem].self, from: data) else {
             throw RemoteFeedLoader.Error.invalidData
         }
         
