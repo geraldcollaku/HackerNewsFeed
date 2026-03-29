@@ -1,5 +1,5 @@
 //
-//  LocalStoryLoaderTests.swift
+//  LoadStoryFromCacheUseCaseTests.swift
 //  HackerNewsFeed
 //
 //  Created by Gerald Collaku on 29.03.26.
@@ -8,7 +8,7 @@
 import XCTest
 import HackerNewsFeed
 
-class LocalStoryLoaderTests: XCTestCase {
+class LoadStoryFromCacheUseCaseTests: XCTestCase {
     
     func test_init_doesNotMessageStoreUponCreation() {
         let (_, store) = makeSUT()
