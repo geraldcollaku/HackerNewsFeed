@@ -9,12 +9,64 @@ import XCTest
 import HackerNewsFeed
 
 protocol StoryStore {
-    typealias Result = Swift.Result<Story, Error>
+    typealias Result = Swift.Result<LocalStory?, Error>
     
     func retrieve(for id: Int, completion: @escaping (Result) -> Void)
 }
 
+struct LocalStory: Equatable {
+    public let id: Int
+    public let title: String?
+    public let text: String?
+    public let author: String?
+    public let score: Int?
+    public let createdAt: Date
+    public let totalComments: Int?
+    public let comments: [Int]?
+    public let type: String?
+    public let url: URL?
+
+    public init(id: Int,
+                title: String?,
+                text: String?,
+                author: String?,
+                score: Int?,
+                createdAt: Date,
+                totalComments: Int?,
+                comments: [Int]?,
+                type: String?,
+                url: URL?) {
+        self.id = id
+        self.title = title
+        self.text = text
+        self.author = author
+        self.score = score
+        self.createdAt = createdAt
+        self.totalComments = totalComments
+        self.comments = comments
+        self.type = type
+        self.url = url
+    }
+}
+
+private extension LocalStory {
+    func toModel() -> Story {
+        Story(
+            id: id,
+            title: title,
+            text: text,
+            author: author,
+            score: score,
+            createdAt: createdAt,
+            totalComments: totalComments,
+            comments: comments,
+            type: type,
+            url: url)
+    }
+}
+
 final class LocalStoryLoader: StoryLoader {
+
     private struct Task: StoryLoaderTask {
         func cancel() {}
     }
@@ -31,7 +83,12 @@ final class LocalStoryLoader: StoryLoader {
     
     func loadStory(with id: Int, completion: @escaping (StoryLoader.Result) -> Void) -> StoryLoaderTask {
         store.retrieve(for: id) { result in
-            completion(.failure(Error.failed))
+            completion(result
+                .mapError { _ in Error.failed }
+                .flatMap { localStory in
+                    localStory.map { .success($0.toModel()) } ?? .failure(Error.failed)
+                }
+            )
         }
         return Task()
     }
@@ -62,6 +119,15 @@ class LocalStoryLoaderTests: XCTestCase {
             store.complete(with: retrievalError)
         })
     }
+    
+    func test_loadStoryWithID_deliversStoryOnNonEmptyCache() {
+        let (sut, store) = makeSUT()
+        let uniqueStory = uniqueStory()
+        
+        expect(sut, toCompleteWith: .success(uniqueStory.model), when: {
+            store.complete(with: uniqueStory.local)
+        })
+    }
 
     // MARK: - Helpers
     
@@ -72,11 +138,7 @@ class LocalStoryLoaderTests: XCTestCase {
         trackForMemoryLeaks(sut, file: file, line: line)
         return (sut, store)
     }
-    
-    private func failed() -> StoryLoader.Result {
-        .failure(LocalStoryLoader.Error.failed)
-    }
-    
+
     private func expect(_ sut: LocalStoryLoader,
                         toCompleteWith expectedResult: StoryLoader.Result,
                         when action: () -> Void,
@@ -102,6 +164,36 @@ class LocalStoryLoaderTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
     
+    private func failed() -> StoryLoader.Result {
+        .failure(LocalStoryLoader.Error.failed)
+    }
+    
+    private func uniqueStory() -> (model: Story, local: LocalStory) {
+        let model = Story(
+            id: 0,
+            title: "a title",
+            text: nil,
+            author: "an author",
+            score: 1,
+            createdAt: Date(),
+            totalComments: 0,
+            comments: nil,
+            type: "story",
+            url: nil)
+        let local = LocalStory(
+            id: model.id,
+            title: model.title,
+            text: model.text,
+            author: model.author,
+            score: model.score,
+            createdAt: model.createdAt,
+            totalComments: model.totalComments,
+            comments: model.comments,
+            type: model.type,
+            url: model.url)
+        return (model, local)
+    }
+    
     private func anyId() -> Int {
         0
     }
@@ -121,6 +213,10 @@ class LocalStoryLoaderTests: XCTestCase {
         
         func complete(with error: Error, at index: Int = 0) {
             completions[index](.failure(error))
+        }
+        
+        func complete(with story: LocalStory, at index: Int = 0) {
+            completions[index](.success(story))
         }
     }
 }
