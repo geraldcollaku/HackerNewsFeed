@@ -5,8 +5,8 @@
 //  Created by Gerald Collaku on 29.03.26.
 //
 
-public final class LocalStoryLoader: StoryLoader {
-    private final class Task: StoryLoaderTask {
+public final class LocalStoryLoader {
+    private final class LoadStoryDataTask: StoryLoaderTask {
         private var completion: ((StoryLoader.Result) -> Void)?
         
         init(_ completion: @escaping (StoryLoader.Result) -> Void) {
@@ -26,8 +26,9 @@ public final class LocalStoryLoader: StoryLoader {
         }
     }
     
-    public enum Error: Swift.Error {
+    public enum LoadError: Swift.Error {
         case failed
+        case notFound
     }
     
     private let store: StoryStore
@@ -35,20 +36,26 @@ public final class LocalStoryLoader: StoryLoader {
     public init(store: StoryStore) {
         self.store = store
     }
-    
-    public typealias SaveResult = Result<Void, Error>
+}
+
+extension LocalStoryLoader {
+    public typealias SaveResult = Result<Void, LoadError>
     
     public func save(_ story: LocalStory, completion: @escaping (SaveResult) -> Void) {
         store.insert(story) { _ in }
     }
-    
+}
+
+extension LocalStoryLoader: StoryLoader {
+    public typealias LoadResult = Result<Void, LoadError>
+
     public func loadStory(with id: Int, completion: @escaping (StoryLoader.Result) -> Void) -> StoryLoaderTask {
-        let task = Task(completion)
+        let task = LoadStoryDataTask(completion)
         store.retrieve(for: id) { result in
             task.complete(with: result
-                .mapError { _ in Error.failed }
+                .mapError { _ in LoadError.failed }
                 .flatMap { localStory in
-                    localStory.map { .success($0.toModel()) } ?? .failure(Error.failed)
+                    localStory.map { .success($0.toModel()) } ?? .failure(LoadError.notFound)
                 }
             )
         }

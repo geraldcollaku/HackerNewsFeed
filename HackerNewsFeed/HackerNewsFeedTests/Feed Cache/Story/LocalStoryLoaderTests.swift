@@ -30,7 +30,7 @@ class LocalStoryLoaderTests: XCTestCase {
         
         expect(sut, toCompleteWith: failed(), when: {
             let retrievalError = anyNSError()
-            store.complete(with: retrievalError)
+            store.completeRetrieval(with: retrievalError)
         })
     }
     
@@ -39,15 +39,15 @@ class LocalStoryLoaderTests: XCTestCase {
         let uniqueStory = uniqueStory()
         
         expect(sut, toCompleteWith: .success(uniqueStory.model), when: {
-            store.complete(with: uniqueStory.local)
+            store.completeRetrieval(with: uniqueStory.local)
         })
     }
     
     func test_loadStoryWithID_deliversFailureOnEmptyCache() {
         let (sut, store) = makeSUT()
         
-        expect(sut, toCompleteWith: failed(), when: {
-            store.completeWithEmptyCache()
+        expect(sut, toCompleteWith: notFound(), when: {
+            store.completeRetrievalWithEmptyCache()
         })
     }
     
@@ -61,7 +61,7 @@ class LocalStoryLoaderTests: XCTestCase {
         }
         task.cancel()
         
-        store.complete(with: local)
+        store.completeRetrieval(with: local)
         
         XCTAssertTrue(receivedResult.isEmpty, "Expected no received results after cancelling task")
     }
@@ -111,7 +111,11 @@ class LocalStoryLoaderTests: XCTestCase {
     }
     
     private func failed() -> StoryLoader.Result {
-        .failure(LocalStoryLoader.Error.failed)
+        .failure(LocalStoryLoader.LoadError.failed)
+    }
+    
+    private func notFound() -> StoryLoader.Result {
+        .failure(LocalStoryLoader.LoadError.notFound)
     }
     
     private func uniqueStory() -> (model: Story, local: LocalStory) {
@@ -150,27 +154,27 @@ class LocalStoryLoaderTests: XCTestCase {
             case insert(story: LocalStory)
         }
         
-        private var completions = [(StoryStore.Result) -> Void]()
+        private var completions = [(StoryStore.RetrievalResult) -> Void]()
         private(set) var receivedMessages = [Message]()
         
         func insert(_ story: LocalStory, completion: @escaping (InsertionResult) -> Void) {
             receivedMessages.append(.insert(story: story))
         }
         
-        func retrieve(for id: Int, completion: @escaping (StoryStore.Result) -> Void) {
+        func retrieve(for id: Int, completion: @escaping (StoryStore.RetrievalResult) -> Void) {
             receivedMessages.append(.retrieve(forId: id))
             completions.append(completion)
         }
         
-        func complete(with error: Error, at index: Int = 0) {
+        func completeRetrieval(with error: Error, at index: Int = 0) {
             completions[index](.failure(error))
         }
         
-        func complete(with story: LocalStory, at index: Int = 0) {
+        func completeRetrieval(with story: LocalStory, at index: Int = 0) {
             completions[index](.success(story))
         }
         
-        func completeWithEmptyCache(at index: Int = 0) {
+        func completeRetrievalWithEmptyCache(at index: Int = 0) {
             completions[index](.success(.none))
         }
     }

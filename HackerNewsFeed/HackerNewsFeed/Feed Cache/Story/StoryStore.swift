@@ -6,9 +6,9 @@
 //
 
 public protocol StoryStore {
-    typealias Result = Swift.Result<LocalStory?, Error>
+    typealias RetrievalResult = Swift.Result<LocalStory?, Error>
     typealias InsertionResult = Swift.Result<Void, Error>
     
-    func retrieve(for id: Int, completion: @escaping (Result) -> Void)
+    func retrieve(for id: Int, completion: @escaping (RetrievalResult) -> Void)
     func insert(_ story: LocalStory, completion: @escaping (InsertionResult) -> Void)
 }
