@@ -22,7 +22,18 @@ class CoreDataStoryStoreTests: XCTestCase {
     func test_retrieveStory_deliversNotFoundWhenNotEmpty() {
         let sut = makeSUT()
         
-        expect(sut, toCompleteWith: .success(.none))
+        expect(sut, toCompleteWith: notFound(), for: anyId())
+    }
+    
+    func test_retrieveStory_deliversNotFoundWhenStoredStoryDoesNotMatch() {
+        let sut = makeSUT()
+        let id = 0
+        let story = localStory(with: id)
+        let nonMatchingId = anyId(1)
+        
+        insert(story, for: id, into: sut)
+        
+        expect(sut, toCompleteWith: notFound(), for: nonMatchingId)
     }
     
     // MARK: - Helpers
@@ -37,10 +48,11 @@ class CoreDataStoryStoreTests: XCTestCase {
     
     private func expect(_ sut: CoreDataFeedStore,
                         toCompleteWith expectedResult: StoryStore.RetrievalResult,
+                        for id: Int,
                         file: StaticString = #file,
                         line: UInt = #line) {
         let exp = expectation(description: "Wait for retrieve completion")
-        sut.retrieve(for: anyId()) { receivedResult in
+        sut.retrieve(for: id) { receivedResult in
             switch (receivedResult, expectedResult) {
             case let (.success(receivedStory), .success(expectedStory)):
                 XCTAssertEqual(receivedStory, expectedStory, file: file, line: line)
@@ -52,6 +64,42 @@ class CoreDataStoryStoreTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
     
-    private func anyId() -> Int { 0 }
+    private func insert(_ story: LocalStory, for id: Int, into sut: CoreDataFeedStore, file: StaticString = #file, line: UInt = #line) {
+        let feed = LocalFeedId(id: 0)
+        let exp = expectation(description: "Wait for cache completion")
+        sut.insert([feed], timestamp: Date()) { result in
+            switch result {
+            case let .failure(error):
+                XCTFail("Failed to save \(feed) with error \(error)")
+            case .success:
+                sut.insert(story) { result in
+                    if case let .failure(error) = result {
+                        XCTFail("Failed to insert \(story) with error \(error)")
+                    }
+                }
+            }
+            exp.fulfill()
+        }
+        wait(for: [exp], timeout: 1.0)
+    }
     
+    private func notFound() -> StoryStore.RetrievalResult {
+        .success(.none)
+    }
+    
+    private func anyId(_ id: Int = 0) -> Int { id }
+    
+    private func localStory(with id: Int = 0) -> LocalStory {
+         LocalStory(
+            id: id,
+            title: "a title",
+            text: nil,
+            author: "an author",
+            score: 1,
+            createdAt: Date(),
+            totalComments: 0,
+            comments: nil,
+            type: "story",
+            url: nil)
+    }
 }
