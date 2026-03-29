@@ -36,6 +36,12 @@ public final class LocalStoryLoader: StoryLoader {
         self.store = store
     }
     
+    public typealias SaveResult = Result<Void, Error>
+    
+    public func save(_ story: LocalStory, completion: @escaping (SaveResult) -> Void) {
+        store.insert(story) { _ in }
+    }
+    
     public func loadStory(with id: Int, completion: @escaping (StoryLoader.Result) -> Void) -> StoryLoaderTask {
         let task = Task(completion)
         store.retrieve(for: id) { result in

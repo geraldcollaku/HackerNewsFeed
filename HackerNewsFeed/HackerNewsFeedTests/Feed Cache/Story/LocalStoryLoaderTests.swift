@@ -65,6 +65,15 @@ class LocalStoryLoaderTests: XCTestCase {
         
         XCTAssertTrue(receivedResult.isEmpty, "Expected no received results after cancelling task")
     }
+    
+    func test_saveStory_requestStoryInsertion() {
+        let (sut, store) = makeSUT()
+        let story = uniqueStory().local
+        
+        sut.save(story) { _ in }
+        
+        XCTAssertEqual(store.receivedMessages, [.insert(story: story)])
+    }
 
     // MARK: - Helpers
     
@@ -138,10 +147,15 @@ class LocalStoryLoaderTests: XCTestCase {
     private class FeedStoreSpy: StoryStore {
         enum Message: Equatable {
             case retrieve(forId: Int)
+            case insert(story: LocalStory)
         }
         
         private var completions = [(StoryStore.Result) -> Void]()
         private(set) var receivedMessages = [Message]()
+        
+        func insert(_ story: LocalStory, completion: @escaping (InsertionResult) -> Void) {
+            receivedMessages.append(.insert(story: story))
+        }
         
         func retrieve(for id: Int, completion: @escaping (StoryStore.Result) -> Void) {
             receivedMessages.append(.retrieve(forId: id))
