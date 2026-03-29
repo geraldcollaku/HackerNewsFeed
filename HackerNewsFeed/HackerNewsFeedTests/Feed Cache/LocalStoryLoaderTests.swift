@@ -67,8 +67,24 @@ private extension LocalStory {
 
 final class LocalStoryLoader: StoryLoader {
 
-    private struct Task: StoryLoaderTask {
-        func cancel() {}
+    private final class Task: StoryLoaderTask {
+        private var completion: ((StoryLoader.Result) -> Void)?
+        
+        init(_ completion: @escaping (StoryLoader.Result) -> Void) {
+            self.completion = completion
+        }
+        
+        func complete(with result: StoryLoader.Result) {
+            completion?(result)
+        }
+        
+        func cancel() {
+            preventFurtherCompletions()
+        }
+        
+        private func preventFurtherCompletions() {
+            completion = nil
+        }
     }
     
     enum Error: Swift.Error {
@@ -82,15 +98,16 @@ final class LocalStoryLoader: StoryLoader {
     }
     
     func loadStory(with id: Int, completion: @escaping (StoryLoader.Result) -> Void) -> StoryLoaderTask {
+        let task = Task(completion)
         store.retrieve(for: id) { result in
-            completion(result
+            task.complete(with: result
                 .mapError { _ in Error.failed }
                 .flatMap { localStory in
                     localStory.map { .success($0.toModel()) } ?? .failure(Error.failed)
                 }
             )
         }
-        return Task()
+        return task
     }
 }
 
@@ -135,6 +152,21 @@ class LocalStoryLoaderTests: XCTestCase {
         expect(sut, toCompleteWith: failed(), when: {
             store.completeWithEmptyCache()
         })
+    }
+    
+    func test_loadStoryWithID_doesNotDeliverResultAfterCancellingTask() {
+        let (sut, store) = makeSUT()
+        let local = uniqueStory().local
+        
+        var receivedResult = [StoryLoader.Result]()
+        let task = sut.loadStory(with: anyId()) {
+            receivedResult.append($0)
+        }
+        task.cancel()
+        
+        store.complete(with: local)
+        
+        XCTAssertTrue(receivedResult.isEmpty, "Expected no received results after cancelling task")
     }
 
     // MARK: - Helpers
