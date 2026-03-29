@@ -46,8 +46,8 @@ extension LocalStoryLoader {
     }
     
     public func save(_ story: LocalStory, completion: @escaping (SaveResult) -> Void) {
-        store.insert(story) { _ in
-            completion(.failure(SaveError.failed))
+        store.insert(story) { result in
+            completion(result.mapError { _ in SaveError.failed })
         }
     }
 }
