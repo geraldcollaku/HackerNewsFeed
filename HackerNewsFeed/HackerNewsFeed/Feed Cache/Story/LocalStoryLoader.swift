@@ -39,10 +39,16 @@ public final class LocalStoryLoader {
 }
 
 extension LocalStoryLoader {
-    public typealias SaveResult = Result<Void, LoadError>
+    public typealias SaveResult = Result<Void, SaveError>
+    
+    public enum SaveError: Error {
+        case failed
+    }
     
     public func save(_ story: LocalStory, completion: @escaping (SaveResult) -> Void) {
-        store.insert(story) { _ in }
+        store.insert(story) { _ in
+            completion(.failure(SaveError.failed))
+        }
     }
 }
 

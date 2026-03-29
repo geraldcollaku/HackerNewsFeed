@@ -18,11 +18,20 @@ class CacheStoryUseCaseTests: XCTestCase {
     
     func test_saveStory_requestStoryInsertion() {
         let (sut, store) = makeSUT()
-        let story = uniqueStory().local
+        let story = uniqueStory()
         
         sut.save(story) { _ in }
         
         XCTAssertEqual(store.receivedMessages, [.insert(story: story)])
+    }
+    
+    func test_saveStory_failsOnStoreInsertionError() {
+        let (sut, store) = makeSUT()
+        
+        expect(sut, toCompleteWith: failed(), when: {
+            let insertionError = anyNSError()
+            store.completeInsertion(with: insertionError)
+        })
     }
     
     // MARK: - Helpers
@@ -35,8 +44,34 @@ class CacheStoryUseCaseTests: XCTestCase {
         return (sut, store)
     }
     
-    private func uniqueStory() -> (model: Story, local: LocalStory) {
-        let model = Story(
+    private func failed() -> LocalStoryLoader.SaveResult {
+        .failure(LocalStoryLoader.SaveError.failed)
+    }
+    
+    private func expect(_ sut: LocalStoryLoader,
+                        toCompleteWith expectedResult: LocalStoryLoader.SaveResult,
+                        when action: () -> Void,
+                        file: StaticString = #file,
+                        line: UInt = #line) {
+        let exp = expectation(description: "Wait for save completion")
+        sut.save(uniqueStory()) { receivedResult in
+            switch (receivedResult, expectedResult) {
+            case (.success, .success): break
+            case let (.failure(receivedError as NSError), .failure(expectedError as NSError)):
+                XCTAssertEqual(receivedError, expectedError, file: file, line: line)
+            default:
+                XCTFail("Expected result \(expectedResult), got \(receivedResult) instead", file: file, line: line)
+            }
+            
+            exp.fulfill()
+        }
+        
+        action()
+        wait(for: [exp], timeout: 1.0)
+    }
+    
+    private func uniqueStory() -> LocalStory {
+       return LocalStory(
             id: 0,
             title: "a title",
             text: nil,
@@ -47,18 +82,6 @@ class CacheStoryUseCaseTests: XCTestCase {
             comments: nil,
             type: "story",
             url: nil)
-        let local = LocalStory(
-            id: model.id,
-            title: model.title,
-            text: model.text,
-            author: model.author,
-            score: model.score,
-            createdAt: model.createdAt,
-            totalComments: model.totalComments,
-            comments: model.comments,
-            type: model.type,
-            url: model.url)
-        return (model, local)
     }
 }
 
