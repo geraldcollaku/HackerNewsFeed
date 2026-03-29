@@ -77,8 +77,8 @@ class LocalStoryLoaderTests: XCTestCase {
 
     // MARK: - Helpers
     
-    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: LocalStoryLoader, store: FeedStoreSpy) {
-        let store = FeedStoreSpy()
+    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: LocalStoryLoader, store: FeedStoryStoreSpy) {
+        let store = FeedStoryStoreSpy()
         let sut = LocalStoryLoader(store: store)
         trackForMemoryLeaks(store, file: file, line: line)
         trackForMemoryLeaks(sut, file: file, line: line)
@@ -146,36 +146,5 @@ class LocalStoryLoaderTests: XCTestCase {
     
     private func anyId() -> Int {
         0
-    }
-    
-    private class FeedStoreSpy: StoryStore {
-        enum Message: Equatable {
-            case retrieve(forId: Int)
-            case insert(story: LocalStory)
-        }
-        
-        private var completions = [(StoryStore.RetrievalResult) -> Void]()
-        private(set) var receivedMessages = [Message]()
-        
-        func insert(_ story: LocalStory, completion: @escaping (InsertionResult) -> Void) {
-            receivedMessages.append(.insert(story: story))
-        }
-        
-        func retrieve(for id: Int, completion: @escaping (StoryStore.RetrievalResult) -> Void) {
-            receivedMessages.append(.retrieve(forId: id))
-            completions.append(completion)
-        }
-        
-        func completeRetrieval(with error: Error, at index: Int = 0) {
-            completions[index](.failure(error))
-        }
-        
-        func completeRetrieval(with story: LocalStory, at index: Int = 0) {
-            completions[index](.success(story))
-        }
-        
-        func completeRetrievalWithEmptyCache(at index: Int = 0) {
-            completions[index](.success(.none))
-        }
     }
 }
