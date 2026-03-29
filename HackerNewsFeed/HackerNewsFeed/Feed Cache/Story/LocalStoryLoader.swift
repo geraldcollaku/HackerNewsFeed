@@ -46,7 +46,9 @@ extension LocalStoryLoader {
     }
     
     public func save(_ story: LocalStory, completion: @escaping (SaveResult) -> Void) {
-        store.insert(story) { result in
+        store.insert(story) { [weak self] result in
+            guard self != nil else { return }
+            
             completion(result.mapError { _ in SaveError.failed })
         }
     }

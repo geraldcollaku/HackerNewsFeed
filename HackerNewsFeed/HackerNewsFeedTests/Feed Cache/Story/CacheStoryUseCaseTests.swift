@@ -42,6 +42,20 @@ class CacheStoryUseCaseTests: XCTestCase {
         })
     }
     
+    func test_saveStory_doesNotDeliverResultAfterSUTInstanceHasBeenDeallocated() {
+        let store = FeedStoryStoreSpy()
+        var sut: LocalStoryLoader? = LocalStoryLoader(store: store)
+        
+        var received = [LocalStoryLoader.SaveResult]()
+        sut?.save(uniqueStory()) { received.append($0) }
+        
+        sut = nil
+        
+        store.completeInsertionSuccessfully()
+        
+        XCTAssertTrue(received.isEmpty, "Expected no received results after instance has been deallocated")
+    }
+    
     // MARK: - Helpers
     
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: LocalStoryLoader, store: FeedStoryStoreSpy) {
