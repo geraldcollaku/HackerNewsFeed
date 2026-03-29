@@ -6,10 +6,26 @@
 //
 
 import XCTest
+import HackerNewsFeed
 
-final class LocalStoryLoader {
-    init(store: Any) {
-        
+protocol StoryStore {
+    func retrieve(for id: Int)
+}
+
+final class LocalStoryLoader: StoryLoader {
+    private let store: StoryStore
+    
+    init(store: StoryStore) {
+        self.store = store
+    }
+    
+    private struct Task: StoryLoaderTask {
+        func cancel() {}
+    }
+
+    func loadStory(with id: Int, completion: @escaping (StoryLoader.Result) -> Void) -> StoryLoaderTask {
+        store.retrieve(for: id)
+        return Task()
     }
 }
 
@@ -21,6 +37,15 @@ class LocalStoryLoaderTests: XCTestCase {
         XCTAssertTrue(store.receivedMessages.isEmpty)
     }
     
+    func test_loadStoryWithID_requestsStoryWithID() {
+        let anyId = 0
+        let (sut, store) = makeSUT()
+        
+        _ = sut.loadStory(with: anyId) { _ in }
+        
+        XCTAssertEqual(store.receivedMessages, [anyId])
+    }
+
     // MARK: - Helpers
     
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: LocalStoryLoader, store: FeedStoreSpy) {
@@ -31,7 +56,11 @@ class LocalStoryLoaderTests: XCTestCase {
         return (sut, store)
     }
     
-    private class FeedStoreSpy {
-        let receivedMessages = [Any]()
+    private class FeedStoreSpy: StoryStore {
+        private(set) var receivedMessages = [Int]()
+        
+        func retrieve(for id: Int) {
+            receivedMessages.append(id)
+        }
     }
 }
