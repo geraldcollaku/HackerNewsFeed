@@ -185,8 +185,8 @@ GET /v0/newstories
 #### Retrieval Error - error course (sad path):
 1. System delivers retrieval error
 
-#### Expired Cache - error course (sad path):
-1. System delivers no story data
+#### Empty cache course (sad path):
+1. System delivers not found error.
 
 ---
 
