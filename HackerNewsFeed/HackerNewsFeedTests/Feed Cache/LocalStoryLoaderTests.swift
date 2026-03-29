@@ -111,7 +111,7 @@ class LocalStoryLoaderTests: XCTestCase {
         XCTAssertEqual(store.receivedMessages, [.retrieve(forId: anyId)])
     }
     
-    func test_loadStoryWithID_failsOnStoreError() {
+    func test_loadStoryWithID_deliversFailureOnStoreError() {
         let (sut, store) = makeSUT()
         
         expect(sut, toCompleteWith: failed(), when: {
@@ -126,6 +126,14 @@ class LocalStoryLoaderTests: XCTestCase {
         
         expect(sut, toCompleteWith: .success(uniqueStory.model), when: {
             store.complete(with: uniqueStory.local)
+        })
+    }
+    
+    func test_loadStoryWithID_deliversFailureOnEmptyCache() {
+        let (sut, store) = makeSUT()
+        
+        expect(sut, toCompleteWith: failed(), when: {
+            store.completeWithEmptyCache()
         })
     }
 
@@ -217,6 +225,10 @@ class LocalStoryLoaderTests: XCTestCase {
         
         func complete(with story: LocalStory, at index: Int = 0) {
             completions[index](.success(story))
+        }
+        
+        func completeWithEmptyCache(at index: Int = 0) {
+            completions[index](.success(.none))
         }
     }
 }
