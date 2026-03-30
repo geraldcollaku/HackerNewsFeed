@@ -45,8 +45,8 @@ extension LocalStoryLoader {
         case failed
     }
     
-    public func save(_ story: LocalStory, completion: @escaping (SaveResult) -> Void) {
-        store.insert(story) { [weak self] result in
+    public func save(_ story: Story, completion: @escaping (SaveResult) -> Void) {
+        store.insert(story.toLocal()) { [weak self] result in
             guard self != nil else { return }
             
             completion(result.mapError { _ in SaveError.failed })
@@ -74,6 +74,22 @@ extension LocalStoryLoader: StoryLoader {
 private extension LocalStory {
     func toModel() -> Story {
         Story(
+            id: id,
+            title: title,
+            text: text,
+            author: author,
+            score: score,
+            createdAt: createdAt,
+            totalComments: totalComments,
+            comments: comments,
+            type: type,
+            url: url)
+    }
+}
+
+private extension Story {
+    func toLocal() -> LocalStory {
+        LocalStory(
             id: id,
             title: title,
             text: text,

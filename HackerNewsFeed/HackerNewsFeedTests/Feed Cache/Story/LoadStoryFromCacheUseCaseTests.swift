@@ -68,11 +68,11 @@ class LoadStoryFromCacheUseCaseTests: XCTestCase {
     
     func test_saveStory_requestStoryInsertion() {
         let (sut, store) = makeSUT()
-        let story = uniqueStory().local
+        let story = uniqueStory()
         
-        sut.save(story) { _ in }
+        sut.save(story.model) { _ in }
         
-        XCTAssertEqual(store.receivedMessages, [.insert(story: story)])
+        XCTAssertEqual(store.receivedMessages, [.insert(story: story.local)])
     }
 
     // MARK: - Helpers
@@ -116,32 +116,6 @@ class LoadStoryFromCacheUseCaseTests: XCTestCase {
     
     private func notFound() -> StoryLoader.Result {
         .failure(LocalStoryLoader.LoadError.notFound)
-    }
-    
-    private func uniqueStory() -> (model: Story, local: LocalStory) {
-        let model = Story(
-            id: 0,
-            title: "a title",
-            text: nil,
-            author: "an author",
-            score: 1,
-            createdAt: Date(),
-            totalComments: 0,
-            comments: nil,
-            type: "story",
-            url: nil)
-        let local = LocalStory(
-            id: model.id,
-            title: model.title,
-            text: model.text,
-            author: model.author,
-            score: model.score,
-            createdAt: model.createdAt,
-            totalComments: model.totalComments,
-            comments: model.comments,
-            type: model.type,
-            url: model.url)
-        return (model, local)
     }
     
     private func anyId() -> Int {

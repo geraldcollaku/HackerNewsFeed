@@ -19,16 +19,17 @@ func uniqueId(_ id: Int) -> FeedId {
 }
 
 func uniqueStory(id: Int = 0) -> (model: Story, local: LocalStory) {
-    let model = Story(id: id,
-                      title: "a title",
-                      text: nil,
-                      author: "an author",
-                      score: 1,
-                      createdAt: Date(),
-                      totalComments: 0,
-                      comments: nil,
-                      type: "story",
-                      url: nil)
+    let model = Story(
+        id: id,
+        title: "a title",
+        text: nil,
+        author: "an author",
+        score: 1,
+        createdAt: Date(),
+        totalComments: 0,
+        comments: nil,
+        type: "story",
+        url: nil)
     let local = LocalStory(
         id: model.id,
         title: model.title,

@@ -61,12 +61,28 @@ final class HackerNewsFeedCacheIntegrationTests: XCTestCase {
         let feedLoader = makeFeedLoader()
         let feed = uniqueIdFeed().models
         let storyId = 0
-        let storyToSave = uniqueStory(id: storyId)
+        let storyToSave = uniqueStory(id: storyId).model
         
         save(feed, with: feedLoader)
-        save(storyToSave.local, with: storyLoaderToPerformSave)
+        save(storyToSave, with: storyLoaderToPerformSave)
         
-        expect(storyLoaderToPerformLoad, toLoad: storyToSave.model, for: storyId)
+        expect(storyLoaderToPerformLoad, toLoad: storyToSave, for: storyId)
+    }
+    
+    func test_saveStory_overridesSavedStoryOnASeparateInstance() {
+        let storyLoaderToPerformFirstSave = makeStoryLoader()
+        let storyLoaderToPerformLastSave = makeStoryLoader()
+        let storyLoaderToPerformLoad = makeStoryLoader()
+        let feedLoader = makeFeedLoader()
+        let feed = uniqueIdFeed().models
+        let firstStory = uniqueStory(id: 0).model
+        let lastStory = uniqueStory(id: 1).model
+
+        save(feed, with: feedLoader)
+        save(firstStory, with: storyLoaderToPerformFirstSave)
+        save(lastStory, with: storyLoaderToPerformLastSave)
+        
+        expect(storyLoaderToPerformLoad, toLoad: lastStory, for: lastStory.id)
     }
 
     // MARK: - Helpers
@@ -119,7 +135,7 @@ final class HackerNewsFeedCacheIntegrationTests: XCTestCase {
         wait(for: [exp], timeout: 1.0)
     }
     
-    private func save(_ story: LocalStory, with loader: LocalStoryLoader, file: StaticString = #filePath, line: UInt = #line) {
+    private func save(_ story: Story, with loader: LocalStoryLoader, file: StaticString = #filePath, line: UInt = #line) {
         let saveExp = expectation(description: "Wait for save completion")
         loader.save(story) { result in
             if case let .failure(error) = result {
