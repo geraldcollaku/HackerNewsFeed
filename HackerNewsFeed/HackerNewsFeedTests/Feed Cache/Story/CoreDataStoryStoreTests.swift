@@ -8,15 +8,6 @@
 import XCTest
 import HackerNewsFeed
 
-extension CoreDataFeedStore: @retroactive StoryStore {
-    public func insert(_ story: LocalStory, completion: @escaping (StoryStore.InsertionResult) -> Void) {
-        
-    }
-    public func retrieve(for id: Int, completion: @escaping (StoryStore.RetrievalResult) -> Void) {
-        completion(.success(.none))
-    }
-}
-
 class CoreDataStoryStoreTests: XCTestCase {
     
     func test_retrieveStory_deliversNotFoundWhenNotEmpty() {
