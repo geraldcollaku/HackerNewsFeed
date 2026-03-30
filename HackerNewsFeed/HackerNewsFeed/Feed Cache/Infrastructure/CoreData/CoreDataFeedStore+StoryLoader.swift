@@ -22,7 +22,7 @@ extension CoreDataFeedStore: StoryStore {
     public func retrieve(for id: Int, completion: @escaping (StoryStore.RetrievalResult) -> Void) {
         perform { context in
             completion(Result {
-                return try ManagedStory.find(with: id, in: context)?.local
+                try ManagedStory.find(with: id, in: context)?.local
             })
         }
     }
