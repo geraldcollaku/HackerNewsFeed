@@ -23,6 +23,14 @@ extension ManagedNews {
         })
     }
     
+    static func find(id: Int, in context: NSManagedObjectContext) throws -> ManagedNews? {
+        let request = NSFetchRequest<ManagedNews>(entityName: entity().name!)
+        request.predicate = NSPredicate(format: "id == %d", id)
+        request.returnsObjectsAsFaults = false
+        request.fetchLimit = 1
+        return try context.fetch(request).first
+    }
+    
     var local: LocalFeedId {
         LocalFeedId(id: id)
     }

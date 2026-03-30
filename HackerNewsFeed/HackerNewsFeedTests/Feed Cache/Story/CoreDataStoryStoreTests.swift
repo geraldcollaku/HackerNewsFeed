@@ -27,6 +27,16 @@ class CoreDataStoryStoreTests: XCTestCase {
         expect(sut, toCompleteWith: notFound(), for: nonMatchingId)
     }
     
+    func test_retrieveStory_deliversFoundStoryWhenThereIsAStoreStoryMatchingID() {
+        let sut = makeSUT()
+        let matchingId = 0
+        let story = localStory(with: matchingId)
+        
+        insert(story, for: matchingId, into: sut)
+        
+        expect(sut, toCompleteWith: found(story), for: matchingId)
+    }
+    
     // MARK: - Helpers
     
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> CoreDataFeedStore {
@@ -76,6 +86,10 @@ class CoreDataStoryStoreTests: XCTestCase {
     
     private func notFound() -> StoryStore.RetrievalResult {
         .success(.none)
+    }
+    
+    private func found(_ story: LocalStory) -> StoryStore.RetrievalResult {
+        return .success(story)
     }
     
     private func anyId(_ id: Int = 0) -> Int { id }
