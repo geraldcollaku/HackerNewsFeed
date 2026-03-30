@@ -37,6 +37,18 @@ class CoreDataStoryStoreTests: XCTestCase {
         expect(sut, toCompleteWith: found(story), for: matchingId)
     }
     
+    func test_retrieveStory_deliversLastInsertedStory() {
+        let sut = makeSUT()
+        let id = 0
+        let firstStory = localStory(with: id, title: "first title")
+        let lastStory = localStory(with: id, title: "second title")
+        
+        insert(firstStory, for: id, into: sut)
+        insert(lastStory, for: id, into: sut)
+        
+        expect(sut, toCompleteWith: found(lastStory), for: id)
+    }
+    
     // MARK: - Helpers
     
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> CoreDataFeedStore {
@@ -94,10 +106,10 @@ class CoreDataStoryStoreTests: XCTestCase {
     
     private func anyId(_ id: Int = 0) -> Int { id }
     
-    private func localStory(with id: Int = 0) -> LocalStory {
+    private func localStory(with id: Int = 0, title: String = "a title") -> LocalStory {
          LocalStory(
             id: id,
-            title: "a title",
+            title: title,
             text: nil,
             author: "an author",
             score: 1,
