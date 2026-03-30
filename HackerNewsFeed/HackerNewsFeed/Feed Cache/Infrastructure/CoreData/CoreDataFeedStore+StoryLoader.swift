@@ -11,9 +11,12 @@ extension CoreDataFeedStore: StoryStore {
     public func insert(_ story: LocalStory, completion: @escaping (StoryStore.InsertionResult) -> Void) {
         perform { context in
             completion(Result {
-                let managedNews = try ManagedNews.find(id: story.id, in: context)
-                let managed = try ManagedStory.item(from: story, in: context)
-                managedNews?.story = managed
+                let managedStory = try ManagedStory.item(from: story, in: context)
+                
+                try ManagedNews.find(id: story.id, in: context).map {
+                    $0.story = managedStory
+                }
+                
                 try context.save()
             })
         }
