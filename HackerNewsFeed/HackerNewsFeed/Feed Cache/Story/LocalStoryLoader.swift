@@ -55,7 +55,7 @@ extension LocalStoryLoader {
 }
 
 extension LocalStoryLoader: StoryLoader {
-    public typealias LoadResult = Result<Void, LoadError>
+    public typealias LoadResult = Result<Story, LoadError>
 
     public func loadStory(with id: Int, completion: @escaping (StoryLoader.Result) -> Void) -> StoryLoaderTask {
         let task = LoadStoryDataTask(completion)

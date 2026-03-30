@@ -18,7 +18,7 @@ class CacheStoryUseCaseTests: XCTestCase {
     
     func test_saveStory_requestStoryInsertion() {
         let (sut, store) = makeSUT()
-        let story = uniqueStory()
+        let story = uniqueStory().local
         
         sut.save(story) { _ in }
         
@@ -47,7 +47,7 @@ class CacheStoryUseCaseTests: XCTestCase {
         var sut: LocalStoryLoader? = LocalStoryLoader(store: store)
         
         var received = [LocalStoryLoader.SaveResult]()
-        sut?.save(uniqueStory()) { received.append($0) }
+        sut?.save(uniqueStory().local) { received.append($0) }
         
         sut = nil
         
@@ -76,7 +76,7 @@ class CacheStoryUseCaseTests: XCTestCase {
                         file: StaticString = #file,
                         line: UInt = #line) {
         let exp = expectation(description: "Wait for save completion")
-        sut.save(uniqueStory()) { receivedResult in
+        sut.save(uniqueStory().local) { receivedResult in
             switch (receivedResult, expectedResult) {
             case (.success, .success): break
             case let (.failure(receivedError as NSError), .failure(expectedError as NSError)):
@@ -90,20 +90,6 @@ class CacheStoryUseCaseTests: XCTestCase {
         
         action()
         wait(for: [exp], timeout: 1.0)
-    }
-    
-    private func uniqueStory() -> LocalStory {
-       return LocalStory(
-            id: 0,
-            title: "a title",
-            text: nil,
-            author: "an author",
-            score: 1,
-            createdAt: Date(),
-            totalComments: 0,
-            comments: nil,
-            type: "story",
-            url: nil)
     }
 }
 

@@ -23,14 +23,14 @@ final class HackerNewsFeedCacheIntegrationTests: XCTestCase {
     }
     
     func test_load_deliversNoItemsOnEmptyCache() {
-        let sut = makeSUT()
+        let sut = makeFeedLoader()
         
         expect(sut, toLoad: [])
     }
     
     func test_load_deliversItemsSavedOnASeparateInstance() {
-        let sutToPerformSave = makeSUT()
-        let sutToPerformLoad = makeSUT()
+        let sutToPerformSave = makeFeedLoader()
+        let sutToPerformLoad = makeFeedLoader()
         let feed = uniqueIdFeed().models
         
         save(feed, with: sutToPerformSave)
@@ -39,9 +39,9 @@ final class HackerNewsFeedCacheIntegrationTests: XCTestCase {
     }
     
     func test_load_overridesItemsSavedOnASeparateInstance() {
-        let sutToPerformFirstSave = makeSUT()
-        let sutToPerformLastSave = makeSUT()
-        let sutToPerformLoad = makeSUT()
+        let sutToPerformFirstSave = makeFeedLoader()
+        let sutToPerformLastSave = makeFeedLoader()
+        let sutToPerformLoad = makeFeedLoader()
         let firstFeed = uniqueIdFeed().models
         let latestFeed = uniqueIdFeed().models
         
@@ -50,13 +50,36 @@ final class HackerNewsFeedCacheIntegrationTests: XCTestCase {
         
         expect(sutToPerformLoad, toLoad: latestFeed)
     }
+    
+    func test_loadStory_deliversSavedDataOnASeparateInstance() {
+        let storyLoaderToPerformSave = makeStoryLoader()
+        let storyLoaderToPerformLoad = makeStoryLoader()
+        let feedLoader = makeFeedLoader()
+        let feed = uniqueIdFeed().models
+        let storyId = 0
+        let storyToSave = uniqueStory(id: storyId)
+        
+        save(feed, with: feedLoader)
+        save(storyToSave.local, with: storyLoaderToPerformSave)
+        
+        expect(storyLoaderToPerformLoad, toLoad: storyToSave.model, for: storyId)
+    }
 
     // MARK: - Helpers
     
-    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> LocalFeedLoader {
+    private func makeFeedLoader(file: StaticString = #filePath, line: UInt = #line) -> LocalFeedLoader {
         let storeURL = testSpecificStoreURL()
         let store = try! CoreDataFeedStore(storeURL: storeURL)
         let sut = LocalFeedLoader(store: store, currentDate: Date.init)
+        trackForMemoryLeaks(store, file: file, line: line)
+        trackForMemoryLeaks(sut, file: file, line: line)
+        return sut
+    }
+    
+    private func makeStoryLoader(file: StaticString = #filePath, line: UInt = #line) -> LocalStoryLoader {
+        let storeURL = testSpecificStoreURL()
+        let store = try! CoreDataFeedStore(storeURL: storeURL)
+        let sut = LocalStoryLoader(store: store)
         trackForMemoryLeaks(store, file: file, line: line)
         trackForMemoryLeaks(sut, file: file, line: line)
         return sut
@@ -66,7 +89,7 @@ final class HackerNewsFeedCacheIntegrationTests: XCTestCase {
         let saveExp = expectation(description: "Wait for save completion")
         loader.save(feed) { result in
             if case let .failure(error) = result {
-                XCTAssertNil(error,"Expected to save feed successfully", file: file, line: line)
+                XCTFail("Expected to save feed successfully, got error: \(error) instead", file: file, line: line)
             }
             saveExp.fulfill()
         }
@@ -85,6 +108,33 @@ final class HackerNewsFeedCacheIntegrationTests: XCTestCase {
                 
             @unknown default:
                 XCTFail("Received unexpected case", file: file, line: line)
+            }
+            
+            exp.fulfill()
+        }
+        wait(for: [exp], timeout: 1.0)
+    }
+    
+    private func save(_ story: LocalStory, with loader: LocalStoryLoader, file: StaticString = #filePath, line: UInt = #line) {
+        let saveExp = expectation(description: "Wait for save completion")
+        loader.save(story) { result in
+            if case let .failure(error) = result {
+                XCTFail("Expected to save feed successfully, got error: \(error) instead", file: file, line: line)
+            }
+            saveExp.fulfill()
+        }
+        wait(for: [saveExp], timeout: 1.0)
+    }
+    
+    private func expect(_ sut: LocalStoryLoader, toLoad expectedStory: Story, for id: Int, file: StaticString = #filePath, line: UInt = #line) {
+        let exp = expectation(description: "Wait for load completion")
+        _ = sut.loadStory(with: id) { result in
+            switch result {
+            case let .success(loadedStory):
+                XCTAssertEqual(loadedStory, expectedStory, file: file, line: line)
+                
+            case let .failure(error):
+                XCTFail("Expected successful feed result, got \(error) instead", file: file, line: line)
             }
             
             exp.fulfill()
