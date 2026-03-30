@@ -10,6 +10,8 @@ import CoreData
 @objc(ManagedNews)
 class ManagedNews: NSManagedObject {
     @NSManaged var id: Int
+    @NSManaged var cache: ManagedCache
+    @NSManaged var story: ManagedStory?
 }
 
 extension ManagedNews {
