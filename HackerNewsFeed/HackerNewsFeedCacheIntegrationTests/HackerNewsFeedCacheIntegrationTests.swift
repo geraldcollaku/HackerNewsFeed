@@ -84,6 +84,18 @@ final class HackerNewsFeedCacheIntegrationTests: XCTestCase {
         
         expect(storyLoaderToPerformLoad, toLoad: lastStory, for: lastStory.id)
     }
+    
+    func test_validateFeedCache_doesNotDeleteRecentlySavedFeed() {
+        let feedLoaderToPerformSave = makeFeedLoader()
+        let feedLoaderToPerformValidation = makeFeedLoader()
+        let feedLoaderToPerformLoad = makeFeedLoader()
+        let feed = uniqueIdFeed().models
+
+        save(feed, with: feedLoaderToPerformSave)
+        validateCache(with: feedLoaderToPerformValidation)
+        
+        expect(feedLoaderToPerformLoad, toLoad: feed)
+    }
 
     // MARK: - Helpers
     
@@ -114,6 +126,17 @@ final class HackerNewsFeedCacheIntegrationTests: XCTestCase {
             saveExp.fulfill()
         }
         wait(for: [saveExp], timeout: 1.0)
+    }
+    
+    private func validateCache(with loader: LocalFeedLoader, file: StaticString = #file, line: UInt = #line) {
+        let validateExp = expectation(description: "Wait for validate completion")
+        loader.validateCache { result in
+            if case let Result.failure(error) = result {
+                XCTFail("Expected to validate feed successfully, got error: \(error) instead", file: file, line: line)
+            }
+            validateExp.fulfill()
+        }
+        wait(for: [validateExp], timeout: 1.0)
     }
     
     private func expect(_ sut: LocalFeedLoader, toLoad expectedFeed: [FeedId], file: StaticString = #filePath, line: UInt = #line) {
