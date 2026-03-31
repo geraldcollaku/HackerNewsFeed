@@ -8,7 +8,7 @@
 import Foundation
 
 public class RemoteStoryDataLoader: StoryLoader {
-    private let url: URL
+    private let url: (Int) -> URL
     private let client: HTTPClient
     
     public enum Error: Swift.Error {
@@ -16,7 +16,7 @@ public class RemoteStoryDataLoader: StoryLoader {
         case invalidData
     }
     
-    public init(url: URL, client: HTTPClient) {
+    public init(url: @escaping (Int) -> URL, client: HTTPClient) {
         self.url = url
         self.client = client
     }
@@ -45,7 +45,7 @@ public class RemoteStoryDataLoader: StoryLoader {
     
     public func loadStory(with id: Int, completion: @escaping (StoryLoader.Result) -> Void) -> StoryLoaderTask {
         let task = HTTPClientTaskWrapper(completion)
-        task.wrapped = client.get(from: url) { [weak self] result in
+        task.wrapped = client.get(from: url(id)) { [weak self] result in
             guard self != nil else { return }
             
             task.complete(with: result

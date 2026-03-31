@@ -19,7 +19,7 @@ final class LoadStoryFromRemoteUseCaseTests: XCTestCase {
     func test_loadStoryFromURL_requestsDataFromURL() {
         let url = URL(string: "https://a-given-url.com")!
 
-        let (sut, client) = makeSUT(url: url)
+        let (sut, client) = makeSUT(url: { _ in url } )
         
         sut.loadStory(with: 0) { _ in }
         
@@ -28,7 +28,7 @@ final class LoadStoryFromRemoteUseCaseTests: XCTestCase {
     
     func test_loadStoryFromURLTwice_requestsDataFromURLTwice() {
         let url = URL(string: "https://a-given-url.com")!
-        let (sut, client) = makeSUT(url: url)
+        let (sut, client) = makeSUT(url: { _ in url })
         
         sut.loadStory(with: 0) { _ in }
         sut.loadStory(with: 1) { _ in }
@@ -89,7 +89,7 @@ final class LoadStoryFromRemoteUseCaseTests: XCTestCase {
     
     func test_loadStoryFromURL_doesNotDeliverResultAfterSUTInstanceHasBeenDeallocated() {
         let client = HTTPClientSpy()
-        var sut: RemoteStoryDataLoader? = RemoteStoryDataLoader(url: anyURL(), client: client)
+        var sut: RemoteStoryDataLoader? = RemoteStoryDataLoader(url: { _ in anyURL() }, client: client)
         
         var capturedResults = [StoryLoader.Result]()
         
@@ -106,7 +106,7 @@ final class LoadStoryFromRemoteUseCaseTests: XCTestCase {
     
     func test_cancelLoadStoryDataTask_cancelsClientURLRequest() {
         let url = URL(string: "https://a-given-url.com")!
-        let (sut, client) = makeSUT(url: url)
+        let (sut, client) = makeSUT(url: { _ in url })
         
         let task = sut.loadStory(with: 0) { _ in }
         
@@ -135,7 +135,9 @@ final class LoadStoryFromRemoteUseCaseTests: XCTestCase {
         XCTAssertTrue(received.isEmpty, "Expected no received result after cancelling the task")
     }
     
-    private func makeSUT(url: URL = URL(string: "http://a-url.com")!, file: StaticString = #filePath, line: UInt = #line) -> (sut: StoryLoader, client: HTTPClientSpy) {
+    private func makeSUT(url: @escaping (Int) -> URL = { _ in URL(string: "http://a-url.com")! },
+                         file: StaticString = #filePath,
+                         line: UInt = #line) -> (sut: StoryLoader, client: HTTPClientSpy) {
         let client = HTTPClientSpy()
         let sut = RemoteStoryDataLoader(url: url, client: client)
         trackForMemoryLeaks(client, file: file, line: line)

@@ -6,6 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		6815205D2F7C5F9000B54E12 /* HackerNewsFeed.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6815205B2F7C5F9000B54E12 /* HackerNewsFeed.framework */; };
+		6815205E2F7C5F9000B54E12 /* HackerNewsFeed.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6815205B2F7C5F9000B54E12 /* HackerNewsFeed.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6815205F2F7C5F9000B54E12 /* HackerNewsFeediOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6815205C2F7C5F9000B54E12 /* HackerNewsFeediOS.framework */; };
+		681520602F7C5F9000B54E12 /* HackerNewsFeediOS.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6815205C2F7C5F9000B54E12 /* HackerNewsFeediOS.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		68151C662F7C58F000B54E12 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -23,10 +30,27 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		681520612F7C5F9000B54E12 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				6815205E2F7C5F9000B54E12 /* HackerNewsFeed.framework in Embed Frameworks */,
+				681520602F7C5F9000B54E12 /* HackerNewsFeediOS.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		68151C4F2F7C58ED00B54E12 /* HackerNewsApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HackerNewsApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		68151C652F7C58F000B54E12 /* HackerNewsAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HackerNewsAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		68151C6F2F7C58F000B54E12 /* HackerNewsAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HackerNewsAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		6815205B2F7C5F9000B54E12 /* HackerNewsFeed.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = HackerNewsFeed.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		6815205C2F7C5F9000B54E12 /* HackerNewsFeediOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = HackerNewsFeediOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -65,6 +89,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6815205D2F7C5F9000B54E12 /* HackerNewsFeed.framework in Frameworks */,
+				6815205F2F7C5F9000B54E12 /* HackerNewsFeediOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -91,6 +117,7 @@
 				68151C512F7C58ED00B54E12 /* HackerNewsApp */,
 				68151C682F7C58F000B54E12 /* HackerNewsAppTests */,
 				68151C722F7C58F000B54E12 /* HackerNewsAppUITests */,
+				6815205A2F7C5F9000B54E12 /* Frameworks */,
 				68151C502F7C58ED00B54E12 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -105,6 +132,15 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		6815205A2F7C5F9000B54E12 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				6815205B2F7C5F9000B54E12 /* HackerNewsFeed.framework */,
+				6815205C2F7C5F9000B54E12 /* HackerNewsFeediOS.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -115,6 +151,7 @@
 				68151C4B2F7C58ED00B54E12 /* Sources */,
 				68151C4C2F7C58ED00B54E12 /* Frameworks */,
 				68151C4D2F7C58ED00B54E12 /* Resources */,
+				681520612F7C5F9000B54E12 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);

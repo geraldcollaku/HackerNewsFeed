@@ -67,7 +67,7 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
         let url = feedTestServerURL.appendingPathComponent("item/\(id).json")
         
         let client = URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
-        let loader = RemoteStoryDataLoader(url: url, client: client)
+        let loader = RemoteStoryDataLoader(url: { _ in url } , client: client)
         trackForMemoryLeaks(client)
         trackForMemoryLeaks(loader)
         

@@ -10,7 +10,6 @@
 		6825D6D52F4B486900079C85 /* HackerNewsFeediOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6825D6CA2F4B486900079C85 /* HackerNewsFeediOS.framework */; };
 		683DCED02F55DA5100B96B10 /* HackerNewsFeed.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 68E965DE2EFAC76A006095E4 /* HackerNewsFeed.framework */; platformFilters = (ios, macos, ); };
 		683DCED12F55DA5100B96B10 /* HackerNewsFeed.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 68E965DE2EFAC76A006095E4 /* HackerNewsFeed.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		687AFAE92F7182270011ABA7 /* CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 687AFACB2F7182270011ABA7 /* CoreDataHelpers.swift */; };
 		68E965EA2EFAC76A006095E4 /* HackerNewsFeed.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 68E965DE2EFAC76A006095E4 /* HackerNewsFeed.framework */; };
 		68E9662E2F02C422006095E4 /* HackerNewsFeed.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 68E965DE2EFAC76A006095E4 /* HackerNewsFeed.framework */; };
 		68FB9E412F3E751A00B7A262 /* HackerNewsFeed.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 68E965DE2EFAC76A006095E4 /* HackerNewsFeed.framework */; };
@@ -75,7 +74,6 @@
 		6825D6E12F4B48C200079C85 /* HackerNewsFeediOS.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = HackerNewsFeediOS.xctestplan; sourceTree = "<group>"; };
 		683DD0EE2F5793F800B96B10 /* CI_iOS.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = CI_iOS.xctestplan; path = ../CI_iOS.xctestplan; sourceTree = "<group>"; };
 		683DD1FC2F5B24F200B96B10 /* CI_macOS.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = CI_macOS.xctestplan; sourceTree = "<group>"; };
-		687AFACB2F7182270011ABA7 /* CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataHelpers.swift; sourceTree = "<group>"; };
 		68E965DE2EFAC76A006095E4 /* HackerNewsFeed.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = HackerNewsFeed.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		68E965E92EFAC76A006095E4 /* HackerNewsFeedTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HackerNewsFeedTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		68E966202F01DC0A006095E4 /* HackerNewsFeed.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = HackerNewsFeed.xctestplan; path = ../HackerNewsFeed.xctestplan; sourceTree = "<group>"; };
@@ -216,7 +214,6 @@
 				6825D6C42F4B469900079C85 /* HackerNewsFeedAPIEndToEndTests.xctestplan */,
 				68FB9E472F3E754600B7A262 /* HackerNewsFeedCacheIntegrationTests.xctestplan */,
 				683DD0EE2F5793F800B96B10 /* CI_iOS.xctestplan */,
-				687AFACB2F7182270011ABA7 /* CoreDataHelpers.swift */,
 				68E966202F01DC0A006095E4 /* HackerNewsFeed.xctestplan */,
 				68E965E02EFAC76A006095E4 /* HackerNewsFeed */,
 				68E965ED2EFAC76A006095E4 /* HackerNewsFeedTests */,
@@ -526,7 +523,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				687AFAE92F7182270011ABA7 /* CoreDataHelpers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
