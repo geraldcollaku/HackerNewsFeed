@@ -22,7 +22,14 @@ final class FeedStoryLoaderWithFallbackComposite: StoryLoader {
     }
     
     func loadStory(with id: Int, completion: @escaping (StoryLoader.Result) -> Void) -> StoryLoaderTask {
-        _ = primary.loadStory(with: id) { _ in }
+        _ = primary.loadStory(with: id) { [weak self] result in
+            switch result {
+            case .success:
+                break
+            case .failure:
+                _ = self?.fallback.loadStory(with: id) { _ in }
+            }
+        }
         return Task()
     }
 }
@@ -37,6 +44,18 @@ class FeedStoryLoaderWithFallbackCompositeTests: XCTestCase {
         
         XCTAssertEqual(primaryLoader.ids, [story.id], "Expected to load story with ID from primary loader")
         XCTAssertTrue(fallbackLoader.ids.isEmpty, "Expected no loaded IDs in the fallback loader")
+    }
+    
+    func test_loadStory_loadsFromFallbackOnPrimaryLoaderFailure() {
+        let story = uniqueStory()
+        let (sut, primaryLoader, fallbackLoader) = makeSUT()
+        
+        _ = sut.loadStory(with: story.id) { _ in }
+        
+        primaryLoader.complete(with: anyNSError())
+        
+        XCTAssertEqual(primaryLoader.ids, [story.id], "Expected to load story with ID from primary loader")
+        XCTAssertEqual(fallbackLoader.ids, [story.id], "Expected to load story with ID from fallback loader")
     }
     
     // MARK: - Helpers
@@ -89,6 +108,10 @@ class FeedStoryLoaderWithFallbackCompositeTests: XCTestCase {
         func loadStory(with id: Int, completion: @escaping (StoryLoader.Result) -> Void) -> StoryLoaderTask {
             messages.append((id, completion))
             return Task()
+        }
+        
+        func complete(with error: Error, at index: Int = 0) {
+            messages[index].completion(.failure(error))
         }
     }
 }
