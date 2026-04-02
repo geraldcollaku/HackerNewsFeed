@@ -31,7 +31,7 @@ final class FeedStoryLoaderWithFallbackComposite: StoryLoader {
             case .success:
                 break
             case .failure:
-                _ = self?.fallback.loadStory(with: id) { _ in }
+                task.wrapped = self?.fallback.loadStory(with: id) { _ in }
             }
         }
         return task
@@ -71,6 +71,19 @@ class FeedStoryLoaderWithFallbackCompositeTests: XCTestCase {
         
         XCTAssertEqual(primaryLoader.cancelledIds, [story.id], "Expected to cancel story loading from primary loader")
         XCTAssertTrue(fallbackLoader.cancelledIds.isEmpty, "Expected no cancelled stories in the fallback loader")
+    }
+    
+    func test_loadStory_cancelsFallbackLoaderTaskOnCancel() {
+        let story = uniqueStory()
+        let (sut, primaryLoader, fallbackLoader) = makeSUT()
+        
+        let task = sut.loadStory(with: story.id) { _ in }
+        primaryLoader.complete(with: anyNSError())
+
+        task.cancel()
+        
+        XCTAssertTrue(primaryLoader.cancelledIds.isEmpty, "Expected to cancel story loading from primary loader")
+        XCTAssertEqual(fallbackLoader.cancelledIds, [story.id], "Expected to cancel  story loading in the fallback loader")
     }
     
     // MARK: - Helpers
