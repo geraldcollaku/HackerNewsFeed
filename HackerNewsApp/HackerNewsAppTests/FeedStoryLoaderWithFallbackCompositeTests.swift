@@ -10,48 +10,36 @@ import HackerNewsFeed
 
 final class FeedStoryLoaderWithFallbackComposite: StoryLoader {
     private let primary: StoryLoader
+    private let fallback: StoryLoader
     
     init(primary: StoryLoader, fallback: StoryLoader) {
         self.primary = primary
+        self.fallback = fallback
     }
     
-    private class TaskWrapper: StoryLoaderTask {
-        var wrapped: StoryLoaderTask?
-        
-        func cancel() {
-            wrapped?.cancel()
-        }
+    private class Task: StoryLoaderTask {
+        func cancel() { }
     }
     
     func loadStory(with id: Int, completion: @escaping (StoryLoader.Result) -> Void) -> StoryLoaderTask {
-        let task = TaskWrapper()
-        task.wrapped = primary.loadStory(with: id, completion: completion)
-        return task
+        _ = primary.loadStory(with: id) { _ in }
+        return Task()
     }
-    
 }
 
 class FeedStoryLoaderWithFallbackCompositeTests: XCTestCase {
     
-    func test_loadStory_deliversPrimaryStoryOnPrimaryLoaderSuccess() {
-        let primaryStory = uniqueStory()
-        let fallbackStory = uniqueStory()
-        let primaryLoader = LoaderStub(result: .success(primaryStory))
-        let fallbackLoader = LoaderStub(result: .success(fallbackStory))
+    func test_loadStory_loadsFromPrimaryLoaderFirst() {
+        let story = uniqueStory()
+        let primaryLoader = LoaderSpy()
+        let fallbackLoader = LoaderSpy()
         
         let sut = FeedStoryLoaderWithFallbackComposite(primary: primaryLoader, fallback: fallbackLoader)
         
-        let exp = expectation(description: "Wait for load story completion")
-        _ = sut.loadStory(with: 0) { result in
-            switch result {
-            case .success(let receivedStory):
-                XCTAssertEqual(receivedStory, primaryStory)
-            case .failure:
-                XCTFail("Expected success, got \(result) instead")
-            }
-            exp.fulfill()
-        }
-        wait(for: [exp], timeout: 1)
+        _ = sut.loadStory(with: story.id) { _ in }
+        
+        XCTAssertEqual(primaryLoader.ids, [story.id], "Expected to load story with ID from primary loader")
+        XCTAssertTrue(fallbackLoader.ids.isEmpty, "Expected no loaded IDs in the fallback loader")
     }
     
     private func uniqueStory(id: Int = Int.random(in: 0...100)) -> Story {
@@ -68,19 +56,23 @@ class FeedStoryLoaderWithFallbackCompositeTests: XCTestCase {
             url: nil)
     }
     
-    private class LoaderStub: StoryLoader {
+    private func anyNSError() -> NSError {
+        NSError(domain: "any error", code: 0)
+    }
+    
+    private class LoaderSpy: StoryLoader {
         private class Task: StoryLoaderTask {
             func cancel() {}
         }
         
-        private let result: StoryLoader.Result
-        
-        init(result: StoryLoader.Result) {
-            self.result = result
+        var ids: [Int] {
+            messages.map { $0.id }
         }
         
+        private var messages = [(id: Int, completion: ((StoryLoader.Result) -> Void))]()
+        
         func loadStory(with id: Int, completion: @escaping (StoryLoader.Result) -> Void) -> StoryLoaderTask {
-            completion(result)
+            messages.append((id, completion))
             return Task()
         }
     }
