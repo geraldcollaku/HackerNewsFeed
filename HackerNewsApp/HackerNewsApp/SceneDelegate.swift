@@ -8,6 +8,7 @@
 import UIKit
 import HackerNewsFeed
 import HackerNewsFeediOS
+import CoreData
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -17,18 +18,28 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let _ = (scene as? UIWindowScene) else { return }
         
         let url = URL(string: "https://hacker-news.firebaseio.com/v0")!
+        
         let session = URLSession(configuration: .ephemeral)
-        let client = URLSessionHTTPClient(session: session)
-        let feedLoader = RemoteFeedLoader(url: url.appendingPathComponent("newstories.json"), client: client)
-        let storyLoader = RemoteStoryDataLoader(
+        let remoteClient = URLSessionHTTPClient(session: session)
+        let remoteFeedLoader = RemoteFeedLoader(url: url.appendingPathComponent("newstories.json"), client: remoteClient)
+        let remoteStoryLoader = RemoteStoryDataLoader(
             url: { id in
                 return url.appendingPathComponent("item/\(id).json")
             },
-            client: client
+            client: remoteClient
         )
-        let feedViewController = FeedUIComposer.feedComposedWith(loader: feedLoader, storyLoader: storyLoader)
         
-        window?.rootViewController = feedViewController
+        let localStoreURL = NSPersistentContainer.defaultDirectoryURL().appendingPathComponent("feed-store.sqlite")
+        
+        let localStore = try! CoreDataFeedStore(storeURL: localStoreURL)
+        let localFeedLoader = LocalFeedLoader(store: localStore, currentDate: Date.init)
+        let localStoryLoader = LocalStoryLoader(store: localStore)
+        
+        window?.rootViewController = FeedUIComposer.feedComposedWith(
+            loader: FeedLoaderWithFallbackComposite(primary: remoteFeedLoader, fallback: localFeedLoader),
+            storyLoader: FeedStoryLoaderWithFallbackComposite(
+                primary: remoteStoryLoader,
+                fallback: localStoryLoader))
     }
 }
 

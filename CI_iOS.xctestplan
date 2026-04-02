@@ -20,20 +20,17 @@
           "containerPath" : "container:HackerNewsFeed.xcodeproj",
           "identifier" : "6825D6C92F4B486900079C85",
           "name" : "HackerNewsFeediOS"
+        },
+        {
+          "containerPath" : "container:..\/HackerNewsApp\/HackerNewsApp.xcodeproj",
+          "identifier" : "68151C4E2F7C58ED00B54E12",
+          "name" : "HackerNewsApp"
         }
       ]
     },
     "testExecutionOrdering" : "random"
   },
   "testTargets" : [
-    {
-      "parallelizable" : false,
-      "target" : {
-        "containerPath" : "container:HackerNewsFeed.xcodeproj",
-        "identifier" : "68FB9E3C2F3E751A00B7A262",
-        "name" : "HackerNewsFeedCacheIntegrationTests"
-      }
-    },
     {
       "parallelizable" : false,
       "target" : {
@@ -46,8 +43,16 @@
       "parallelizable" : false,
       "target" : {
         "containerPath" : "container:HackerNewsFeed.xcodeproj",
-        "identifier" : "6825D6D32F4B486900079C85",
-        "name" : "HackerNewsFeediOSTests"
+        "identifier" : "68FB9E3C2F3E751A00B7A262",
+        "name" : "HackerNewsFeedCacheIntegrationTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:..\/HackerNewsApp\/HackerNewsApp.xcodeproj",
+        "identifier" : "68151C642F7C58F000B54E12",
+        "name" : "HackerNewsAppTests"
       }
     },
     {
@@ -56,6 +61,14 @@
         "containerPath" : "container:HackerNewsFeed.xcodeproj",
         "identifier" : "68E965E82EFAC76A006095E4",
         "name" : "HackerNewsFeedTests"
+      }
+    },
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:HackerNewsFeed.xcodeproj",
+        "identifier" : "6825D6D32F4B486900079C85",
+        "name" : "HackerNewsFeediOSTests"
       }
     }
   ],
