@@ -31,7 +31,7 @@ final class FeedStoryLoaderWithFallbackComposite: StoryLoader {
             case .success:
                 completion(result)
             case .failure:
-                task.wrapped = self?.fallback.loadStory(with: id) { _ in }
+                task.wrapped = self?.fallback.loadStory(with: id, completion: completion)
             }
         }
         return task
@@ -92,6 +92,16 @@ class FeedStoryLoaderWithFallbackCompositeTests: XCTestCase {
         
         expect(sut, for: primaryStory.id, toCompleteWith: .success(primaryStory), when: {
             primaryLoader.complete(with: primaryStory)
+        })
+    }
+    
+    func test_loadStory_deliversFallbackStoryOnFallbackLoaderSuccess() {
+        let fallbackStory = uniqueStory()
+        let (sut, primaryLoader, fallbackLoader) = makeSUT()
+        
+        expect(sut, for: fallbackStory.id, toCompleteWith: .success(fallbackStory), when: {
+            primaryLoader.complete(with: anyNSError())
+            fallbackLoader.complete(with: fallbackStory)
         })
     }
     
