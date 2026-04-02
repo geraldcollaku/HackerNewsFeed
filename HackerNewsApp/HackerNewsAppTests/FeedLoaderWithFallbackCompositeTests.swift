@@ -11,7 +11,7 @@ import HackerNewsApp
 
 class FeedLoaderWithFallbackCompositeTests: XCTestCase {
     
-    func test_load_deliversRemoteFeedOnRemoteSuccess() {
+    func test_load_deliversPrimaryFeedOnPrimaryLoaderSuccess() {
         let primaryFeed = uniqueIdFeed()
         let fallbackFeed = uniqueIdFeed()
         let sut = makeSUT(primaryResult: .success(primaryFeed), fallbackResult: .success(fallbackFeed))
@@ -19,7 +19,7 @@ class FeedLoaderWithFallbackCompositeTests: XCTestCase {
         expect(sut, toCompleteWith: .success(primaryFeed))
     }
     
-    func test_load_deliversFallbackFeedOnPrimaryFaulure() {
+    func test_load_deliversFallbackFeedOnPrimaryLoaderFaulure() {
         let fallbackFeed = uniqueIdFeed()
         let sut = makeSUT(primaryResult: .failure(anyNSError()), fallbackResult: .success(fallbackFeed))
         
