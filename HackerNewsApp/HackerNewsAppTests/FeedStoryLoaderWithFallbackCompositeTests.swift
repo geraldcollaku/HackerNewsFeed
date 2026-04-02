@@ -105,6 +105,16 @@ class FeedStoryLoaderWithFallbackCompositeTests: XCTestCase {
         })
     }
     
+    func test_loadStory_deliversOnBothPrimaryAndFallbackLoaderFailure() {
+        let (sut, primaryLoader, fallbackLoader) = makeSUT()
+        let story = uniqueStory()
+        
+        expect(sut, for: story.id, toCompleteWith: .failure(anyNSError()), when: {
+            primaryLoader.complete(with: anyNSError())
+            fallbackLoader.complete(with: anyNSError())
+        })
+    }
+    
     // MARK: - Helpers
     
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: StoryLoader, primary: LoaderSpy, fallback: LoaderSpy) {
