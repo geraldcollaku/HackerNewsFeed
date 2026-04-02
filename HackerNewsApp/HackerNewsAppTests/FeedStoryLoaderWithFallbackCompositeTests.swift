@@ -17,12 +17,16 @@ final class FeedStoryLoaderWithFallbackComposite: StoryLoader {
         self.fallback = fallback
     }
     
-    private class Task: StoryLoaderTask {
-        func cancel() { }
+    private class TaskWrapper: StoryLoaderTask {
+        var wrapped: StoryLoaderTask?
+        func cancel() {
+            wrapped?.cancel()
+        }
     }
     
     func loadStory(with id: Int, completion: @escaping (StoryLoader.Result) -> Void) -> StoryLoaderTask {
-        _ = primary.loadStory(with: id) { [weak self] result in
+        let task = TaskWrapper()
+        task.wrapped = primary.loadStory(with: id) { [weak self] result in
             switch result {
             case .success:
                 break
@@ -30,7 +34,7 @@ final class FeedStoryLoaderWithFallbackComposite: StoryLoader {
                 _ = self?.fallback.loadStory(with: id) { _ in }
             }
         }
-        return Task()
+        return task
     }
 }
 
@@ -56,6 +60,17 @@ class FeedStoryLoaderWithFallbackCompositeTests: XCTestCase {
         
         XCTAssertEqual(primaryLoader.ids, [story.id], "Expected to load story with ID from primary loader")
         XCTAssertEqual(fallbackLoader.ids, [story.id], "Expected to load story with ID from fallback loader")
+    }
+    
+    func test_loadStory_cancelsPrimaryLoaderTaskOnCancel() {
+        let story = uniqueStory()
+        let (sut, primaryLoader, fallbackLoader) = makeSUT()
+        
+        let task = sut.loadStory(with: story.id) { _ in }
+        task.cancel()
+        
+        XCTAssertEqual(primaryLoader.cancelledIds, [story.id], "Expected to cancel story loading from primary loader")
+        XCTAssertTrue(fallbackLoader.cancelledIds.isEmpty, "Expected no cancelled stories in the fallback loader")
     }
     
     // MARK: - Helpers
@@ -95,9 +110,14 @@ class FeedStoryLoaderWithFallbackCompositeTests: XCTestCase {
     }
     
     private class LoaderSpy: StoryLoader {
-        private class Task: StoryLoaderTask {
-            func cancel() {}
+        private struct Task: StoryLoaderTask {
+            let callback: () -> Void
+            func cancel() {
+                callback()
+            }
         }
+        
+        private(set) var cancelledIds = [Int]()
         
         var ids: [Int] {
             messages.map { $0.id }
@@ -107,7 +127,9 @@ class FeedStoryLoaderWithFallbackCompositeTests: XCTestCase {
         
         func loadStory(with id: Int, completion: @escaping (StoryLoader.Result) -> Void) -> StoryLoaderTask {
             messages.append((id, completion))
-            return Task()
+            return Task { [weak self] in
+                self?.cancelledIds.append(id)
+            }
         }
         
         func complete(with error: Error, at index: Int = 0) {
