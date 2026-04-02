@@ -29,7 +29,7 @@ final class FeedStoryLoaderWithFallbackComposite: StoryLoader {
         task.wrapped = primary.loadStory(with: id) { [weak self] result in
             switch result {
             case .success:
-                break
+                completion(result)
             case .failure:
                 task.wrapped = self?.fallback.loadStory(with: id) { _ in }
             }
@@ -79,11 +79,20 @@ class FeedStoryLoaderWithFallbackCompositeTests: XCTestCase {
         
         let task = sut.loadStory(with: story.id) { _ in }
         primaryLoader.complete(with: anyNSError())
-
+        
         task.cancel()
         
         XCTAssertTrue(primaryLoader.cancelledIds.isEmpty, "Expected to cancel story loading from primary loader")
         XCTAssertEqual(fallbackLoader.cancelledIds, [story.id], "Expected to cancel  story loading in the fallback loader")
+    }
+    
+    func test_loadStory_deliversPrimaryStoryOnPrimaryLoaderSuccess() {
+        let primaryStory = uniqueStory()
+        let (sut, primaryLoader, _) = makeSUT()
+        
+        expect(sut, for: primaryStory.id, toCompleteWith: .success(primaryStory), when: {
+            primaryLoader.complete(with: primaryStory)
+        })
     }
     
     // MARK: - Helpers
@@ -96,6 +105,25 @@ class FeedStoryLoaderWithFallbackCompositeTests: XCTestCase {
         trackForMemoryLeaks(fallbackLoader, file: file, line: line)
         trackForMemoryLeaks(sut, file: file, line: line)
         return (sut, primaryLoader, fallbackLoader)
+    }
+    
+    private func expect(_ sut: StoryLoader, for id: Int, toCompleteWith expectedResult: StoryLoader.Result, when action: () -> Void, file: StaticString = #file, line: UInt = #line) {
+        let exp = expectation(description: "Wait for load completion")
+        _ = sut.loadStory(with: id) { receivedResult in
+            switch (receivedResult, expectedResult) {
+            case let (.success(receivedStory), .success(expectedStory)):
+                XCTAssertEqual(receivedStory, expectedStory, file: file, line: line)
+            case (.failure, .failure):
+               break
+            default:
+                XCTFail("Expected expectedResult, got \(expectedResult) instead", file: file, line: line)
+            }
+            
+            exp.fulfill()
+        }
+        
+        action()
+        wait(for: [exp], timeout: 1)
     }
     
     private func trackForMemoryLeaks(_ instance: AnyObject, file: StaticString = #file, line: UInt = #line) {
@@ -147,6 +175,10 @@ class FeedStoryLoaderWithFallbackCompositeTests: XCTestCase {
         
         func complete(with error: Error, at index: Int = 0) {
             messages[index].completion(.failure(error))
+        }
+        
+        func complete(with story: Story, at index: Int = 0) {
+            messages[index].completion(.success(story))
         }
     }
 }
