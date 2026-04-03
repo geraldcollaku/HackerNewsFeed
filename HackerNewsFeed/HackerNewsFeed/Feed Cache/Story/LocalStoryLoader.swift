@@ -38,8 +38,8 @@ public final class LocalStoryLoader {
     }
 }
 
-extension LocalStoryLoader {
-    public typealias SaveResult = Result<Void, SaveError>
+extension LocalStoryLoader: StoryCache {
+    public typealias SaveResult = StoryCache.Result
     
     public enum SaveError: Error {
         case failed
