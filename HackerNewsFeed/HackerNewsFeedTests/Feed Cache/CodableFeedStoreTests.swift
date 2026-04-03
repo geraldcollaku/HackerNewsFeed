@@ -94,7 +94,7 @@ class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
     }
     
     func test_insert_hasNoSideEffectsOnInsertionError() {
-        let invalidStoreURL = URL(string: "invalid://store-url")
+        let invalidStoreURL = URL(fileURLWithPath: "/invalid/store")
         let sut = makeSUT(storeURL: invalidStoreURL)
         let feed = uniqueIdFeed().local
         let timestamp = Date()
