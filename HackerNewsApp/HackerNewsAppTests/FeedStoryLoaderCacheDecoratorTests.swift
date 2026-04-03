@@ -89,6 +89,17 @@ class FeedStoryLoaderCacheDecoratorTests: XCTestCase, StoryLoaderTestCase {
         XCTAssertEqual(cache.messages, [.save(story)])
     }
     
+    func test_loadStory_doesNotCacheStoryDataOnLoaderFailure() {
+        let cache = CacheSpy()
+        let (sut, loader) = makeSUT(cache: cache)
+        let story = uniqueStory()
+        
+        _ = sut.loadStory(with: story.id) { _ in }
+        loader.complete(with: anyNSError())
+        
+        XCTAssertTrue(cache.messages.isEmpty, "Expected no story cache on loader failure")
+    }
+    
     // MARK: - Helpers
     
     private func makeSUT(file: StaticString = #file, cache: CacheSpy = .init(), line: UInt = #line) -> (sut: StoryLoader, loader: StoryLoaderSpy) {
@@ -107,6 +118,7 @@ class FeedStoryLoaderCacheDecoratorTests: XCTestCase, StoryLoaderTestCase {
         
         func save(_ story: Story, completion: @escaping (StoryCache.Result) -> Void) {
             messages.append(.save(story))
+            completion(.success(()))
         }
     }
 }
