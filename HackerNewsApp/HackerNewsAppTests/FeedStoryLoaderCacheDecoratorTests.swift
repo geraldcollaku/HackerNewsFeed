@@ -8,15 +8,28 @@
 import XCTest
 import HackerNewsFeed
 
+protocol StoryCache {
+    typealias Result = Swift.Result<Void, Error>
+
+    func save(_ story: Story, completion: @escaping (Result) -> Void)
+}
+
 class FeedStoryLoaderCacheDecorator: StoryLoader {
     private let decoratee: StoryLoader
+    private let cache: StoryCache
     
-    init(decoratee: StoryLoader) {
+    init(decoratee: StoryLoader, cache: StoryCache) {
         self.decoratee = decoratee
+        self.cache = cache
     }
     
     func loadStory(with id: Int, completion: @escaping (StoryLoader.Result) -> Void) -> StoryLoaderTask {
-        return decoratee.loadStory(with: id, completion: completion)
+        return decoratee.loadStory(with: id) { [weak self] result in
+            if let story = try? result.get() {
+                self?.cache.save(story) { _ in }
+            }
+            completion(result)
+        }
     }
 }
 
@@ -65,12 +78,35 @@ class FeedStoryLoaderCacheDecoratorTests: XCTestCase, StoryLoaderTestCase {
         })
     }
     
+    func test_loadStory_cachesStoryDataOnLoaderSuccess() {
+        let cache = CacheSpy()
+        let (sut, loader) = makeSUT(cache: cache)
+        let story = uniqueStory()
+        
+        _ = sut.loadStory(with: story.id) { _ in }
+        loader.complete(with: story)
+        
+        XCTAssertEqual(cache.messages, [.save(story)])
+    }
+    
     // MARK: - Helpers
     
-    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: StoryLoader, loader: StoryLoaderSpy) {
+    private func makeSUT(file: StaticString = #file, cache: CacheSpy = .init(), line: UInt = #line) -> (sut: StoryLoader, loader: StoryLoaderSpy) {
         let loader = StoryLoaderSpy()
-        let sut = FeedStoryLoaderCacheDecorator(decoratee: loader)
+        let sut = FeedStoryLoaderCacheDecorator(decoratee: loader, cache: cache)
         trackForMemoryLeaks(loader, file: file, line: line)
         return (sut, loader)
+    }
+    
+    private class CacheSpy: StoryCache {
+        enum Message: Equatable {
+            case save(Story)
+        }
+        
+        private(set) var messages = [Message]()
+        
+        func save(_ story: Story, completion: @escaping (StoryCache.Result) -> Void) {
+            messages.append(.save(story))
+        }
     }
 }
