@@ -9,7 +9,7 @@ import XCTest
 import HackerNewsFeed
 import HackerNewsApp
 
-class FeedStoryLoaderWithFallbackCompositeTests: XCTestCase {
+class FeedStoryLoaderWithFallbackCompositeTests: XCTestCase, StoryLoaderTestCase {
     
     func test_loadStory_loadsFromPrimaryLoaderFirst() {
         let story = uniqueStory()
@@ -96,25 +96,6 @@ class FeedStoryLoaderWithFallbackCompositeTests: XCTestCase {
         trackForMemoryLeaks(fallbackLoader, file: file, line: line)
         trackForMemoryLeaks(sut, file: file, line: line)
         return (sut, primaryLoader, fallbackLoader)
-    }
-    
-    private func expect(_ sut: StoryLoader, for id: Int, toCompleteWith expectedResult: StoryLoader.Result, when action: () -> Void, file: StaticString = #file, line: UInt = #line) {
-        let exp = expectation(description: "Wait for load completion")
-        _ = sut.loadStory(with: id) { receivedResult in
-            switch (receivedResult, expectedResult) {
-            case let (.success(receivedStory), .success(expectedStory)):
-                XCTAssertEqual(receivedStory, expectedStory, file: file, line: line)
-            case (.failure, .failure):
-               break
-            default:
-                XCTFail("Expected expectedResult, got \(expectedResult) instead", file: file, line: line)
-            }
-            
-            exp.fulfill()
-        }
-        
-        action()
-        wait(for: [exp], timeout: 1)
     }
     
     private func uniqueStory(id: Int = Int.random(in: 0...100)) -> Story {

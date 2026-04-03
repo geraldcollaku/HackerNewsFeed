@@ -20,7 +20,7 @@ class FeedStoryLoaderCacheDecorator: StoryLoader {
     }
 }
 
-class FeedStoryLoaderCacheDecoratorTests: XCTestCase {
+class FeedStoryLoaderCacheDecoratorTests: XCTestCase, StoryLoaderTestCase {
     
     func test_init_doesNotLoadStoryData() {
         let (_, loader) = makeSUT()
@@ -72,25 +72,6 @@ class FeedStoryLoaderCacheDecoratorTests: XCTestCase {
         let sut = FeedStoryLoaderCacheDecorator(decoratee: loader)
         trackForMemoryLeaks(loader, file: file, line: line)
         return (sut, loader)
-    }
-    
-    private func expect(_ sut: StoryLoader, for id: Int, toCompleteWith expectedResult: StoryLoader.Result, when action: () -> Void, file: StaticString = #file, line: UInt = #line) {
-        let exp = expectation(description: "Wait for load completion")
-        sut.loadStory(with: id) { receivedResult in
-            switch (receivedResult, expectedResult) {
-            case let (.success(receivedStory), .success(expectedStory)):
-                XCTAssertEqual(receivedStory, expectedStory, file: file, line: line)
-            case let (.failure(receivedError as NSError), .failure(expectedError as NSError)):
-                XCTAssertEqual(receivedError, expectedError)
-            default:
-                XCTFail("Expected \(expectedResult), got result \(receivedResult) instead")
-            }
-            exp.fulfill()
-        }
-        
-        action()
-        
-        wait(for: [exp], timeout: 1)
     }
     
     private func uniqueStory(id: Int = Int.random(in: 0...100)) -> Story {
