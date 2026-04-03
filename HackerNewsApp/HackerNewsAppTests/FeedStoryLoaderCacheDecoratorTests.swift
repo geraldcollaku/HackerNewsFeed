@@ -7,25 +7,7 @@
 
 import XCTest
 import HackerNewsFeed
-
-class FeedStoryLoaderCacheDecorator: StoryLoader {
-    private let decoratee: StoryLoader
-    private let cache: StoryCache
-    
-    init(decoratee: StoryLoader, cache: StoryCache) {
-        self.decoratee = decoratee
-        self.cache = cache
-    }
-    
-    func loadStory(with id: Int, completion: @escaping (StoryLoader.Result) -> Void) -> StoryLoaderTask {
-        return decoratee.loadStory(with: id) { [weak self] result in
-            if let story = try? result.get() {
-                self?.cache.save(story) { _ in }
-            }
-            completion(result)
-        }
-    }
-}
+import HackerNewsApp
 
 class FeedStoryLoaderCacheDecoratorTests: XCTestCase, StoryLoaderTestCase {
     
