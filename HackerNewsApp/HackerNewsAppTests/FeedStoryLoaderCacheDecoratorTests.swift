@@ -8,12 +8,6 @@
 import XCTest
 import HackerNewsFeed
 
-protocol StoryCache {
-    typealias Result = Swift.Result<Void, Error>
-
-    func save(_ story: Story, completion: @escaping (Result) -> Void)
-}
-
 class FeedStoryLoaderCacheDecorator: StoryLoader {
     private let decoratee: StoryLoader
     private let cache: StoryCache
