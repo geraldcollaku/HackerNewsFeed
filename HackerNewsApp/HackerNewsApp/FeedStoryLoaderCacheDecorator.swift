@@ -18,10 +18,10 @@ public final class FeedStoryLoaderCacheDecorator: StoryLoader {
     
     public func loadStory(with id: Int, completion: @escaping (StoryLoader.Result) -> Void) -> StoryLoaderTask {
         return decoratee.loadStory(with: id) { [weak self] result in
-            if let story = try? result.get() {
+            completion(result.map { story in
                 self?.cache.save(story) { _ in }
-            }
-            completion(result)
+                return story
+            })
         }
     }
 }
