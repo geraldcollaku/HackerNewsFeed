@@ -73,18 +73,4 @@ class FeedStoryLoaderCacheDecoratorTests: XCTestCase, StoryLoaderTestCase {
         trackForMemoryLeaks(loader, file: file, line: line)
         return (sut, loader)
     }
-    
-    private func uniqueStory(id: Int = Int.random(in: 0...100)) -> Story {
-        Story(
-            id: id,
-            title: "a title",
-            text: nil,
-            author: "an author",
-            score: 1,
-            createdAt: Date(),
-            totalComments: 0,
-            comments: nil,
-            type: "story",
-            url: nil)
-    }
 }
