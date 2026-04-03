@@ -82,6 +82,8 @@ class FeedStoryLoaderCacheDecoratorTests: XCTestCase, StoryLoaderTestCase {
         let loader = StoryLoaderSpy()
         let sut = FeedStoryLoaderCacheDecorator(decoratee: loader, cache: cache)
         trackForMemoryLeaks(loader, file: file, line: line)
+        trackForMemoryLeaks(sut, file: file, line: line)
+        trackForMemoryLeaks(cache, file: file, line: line)
         return (sut, loader)
     }
     
