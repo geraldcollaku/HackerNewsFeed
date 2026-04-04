@@ -3,11 +3,18 @@
 <plist version="1.0">
 <dict>
 	<key>SchemeUserState</key>
+	<dict/>
+	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>HackerNewsApp.xcscheme_^#shared#^_</key>
+		<key>68151C4E2F7C58ED00B54E12</key>
 		<dict>
-			<key>orderHint</key>
-			<integer>6</integer>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>683719B52F80FF8D00F5B7E3</key>
+		<dict>
+			<key>primary</key>
+			<true/>
 		</dict>
 	</dict>
 </dict>

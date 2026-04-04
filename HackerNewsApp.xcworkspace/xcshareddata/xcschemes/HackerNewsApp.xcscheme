@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "68E965DD2EFAC76A006095E4"
-               BuildableName = "HackerNewsFeed.framework"
-               BlueprintName = "HackerNewsFeed"
-               ReferencedContainer = "container:HackerNewsFeed.xcodeproj">
+               BlueprintIdentifier = "68151C4E2F7C58ED00B54E12"
+               BuildableName = "HackerNewsApp.app"
+               BlueprintName = "HackerNewsApp"
+               ReferencedContainer = "container:HackerNewsApp/HackerNewsApp.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -30,10 +30,23 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <TestPlans>
          <TestPlanReference
-            reference = "container:../CI_iOS.xctestplan"
+            reference = "container:../../HackerNewsApp.xctestplan"
             default = "YES">
          </TestPlanReference>
       </TestPlans>
+      <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "683719B52F80FF8D00F5B7E3"
+               BuildableName = "HackerNewsAppUIAcceptanceTests.xctest"
+               BlueprintName = "HackerNewsAppUIAcceptanceTests"
+               ReferencedContainer = "container:HackerNewsApp/HackerNewsApp.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -45,6 +58,16 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "68151C4E2F7C58ED00B54E12"
+            BuildableName = "HackerNewsApp.app"
+            BlueprintName = "HackerNewsApp"
+            ReferencedContainer = "container:HackerNewsApp/HackerNewsApp.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -52,15 +75,16 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "68E965DD2EFAC76A006095E4"
-            BuildableName = "HackerNewsFeed.framework"
-            BlueprintName = "HackerNewsFeed"
-            ReferencedContainer = "container:HackerNewsFeed.xcodeproj">
+            BlueprintIdentifier = "68151C4E2F7C58ED00B54E12"
+            BuildableName = "HackerNewsApp.app"
+            BlueprintName = "HackerNewsApp"
+            ReferencedContainer = "container:HackerNewsApp/HackerNewsApp.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

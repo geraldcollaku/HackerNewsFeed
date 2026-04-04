@@ -7,4 +7,7 @@
    <FileRef
       location = "container:HackerNewsApp/HackerNewsApp.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:../HackerNewsApp.xctestplan">
+   </FileRef>
 </Workspace>
