@@ -17,4 +17,16 @@ final class HackerNewsAppUIAcceptanceTests: XCTestCase {
         let feedCells = app.cells.matching(identifier: "feed-story-cell")
         XCTAssertEqual(feedCells.count, 500)
     }
+    
+    func test_onLaunch_displaysCachedFeedWhenCustomerHasNoConnectivity() {
+        let onlineApp = XCUIApplication()
+        onlineApp.launch()
+        
+        let offlineApp = XCUIApplication()
+        offlineApp.launchArguments = ["-connectivity", "offline"]
+        offlineApp.launch()
+        
+        let cachedFeedCells = offlineApp.cells.matching(identifier: "feed-story-cell")
+        XCTAssertEqual(cachedFeedCells.count, 500)
+    }
 }
