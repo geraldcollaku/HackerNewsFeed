@@ -14,6 +14,7 @@ final class HackerNewsAppUIAcceptanceTests: XCTestCase {
         
         app.launch()
         
-        XCTAssertEqual(app.cells.count, 500)
+        let feedCells = app.cells.matching(identifier: "feed-story-cell")
+        XCTAssertEqual(feedCells.count, 500)
     }
 }

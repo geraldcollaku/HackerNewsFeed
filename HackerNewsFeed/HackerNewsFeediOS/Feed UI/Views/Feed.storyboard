@@ -118,6 +118,7 @@
                                         <constraint firstAttribute="trailing" secondItem="retry-button" secondAttribute="trailing" constant="16" id="retry-trailing"/>
                                     </constraints>
                                 </tableViewCellContentView>
+                                <accessibility key="accessibilityConfiguration" identifier="feed-story-cell"/>
                                 <connections>
                                     <outlet property="authorLabel" destination="author-label" id="yiZ-fH-Lpd"/>
                                     <outlet property="container" destination="main-stack" id="mkX-ZD-I2x"/>
