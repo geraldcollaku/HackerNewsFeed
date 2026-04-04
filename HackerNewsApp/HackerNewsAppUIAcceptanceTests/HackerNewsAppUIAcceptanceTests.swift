@@ -11,16 +11,16 @@ final class HackerNewsAppUIAcceptanceTests: XCTestCase {
     
     func test_onLaunch_displaysRemoteFeedWhenCustomerHasConnectivity() {
         let app = XCUIApplication()
-        app.launchArguments = ["-reset"]
+        app.launchArguments = ["-reset", "-connectivity", "online"]
         app.launch()
         
         let feedCells = app.cells.matching(identifier: "feed-story-cell")
-        XCTAssertEqual(feedCells.count, 500)
+        XCTAssertEqual(feedCells.count, 2)
     }
     
     func test_onLaunch_displaysCachedFeedWhenCustomerHasNoConnectivity() {
         let onlineApp = XCUIApplication()
-        onlineApp.launchArguments = ["-reset"]
+        onlineApp.launchArguments = ["-reset", "-connectivity", "online"]
         onlineApp.launch()
         
         let offlineApp = XCUIApplication()
@@ -28,7 +28,7 @@ final class HackerNewsAppUIAcceptanceTests: XCTestCase {
         offlineApp.launch()
         
         let cachedFeedCells = offlineApp.cells.matching(identifier: "feed-story-cell")
-        XCTAssertEqual(cachedFeedCells.count, 500)
+        XCTAssertEqual(cachedFeedCells.count, 2)
     }
     
     func test_onLaunch_displaysEmptyFeedWhenCustomerHasNoConnectivityAndNoCache() {

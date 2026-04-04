@@ -18,7 +18,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         .defaultDirectoryURL()
         .appendingPathComponent("feed-store.sqlite")
     
-    
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let _ = (scene as? UIWindowScene) else { return }
         
@@ -39,10 +38,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         window?.rootViewController = FeedUIComposer.feedComposedWith(
             loader: FeedLoaderWithFallbackComposite(
-                primary: remoteFeedLoader,
+                primary: FeedLoaderCacheDecorator(
+                    decoratee: remoteFeedLoader,
+                    cache: localFeedLoader
+                ),
                 fallback: localFeedLoader),
             storyLoader: FeedStoryLoaderWithFallbackComposite(
-                primary: remoteStoryLoader,
+                primary: FeedStoryLoaderCacheDecorator(
+                    decoratee: remoteStoryLoader,
+                    cache: localStoryLoader),
                 fallback: localStoryLoader))
     }
     
