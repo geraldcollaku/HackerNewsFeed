@@ -116,11 +116,6 @@
 			path = HackerNewsFeediOS;
 			sourceTree = "<group>";
 		};
-		6825D6D82F4B486900079C85 /* HackerNewsFeediOSTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = HackerNewsFeediOSTests;
-			sourceTree = "<group>";
-		};
 		68E965E02EFAC76A006095E4 /* HackerNewsFeed */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = HackerNewsFeed;
@@ -220,7 +215,6 @@
 				68E9662B2F02C422006095E4 /* HackerNewsFeedAPIEndToEndTests */,
 				68FB9E3E2F3E751A00B7A262 /* HackerNewsFeedCacheIntegrationTests */,
 				6825D6CB2F4B486900079C85 /* HackerNewsFeediOS */,
-				6825D6D82F4B486900079C85 /* HackerNewsFeediOSTests */,
 				683DCECF2F55DA5100B96B10 /* Frameworks */,
 				68E965DF2EFAC76A006095E4 /* Products */,
 			);
@@ -296,9 +290,6 @@
 			);
 			dependencies = (
 				6825D6D72F4B486900079C85 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				6825D6D82F4B486900079C85 /* HackerNewsFeediOSTests */,
 			);
 			name = HackerNewsFeediOSTests;
 			packageProductDependencies = (
