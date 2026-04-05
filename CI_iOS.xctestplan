@@ -48,13 +48,6 @@
       }
     },
     {
-      "target" : {
-        "containerPath" : "container:HackerNewsApp\/HackerNewsApp.xcodeproj",
-        "identifier" : "683719B52F80FF8D00F5B7E3",
-        "name" : "HackerNewsAppUIAcceptanceTests"
-      }
-    },
-    {
       "parallelizable" : false,
       "target" : {
         "containerPath" : "container:HackerNewsFeed\/HackerNewsFeed.xcodeproj",
