@@ -1,8 +1,8 @@
 //
 //  FeedViewController+TestHelpers.swift
-//  HackerNewsFeed
+//  HackerNewsApp
 //
-//  Created by Gerald Collaku on 06.03.26.
+//  Created by Gerald Collaku on 05.04.26.
 //
 
 import UIKit
@@ -43,6 +43,14 @@ extension FeedViewController {
         ds?.tableView?(tableView, cancelPrefetchingForRowsAt: [index])
     }
     
+    func renderedStoryAuthor(at index: Int) -> String? {
+        simulateStoryViewVisible(at: index)?.authorLabel.text
+    }
+    
+    func renderedStoryTitle(at index: Int) -> String? {
+        simulateStoryViewVisible(at: index)?.titleLabel.text
+    }
+    
     var errorMessage: String? {
         errorView?.message
     }
@@ -56,6 +64,7 @@ extension FeedViewController {
     }
     
     func storyView(at row: Int) -> UITableViewCell? {
+        guard row >= 0 else { return nil }
         let ds = tableView.dataSource
         let index = IndexPath(row: row, section: feedSection)
         return ds?.tableView(tableView, cellForRowAt: index)

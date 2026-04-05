@@ -8,40 +8,40 @@
 import UIKit
 import HackerNewsFeed
 
-protocol FeedStoryCellControllerDelegate {
+public protocol FeedStoryCellControllerDelegate {
     func didRequestStory()
     func didCancelStoryRequest()
 }
 
-final class FeedStoryCellController: FeedStoryView, FeedStoryLoadingView, FeedStoryErrorView {
+public final class FeedStoryCellController: FeedStoryView, FeedStoryLoadingView, FeedStoryErrorView {
     private let delegate: FeedStoryCellControllerDelegate
     
     private var cell: FeedStoryCell?
 
-    init(delegate: FeedStoryCellControllerDelegate) {
+    public init(delegate: FeedStoryCellControllerDelegate) {
         self.delegate = delegate
     }
     
-    func view(in tableView: UITableView) -> UITableViewCell {
+    public func view(in tableView: UITableView) -> UITableViewCell {
         cell = tableView.dequeueReusableCell()
         delegate.didRequestStory()
         return cell!
     }
     
-    func preload() {
+    public func preload() {
         delegate.didRequestStory()
     }
     
-    func cancelLoad() {
+    public func cancelLoad() {
         releaseCellForReuse()
         delegate.didCancelStoryRequest()
     }
     
-    func display(_ viewModel: FeedStoryLoadingViewModel) {
+    public func display(_ viewModel: FeedStoryLoadingViewModel) {
         cell?.container.isShimmering = viewModel.isLoading
     }
     
-    func display(_ viewModel: FeedStoryViewModel) {
+    public func display(_ viewModel: FeedStoryViewModel) {
         cell?.authorLabel.text = viewModel.author
         cell?.titleLabel.text = viewModel.title
         cell?.scoreLabel.text = viewModel.score
@@ -54,7 +54,7 @@ final class FeedStoryCellController: FeedStoryView, FeedStoryLoadingView, FeedSt
         }
     }
     
-    func display(_ viewModel: FeedStoryErrorViewModel) {
+    public func display(_ viewModel: FeedStoryErrorViewModel) {
         cell?.retryButton.isHidden = viewModel.errorMessage == nil
     }
     

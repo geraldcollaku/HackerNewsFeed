@@ -5,9 +5,10 @@
 //  Created by Gerald Collaku on 07.03.26.
 //
 
-import HackerNewsFeed
 import Foundation
 import UIKit
+import HackerNewsFeed
+import HackerNewsFeediOS
 
 public enum FeedUIComposer {
     

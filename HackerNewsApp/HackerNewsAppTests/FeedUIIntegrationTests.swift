@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import HackerNewsApp
 import HackerNewsFeed
 import HackerNewsFeediOS
 

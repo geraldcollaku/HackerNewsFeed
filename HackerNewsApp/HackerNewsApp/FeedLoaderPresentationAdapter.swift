@@ -6,6 +6,7 @@
 //
 
 import HackerNewsFeed
+import HackerNewsFeediOS
 
 final class FeedLoaderPresentationAdapter: FeedViewControllerDelegate {
     private let feedIdLoader: FeedLoader

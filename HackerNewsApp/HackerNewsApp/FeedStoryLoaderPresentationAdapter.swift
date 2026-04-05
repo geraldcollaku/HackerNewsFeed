@@ -6,6 +6,7 @@
 //
 
 import HackerNewsFeed
+import HackerNewsFeediOS
 
 final class FeedStoryLoaderPresentationAdapter: FeedStoryCellControllerDelegate {
     private let model: FeedId

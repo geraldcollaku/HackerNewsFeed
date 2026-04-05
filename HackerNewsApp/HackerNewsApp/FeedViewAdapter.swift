@@ -6,6 +6,7 @@
 //
 
 import HackerNewsFeed
+import HackerNewsFeediOS
 
 class FeedViewAdapter: FeedView {
     private weak var controller: FeedViewController?
@@ -17,7 +18,7 @@ class FeedViewAdapter: FeedView {
     }
     
     func display(_ viewModel: FeedViewModel) {
-        controller?.tableModel = viewModel.feed.map { model in
+        controller?.display(viewModel.feed.map { model in
             let adapter = FeedStoryLoaderPresentationAdapter(model: model, storyLoader: loader)
             let view = FeedStoryCellController(delegate: adapter)
 
@@ -27,6 +28,6 @@ class FeedViewAdapter: FeedView {
                 errorView: WeakRefVirtualProxy(view)
             )
             return view
-        }
+        })
     }
 }
