@@ -11,9 +11,11 @@ import HackerNewsFeediOS
 
 class SceneDelegateTests: XCTestCase {
     
-    func test_sceneWillConnectToSession_configuresRootViewController() {
+    func test_sceneWillConnectToSession_configuresRootViewController() throws {
         let sut = SceneDelegate()
-        sut.window = UIWindow()
+        
+        let scene = try XCTUnwrap((UIWindowScene.self as NSObject.Type).init() as? UIWindowScene)
+        sut.window = UIWindow(windowScene: scene)
         
         sut.configureWindow()
         
