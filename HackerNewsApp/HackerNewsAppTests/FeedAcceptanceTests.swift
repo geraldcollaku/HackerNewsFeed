@@ -44,6 +44,22 @@ final class FeedAcceptanceTests: XCTestCase {
         XCTAssertEqual(feed.numberOfRenderedViews(), 0)
     }
     
+    func test_onEnteringBackground_deletesExpiredCache() {
+        let store = InMemoryFeedStore.withExpiredCache
+        
+        enterBackground(with: store)
+        
+        XCTAssertNil(store.feedCache)
+    }
+    
+    func test_onEnteringBackground_keepsNonExpiredCache() {
+        let store = InMemoryFeedStore.withNonExpiredCache
+        
+        enterBackground(with: store)
+        
+        XCTAssertNotNil(store.feedCache)
+    }
+    
     // MARK: - Helpers
     
     private func launch(
@@ -61,6 +77,11 @@ final class FeedAcceptanceTests: XCTestCase {
             feed.simulateApperance()
             
             return feed
+    }
+    
+    private func enterBackground(with store: InMemoryFeedStore) {
+        let sut = SceneDelegate(httpClient: HTTPClientStub.offline, store: store)
+        sut.sceneWillResignActive(UIApplication.shared.connectedScenes.first!)
     }
     
     private class HTTPClientStub: HTTPClient {
@@ -89,8 +110,12 @@ final class FeedAcceptanceTests: XCTestCase {
     }
     
     private class InMemoryFeedStore: FeedStore, StoryStore {
-        private var feedCache: CachedFeed?
+        private(set) var feedCache: CachedFeed?
         private var storyCache: [Int: LocalStory] = [:]
+        
+        init(feedCache: CachedFeed? = nil) {
+            self.feedCache = feedCache
+        }
         
         func deleteCachedFeed(completion: @escaping FeedStore.DeletionCompletion) {
             feedCache = nil
@@ -118,6 +143,14 @@ final class FeedAcceptanceTests: XCTestCase {
         
         static var empty: InMemoryFeedStore {
             InMemoryFeedStore()
+        }
+        
+        static var withExpiredCache: InMemoryFeedStore {
+            InMemoryFeedStore(feedCache: CachedFeed(feed: [], timestamp: Date.distantPast))
+        }
+        
+        static var withNonExpiredCache: InMemoryFeedStore {
+            InMemoryFeedStore(feedCache: CachedFeed(feed: [], timestamp: Date()))
         }
     }
     

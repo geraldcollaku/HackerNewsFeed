@@ -22,6 +22,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         return try! CoreDataFeedStore(storeURL: url)
     }()
     
+    private lazy var localFeedLoader = LocalFeedLoader(store: store, currentDate: Date.init)
+    
     convenience init(httpClient: HTTPClient, store: FeedStore & StoryStore) {
         self.init()
         self.httpClient = httpClient
@@ -60,5 +62,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                     decoratee: remoteStoryLoader,
                     cache: localStoryLoader),
                 fallback: localStoryLoader)))
+    }
+    
+    func sceneWillResignActive(_ scene: UIScene) {
+        localFeedLoader.validateCache { _ in }
     }
 }
