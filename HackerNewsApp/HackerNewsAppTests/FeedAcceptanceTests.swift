@@ -38,8 +38,10 @@ final class FeedAcceptanceTests: XCTestCase {
         XCTAssertNotNil(offlineFeed.renderedStoryTitle(at: 1))
     }
     
-    func test_onLaunch_displaysEmptyFeedWhenCustomerHasNoConnectivityAndNoCache() {
-       
+    func test_onLaunch_displaysEmptyFeedWhenCustomerHasNoConnectivityAndNoCache() throws {
+        let feed = try launch(httpClient: .offline, store: .empty)
+        
+        XCTAssertEqual(feed.numberOfRenderedViews(), 0)
     }
     
     // MARK: - Helpers
@@ -47,8 +49,6 @@ final class FeedAcceptanceTests: XCTestCase {
     private func launch(
         httpClient: HTTPClientStub = .offline,
         store: InMemoryFeedStore = .empty) throws -> FeedViewController {
-            let store = InMemoryFeedStore.empty
-            let httpClient = HTTPClientStub.online(response)
             let sut = SceneDelegate(httpClient: httpClient, store: store)
             let dummyScene = try XCTUnwrap((UIWindowScene.self as NSObject.Type).init() as? UIWindowScene)
             sut.window = UIWindow(windowScene: dummyScene)
@@ -132,7 +132,7 @@ final class FeedAcceptanceTests: XCTestCase {
         case "https://hacker-news.firebaseio.com/v0/newstories.json":
             return makeFeedIdData()
         default:
-            return makeStoryData()
+            return makeStoryData(for: url)
         }
     }
     
@@ -140,9 +140,10 @@ final class FeedAcceptanceTests: XCTestCase {
         return try! JSONSerialization.data(withJSONObject: [1, 2])
     }
     
-    private func makeStoryData() -> Data {
+    private func makeStoryData(for url: URL) -> Data {
+        let id = Int(url.lastPathComponent.replacingOccurrences(of: ".json", with: "")) ?? 1
         let story: [String: Any] = [
-            "id": 1,
+            "id": id,
             "title": "a title",
             "by": "an author",
             "score": 10,
