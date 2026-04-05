@@ -23,8 +23,19 @@ final class FeedAcceptanceTests: XCTestCase {
         XCTAssertNotNil(feed.renderedStoryTitle(at: 1))
     }
     
-    func test_onLaunch_displaysCachedFeedWhenCustomerHasNoConnectivity() {
-       
+    func test_onLaunch_displaysCachedFeedWhenCustomerHasNoConnectivity() throws {
+        let sharedStore = InMemoryFeedStore.empty
+        let onlineFeed = try launch(httpClient: .online(response), store: sharedStore)
+        onlineFeed.simulateStoryViewVisible(at: 0)
+        onlineFeed.simulateStoryViewVisible(at: 1)
+        
+        let offlineFeed = try launch(httpClient: .offline, store: sharedStore)
+        
+        XCTAssertEqual(offlineFeed.numberOfRenderedViews(), 2)
+        XCTAssertNotNil(offlineFeed.renderedStoryAuthor(at: 0))
+        XCTAssertNotNil(offlineFeed.renderedStoryTitle(at: 0))
+        XCTAssertNotNil(offlineFeed.renderedStoryAuthor(at: 1))
+        XCTAssertNotNil(offlineFeed.renderedStoryTitle(at: 1))
     }
     
     func test_onLaunch_displaysEmptyFeedWhenCustomerHasNoConnectivityAndNoCache() {
