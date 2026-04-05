@@ -1,0 +1,34 @@
+{
+  "configurations" : [
+    {
+      "id" : "3EC50FB1-F802-484C-8425-BC2EDF105979",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:HackerNewsApp\/HackerNewsApp.xcodeproj",
+          "identifier" : "68151C4E2F7C58ED00B54E12",
+          "name" : "HackerNewsApp"
+        }
+      ]
+    },
+    "testExecutionOrdering" : "random"
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:HackerNewsApp\/HackerNewsApp.xcodeproj",
+        "identifier" : "68151C642F7C58F000B54E12",
+        "name" : "HackerNewsAppTests"
+      }
+    }
+  ],
+  "version" : 1
+}
