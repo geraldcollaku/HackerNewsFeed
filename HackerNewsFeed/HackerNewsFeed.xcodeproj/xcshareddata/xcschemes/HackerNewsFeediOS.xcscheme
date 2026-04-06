@@ -40,7 +40,7 @@
             parallelizable = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "6825D6D32F4B486900079C85"
+               BlueprintIdentifier = "68371F312F83FC9800F5B7E3"
                BuildableName = "HackerNewsFeediOSTests.xctest"
                BlueprintName = "HackerNewsFeediOSTests"
                ReferencedContainer = "container:HackerNewsFeed.xcodeproj">

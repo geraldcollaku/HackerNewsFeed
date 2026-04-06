@@ -32,7 +32,7 @@
       "parallelizable" : false,
       "target" : {
         "containerPath" : "container:HackerNewsFeed.xcodeproj",
-        "identifier" : "6825D6D32F4B486900079C85",
+        "identifier" : "68371F312F83FC9800F5B7E3",
         "name" : "HackerNewsFeediOSTests"
       }
     }
