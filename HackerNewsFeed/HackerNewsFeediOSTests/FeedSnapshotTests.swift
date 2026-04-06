@@ -7,6 +7,7 @@
 
 import XCTest
 import HackerNewsFeediOS
+import HackerNewsFeed
 
 class FeedSnapshotTests: XCTestCase {
     
@@ -16,6 +17,14 @@ class FeedSnapshotTests: XCTestCase {
         sut.display(emptyFeed())
         
         record(snapshot: sut.snapshot(), named: "EMPTY_FEED")
+    }
+    
+    func test_feedWithContent() {
+        let sut = makeSUT()
+        
+        sut.display(feedWithContent())
+        
+        record(snapshot: sut.snapshot(), named: "FEED_WITH_CONTENT")
     }
     
     private func makeSUT() -> FeedViewController {
@@ -28,6 +37,23 @@ class FeedSnapshotTests: XCTestCase {
     
     private func emptyFeed() -> [FeedStoryCellController] {
         return []
+    }
+    
+    private func feedWithContent() -> [StoryStub] {
+        return [
+            StoryStub(
+                author: "John Doe",
+                title: "Ask HN: What are the best resources for learning Swift?",
+                score: "342",
+                url: "news.ycombinator.com"
+            ),
+            StoryStub(
+                author: "Jane Smith",
+                title: "Show HN: I built an open source Hacker News client for iOS",
+                score: "89",
+                url: "github.com/janesmith/hn-ios"
+            )
+        ]
     }
     
     private func record(snapshot: UIImage, named name: String, file: StaticString = #file, line: UInt = #line) {
@@ -56,4 +82,35 @@ extension UIViewController {
             view.layer.render(in: action.cgContext)
         }
     }
+}
+
+private extension FeedViewController {
+    func display(_ stubs: [StoryStub]) {
+        let cells: [FeedStoryCellController] = stubs.map { stub in
+            let cellController = FeedStoryCellController(delegate: stub)
+            stub.controller = cellController
+            return cellController
+        }
+        display(cells)
+    }
+ }
+
+private class StoryStub: FeedStoryCellControllerDelegate {
+    weak var controller: FeedStoryCellController?
+    let viewModel: FeedStoryViewModel
+    
+    init(author: String?, title: String?, score: String?, url: String?) {
+        self.viewModel = FeedStoryViewModel(
+            author: author,
+            title: title,
+            score: score,
+            url: url
+        )
+    }
+    
+    func didRequestStory() {
+        controller?.display(viewModel)
+    }
+    
+    func didCancelStoryRequest() {}
 }
