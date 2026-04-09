@@ -54,10 +54,22 @@ final class FeedUIIntegrationTests: XCTestCase {
         let (sut, loader) = makeSUT()
         
         sut.simulateApperance()
-        XCTAssertEqual(sut.numberOfRenderedViews(), 0)
+        assertThat(sut, isRendering: [])
         
         loader.completeFeedLoading(with: [makeFeedId()], at: 0)
-        XCTAssertEqual(sut.numberOfRenderedViews(), 1)
+        assertThat(sut, isRendering: [makeFeedId()])
+    }
+    
+    func test_loadFeedCompletion_rendersSuccessfullyLoadedEmptyFeedAfterNonEmptyFeed() {
+        let (sut, loader) = makeSUT()
+        
+        sut.simulateApperance()
+        loader.completeFeedLoading(with: [makeFeedId()], at: 0)
+        assertThat(sut, isRendering: [makeFeedId()])
+        
+        sut.simulateUserInitiatedReload()
+        loader.completeFeedLoading(with: [], at: 0)
+        assertThat(sut, isRendering: [])
     }
     
     func test_loadFeedCompletion_rendersErrorOnMessageErrorUnitilNextReload() {
