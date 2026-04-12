@@ -10,6 +10,16 @@ import HackerNewsFeediOS
 @testable import HackerNewsApp
 
 class SceneDelegateTests: XCTestCase {
+    func test_configureWindow_setsWindowAsKeyAndVisible() throws {
+        let sut = SceneDelegate()
+        let scene = try XCTUnwrap((UIWindowScene.self as NSObject.Type).init() as? UIWindowScene)
+        let window = UIWindowSpy(windowScene: scene)
+        sut.window = window
+        
+        sut.configureWindow()
+        
+        XCTAssertEqual(window.makeKeyAndVisibleCallCount, 1, "Expected to make window key and visible")
+    }
     
     func test_sceneWillConnectToSession_configuresRootViewController() throws {
         let sut = SceneDelegate()
@@ -25,5 +35,13 @@ class SceneDelegateTests: XCTestCase {
         
         XCTAssertNotNil(rootNavigation, "Expected a navigation controller as root, got \(String(describing: root)) instead")
         XCTAssertTrue(topController is FeedViewController, "Expected a feed controller at top view controller, got \(String(describing: topController)) instead")
+    }
+    
+    private class UIWindowSpy: UIWindow {
+        private(set) var makeKeyAndVisibleCallCount = 0
+        
+        override func makeKeyAndVisible() {
+            makeKeyAndVisibleCallCount += 1
+        }
     }
 }
