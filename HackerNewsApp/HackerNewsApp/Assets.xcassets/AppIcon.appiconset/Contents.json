@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "filename" : "hackernews_feed_icon_1024.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
