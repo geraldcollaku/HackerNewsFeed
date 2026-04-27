@@ -14,8 +14,9 @@ class SceneDelegateTests: XCTestCase {
         let sut = SceneDelegate()
         let scene = try XCTUnwrap((UIWindowScene.self as NSObject.Type).init() as? UIWindowScene)
         let window = UIWindowSpy(windowScene: scene)
+        window.traitOverrides.userInterfaceIdiom = .phone
         sut.window = window
-        
+
         sut.configureWindow()
         
         XCTAssertEqual(window.makeKeyAndVisibleCallCount, 1, "Expected to make window key and visible")
@@ -23,10 +24,12 @@ class SceneDelegateTests: XCTestCase {
     
     func test_configureWindow_configuresRootViewController() throws {
         let sut = SceneDelegate()
-        
+
         let scene = try XCTUnwrap((UIWindowScene.self as NSObject.Type).init() as? UIWindowScene)
-        sut.window = UIWindow(windowScene: scene)
-        
+        let window = UIWindow(windowScene: scene)
+        window.traitOverrides.userInterfaceIdiom = .phone
+        sut.window = window
+
         sut.configureWindow()
         
         let root = sut.window?.rootViewController

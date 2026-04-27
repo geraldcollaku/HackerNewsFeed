@@ -68,7 +68,7 @@ final class FeedUIIntegrationTests: XCTestCase {
         assertThat(sut, isRendering: [makeFeedId()])
         
         sut.simulateUserInitiatedReload()
-        loader.completeFeedLoading(with: [], at: 0)
+        loader.completeFeedLoading(with: [], at: 1)
         assertThat(sut, isRendering: [])
     }
     
@@ -345,7 +345,7 @@ final class FeedUIIntegrationTests: XCTestCase {
     
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: FeedViewController, loader: LoaderSpy) {
         let loader = LoaderSpy()
-        let sut = FeedUIComposer.feedComposedWith(loader: loader, storyLoader: loader)
+        let sut = FeedUIComposer.feedComposedWith(loader: loader.loadPublisher, storyLoader: loader)
         trackForMemoryLeaks(loader, file: file, line: line)
         trackForMemoryLeaks(sut, file: file, line: line)
         return (sut, loader)
