@@ -10,16 +10,18 @@ import HackerNewsFeediOS
 
 class FeedViewAdapter: FeedView {
     private weak var controller: FeedViewController?
-    private let loader: StoryLoader
+    private let loader: (Int) -> StoryLoader.Publisher
     
-    init(controller: FeedViewController, loader: StoryLoader) {
+    init(controller: FeedViewController, loader: @escaping (Int) -> StoryLoader.Publisher) {
         self.controller = controller
         self.loader = loader
     }
     
     func display(_ viewModel: FeedViewModel) {
         controller?.display(viewModel.feed.map { model in
-            let adapter = FeedStoryLoaderPresentationAdapter(model: model, storyLoader: loader)
+            let adapter = FeedStoryLoaderPresentationAdapter(
+                model: model,
+                storyLoader: loader)
             let view = FeedStoryCellController(delegate: adapter)
 
             adapter.presenter = FeedStoryPresenter(

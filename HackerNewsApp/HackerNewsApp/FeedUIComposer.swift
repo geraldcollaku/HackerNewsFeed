@@ -12,7 +12,7 @@ import HackerNewsFeediOS
 
 public enum FeedUIComposer {
     
-    public static func feedComposedWith(loader: @escaping () -> FeedLoader.Publisher, storyLoader: StoryLoader) -> FeedViewController {
+    public static func feedComposedWith(loader: @escaping () -> FeedLoader.Publisher, storyLoader: @escaping (Int) -> StoryLoader.Publisher) -> FeedViewController {
         let presentationAdapter = FeedLoaderPresentationAdapter(feedIdLoader: { loader().dispatchOnMainQueue() })
         
         let feedController = FeedViewController.makeWith(
@@ -23,7 +23,7 @@ public enum FeedUIComposer {
         presentationAdapter.presenter = FeedPresenter(
             feedView: FeedViewAdapter(
                 controller: feedController,
-                loader: MainQueueDispatchDecorator(decoratee: storyLoader)),
+                loader: { storyLoader($0).dispatchOnMainQueue() }),
             loadingView: WeakRefVirtualProxy(feedController),
             errorView: WeakRefVirtualProxy(feedController))
 

@@ -41,22 +41,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     func configureWindow() {
-        let baseURL = url
-        let remoteStoryLoader = RemoteStoryDataLoader(
-            url: { id in
-                return baseURL.appendingPathComponent("item/\(id).json")
-            },
-            client: httpClient
-        )
-        let localStoryLoader = LocalStoryLoader(store: store)
-        
         window?.rootViewController = UINavigationController(rootViewController: FeedUIComposer.feedComposedWith(
-            loader: makeLocalFeedLoaderWithLocalFallback,
-            storyLoader: FeedStoryLoaderWithFallbackComposite(
-                primary: FeedStoryLoaderCacheDecorator(
-                    decoratee: remoteStoryLoader,
-                    cache: localStoryLoader),
-                fallback: localStoryLoader)))
+            loader: makeRemoteFeedLoaderWithLocalFallback,
+            storyLoader: makeRemoteStoryLoaderWithLocalFallback))
         
         window?.makeKeyAndVisible()
     }
@@ -65,7 +52,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         localFeedLoader.validateCache { _ in }
     }
     
-    private func makeLocalFeedLoaderWithLocalFallback() -> RemoteFeedLoader.Publisher {
+    private func makeRemoteFeedLoaderWithLocalFallback() -> RemoteFeedLoader.Publisher {
         let remoteFeedLoader = RemoteFeedLoader(url: url.appendingPathComponent("newstories.json"), client: httpClient)
         let localFeedLoader = LocalFeedLoader(store: store, currentDate: Date.init)
 
@@ -73,6 +60,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             .loadPublisher()
             .caching(to: localFeedLoader)
             .fallback(to: localFeedLoader.loadPublisher)
+    }
+    
+    private func makeRemoteStoryLoaderWithLocalFallback(id: Int) -> StoryLoader.Publisher {
+        let remoteStoryLoader = RemoteStoryDataLoader(
+            url: { [url] storyId in
+                url.appendingPathComponent("item/\(storyId).json")
+            },
+            client: httpClient
+        )
+        let localStoryLoader = LocalStoryLoader(store: store)
+        
+        return localStoryLoader
+            .loadStoryPublisher(with: id)
+            .fallback(to: {
+                remoteStoryLoader
+                    .loadStoryPublisher(with: id)
+                    .caching(to: localStoryLoader, with: id)
+            })
     }
 }
 
@@ -85,6 +90,35 @@ public extension FeedLoader {
         .eraseToAnyPublisher()
     }
 }
+
+public extension StoryLoader {
+    typealias Publisher = AnyPublisher<Story, Error>
+    
+    func loadStoryPublisher(with id: Int) -> Publisher {
+        var task: StoryLoaderTask?
+        return Deferred {
+            Future { completion in
+                task = self.loadStory(with: id, completion: completion)
+            }
+            
+        }
+        .handleEvents(receiveCancel: { task?.cancel() })
+        .eraseToAnyPublisher()
+    }
+}
+
+extension Publisher where Output == Story {
+    func caching(to cache: StoryCache, with id: Int) -> AnyPublisher<Output, Failure> {
+        handleEvents(receiveOutput: cache.saveIgnoringResult).eraseToAnyPublisher()
+    }
+}
+
+extension StoryCache {
+    func saveIgnoringResult(_ story: Story) {
+        save(story) { _ in }
+    }
+}
+
 
 extension Publisher where Output == [FeedId] {
     func caching(to cache: FeedCache) -> AnyPublisher<Output, Failure> {
