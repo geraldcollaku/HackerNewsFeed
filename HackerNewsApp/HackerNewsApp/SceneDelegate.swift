@@ -24,8 +24,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }()
     
     private lazy var localFeedLoader = LocalFeedLoader(store: store, currentDate: Date.init)
-    private lazy var url = URL(string: "https://hacker-news.firebaseio.com/v0")!
-    private lazy var remoteFeedLoader = RemoteFeedLoader(url: url, client: httpClient)
+    private lazy var url = URL(string: "https://hacker-news-feed.onrender.com/v0")!
+    private lazy var remoteFeedLoader = RemoteFeedLoader(url: url.appendingPathComponent("newstories")
+        .appending(queryItems: [URLQueryItem(name: "page", value: "1")]), client: httpClient)
     
     convenience init(httpClient: HTTPClient, store: FeedStore & StoryStore) {
         self.init()
@@ -53,7 +54,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     private func makeRemoteFeedLoaderWithLocalFallback() -> RemoteFeedLoader.Publisher {
-        let remoteFeedLoader = RemoteFeedLoader(url: url.appendingPathComponent("newstories.json"), client: httpClient)
         let localFeedLoader = LocalFeedLoader(store: store, currentDate: Date.init)
 
         return remoteFeedLoader
