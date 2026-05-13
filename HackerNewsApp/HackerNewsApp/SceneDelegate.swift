@@ -65,7 +65,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private func makeRemoteStoryLoaderWithLocalFallback(id: Int) -> StoryLoader.Publisher {
         let remoteStoryLoader = RemoteStoryDataLoader(
             url: { [url] storyId in
-                url.appendingPathComponent("item/\(storyId).json")
+                url.appendingPathComponent("item/\(storyId)")
             },
             client: httpClient
         )
