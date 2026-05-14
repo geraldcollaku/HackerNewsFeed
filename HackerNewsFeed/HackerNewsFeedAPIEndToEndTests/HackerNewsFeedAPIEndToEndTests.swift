@@ -66,14 +66,18 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
         let url = feedTestServerURL
             .appendingPathComponent("newstories")
             .appending(queryItems: [URLQueryItem(name: "page", value: "1")])
-        let client = URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
-        let loader = RemoteLoader(url: url, client: client, mapper: FeedItemsMapper.map)
-        trackForMemoryLeaks(client, file: file, line: line)
-
+        let client = ephemeralClient()
+        
         let exp = expectation(description: "Wait for load completion")
         var receivedResult: FeedLoader.Result?
-        loader.load { result in
-            receivedResult = result
+        client.get(from: url) { result in
+            receivedResult = result.flatMap { (data, response) in
+                do {
+                    return .success(try FeedItemsMapper.map(data, from: response))
+                } catch {
+                    return .failure(error)
+                }
+            }
             exp.fulfill()
         }
         wait(for: [exp], timeout: 60.0)
@@ -82,9 +86,8 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
 
     private func getStoryDataResult(id: Int, file: StaticString = #file, line: UInt = #line) -> StoryLoader.Result? {
         let url = feedTestServerURL.appendingPathComponent("item/\(id)")
-        let client = URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
+        let client = ephemeralClient()
         let loader = RemoteStoryDataLoader(url: { _ in url }, client: client)
-        trackForMemoryLeaks(client)
         trackForMemoryLeaks(loader)
 
         let exp = expectation(description: "Wait for load completion")
@@ -95,6 +98,12 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
         }
         wait(for: [exp], timeout: 60.0)
         return receivedResult
+    }
+    
+    private func ephemeralClient(file: StaticString = #filePath, line: UInt = #line) -> HTTPClient {
+        let client = URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
+        trackForMemoryLeaks(client, file: file, line: line)
+        return client
     }
 
     private var feedTestServerURL: URL {
