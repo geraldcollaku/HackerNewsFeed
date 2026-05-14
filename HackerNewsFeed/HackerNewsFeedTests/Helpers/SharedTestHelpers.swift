@@ -19,11 +19,6 @@ func anyData() -> Data {
     Data("any data".utf8)
 }
 
-func makeItemsJSON(_ items: [Int]) -> Data {
-    let json = try! JSONSerialization.data(withJSONObject: ["ids": items])
-    return json
-}
-
 extension HTTPURLResponse {
     convenience init(statusCode: Int) {
         self.init(url: anyURL(), statusCode: statusCode, httpVersion: nil, headerFields: nil)!

@@ -48,6 +48,11 @@ class FeedItemsMapperTests: XCTestCase {
     
     // MARK: - Helpers
     
+    func makeItemsJSON(_ items: [Int]) -> Data {
+        let json = try! JSONSerialization.data(withJSONObject: ["ids": items])
+        return json
+    }
+    
     private func makeItem(id: Int) -> FeedId {
         let item = FeedId(id: id)
         return item

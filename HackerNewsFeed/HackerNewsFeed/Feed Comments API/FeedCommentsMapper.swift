@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum FeedCommentsMapper {
+public enum FeedCommentsMapper {
     private struct Item: Decodable {
         let id: Int
         let message: String
@@ -23,7 +23,7 @@ enum FeedCommentsMapper {
         }
     }
 
-    static func map(_ data: Data, from response: HTTPURLResponse) throws -> [FeedComment] {
+    public static func map(_ data: Data, from response: HTTPURLResponse) throws -> [FeedComment] {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
 

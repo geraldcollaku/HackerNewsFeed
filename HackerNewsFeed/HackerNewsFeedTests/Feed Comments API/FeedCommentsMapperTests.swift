@@ -10,48 +10,38 @@ import HackerNewsFeed
 
 class FeedCommentsMapperTests: XCTestCase {
     
-    func test_load_deliversErrorOnNon2xxHTTPResponse() {
-        let (sut, client) = makeSUT()
-        
+    func test_map_throwsErrorOnNon2xxHTTPResponse() throws {
+        let json = makeItemsJSON([])
+
         let samples = [199, 150, 300, 400, 500]
         
-        samples.enumerated().forEach { index, code in
-            expect(sut, toCompleteWith: failure(.invalidData), when: {
-                let json = makeItemsJSON([])
-                client.complete(withStatusCode: code, data: json, at: index)
-            })
+        try samples.forEach { code in
+           XCTAssertThrowsError(try FeedCommentsMapper.map(json, from: HTTPURLResponse(statusCode: code)))
         }
     }
     
-    func test_load_deliversErrorOn2xxHTTPResponseWithInvalidJSON() {
-        let (sut, client) = makeSUT()
-        
+    func test_map_throwsErrorOn2xxHTTPResponseWithInvalidJSON() throws {
+        let invalidJSON = Data.init("invalid data".utf8)
+
+        let samples = [200, 201, 250, 280, 299]
+    
+        try samples.forEach { code in
+            XCTAssertThrowsError(try FeedCommentsMapper.map(invalidJSON, from: HTTPURLResponse(statusCode: code)))
+        }
+    }
+    
+    func test_map_deliversNoItemsOn2xxHTTPResponseWithEmptyJSONList() throws {
+        let emptyJSONList = makeItemsJSON([])
+
         let samples = [200, 201, 250, 280, 299]
         
-        samples.enumerated().forEach { index, code in
-            expect(sut, toCompleteWith: failure(.invalidData), when: {
-                let invalidJSON = Data.init("invalid data".utf8)
-                client.complete(withStatusCode: code, data: invalidJSON, at: index)
-            })
+        try samples.forEach { code in
+            let result = try FeedCommentsMapper.map(emptyJSONList, from: HTTPURLResponse(statusCode: code))
+            XCTAssertEqual(result, [])
         }
     }
     
-    func test_load_deliversEmptyOn2xxHTTPResponseWithEmptyJSONList() {
-        let (sut, client) = makeSUT()
-        
-        let samples = [200, 201, 250, 280, 299]
-        
-        samples.enumerated().forEach { index, code in
-            expect(sut, toCompleteWith: .success([]), when: {
-                let emptyJSONList = makeItemsJSON([])
-                client.complete(withStatusCode: code, data: emptyJSONList, at: index)
-            })
-        }
-    }
-    
-    func test_load_deliversItemsOn2xxHTTPResponseWithJSONItems() {
-        let (sut, client) = makeSUT()
-         
+    func test_map_deliversItemsOn2xxHTTPResponseWithJSONItems() throws {         
         let item1 = makeItem(
             id: 1,
             message: "a message",
@@ -66,28 +56,20 @@ class FeedCommentsMapperTests: XCTestCase {
             username: "another username"
         )
         
+        let json = makeItemsJSON([item1.json, item2.json])
         let samples = [200, 201, 250, 280, 299]
             
-        samples.enumerated().forEach { index, code in
-            expect(sut, toCompleteWith: .success([item1.model, item2.model]), when: {
-                let json = makeItemsJSON([item1.json, item2.json])
-                client.complete(withStatusCode: code, data: json, at: index)
-            })
+        try samples.forEach { code in
+            let result = try FeedCommentsMapper.map(json, from: HTTPURLResponse(statusCode: code))
+            XCTAssertEqual(result, [item1.model, item2.model])
         }
     }
     
     // MARK: - Helpers
     
-    private func makeSUT(url: URL = URL(string: "https://a-url.com")!, file: StaticString = #filePath, line: UInt = #line) -> (sut: RemoteCommentsLoader, client: HTTPClientSpy) {
-        let client = HTTPClientSpy()
-        let sut = RemoteCommentsLoader(url: url, client: client)
-        trackForMemoryLeaks(sut, file: file, line: line)
-        trackForMemoryLeaks(client, file: file, line: line)
-        return (sut, client)
-    }
-    
-    private func failure(_ error: RemoteCommentsLoader.Error) -> RemoteCommentsLoader.Result {
-        .failure(error)
+    private func makeItemsJSON(_ items: [[String : Any]]) -> Data {
+        let json = try! JSONSerialization.data(withJSONObject: items)
+        return json
     }
     
     private func makeItem(id: Int, message: String, createdAt: (date: Date, iso8601String: String), username: String) -> (model: FeedComment, json: [String: Any]) {
@@ -102,64 +84,5 @@ class FeedCommentsMapperTests: XCTestCase {
             ].compactMapValues{ $0 }
         ]
         return (item, json)
-    }
-    
-    private func makeItemsJSON(_ items: [[String : Any]]) -> Data {
-        let json = try! JSONSerialization.data(withJSONObject: items)
-        return json
-    }
-    
-    private func expect(_ sut: RemoteCommentsLoader,
-                        toCompleteWith expectedResult: RemoteCommentsLoader.Result,
-                        when action: () -> Void,
-                        file: StaticString = #filePath,
-                        line: UInt = #line) {
-        let exp = expectation(description: "Wait for load completion")
-        
-        sut.load { receivedResult in
-            switch (receivedResult, expectedResult) {
-            case let (.success(receivedItems), .success(expectedItems)):
-                XCTAssertEqual(receivedItems, expectedItems, file: file, line: line)
-            case let (.failure(receivedError as RemoteCommentsLoader.Error), .failure(expectedError as RemoteCommentsLoader.Error)):
-                XCTAssertEqual(receivedError, expectedError, file: file, line: line)
-            default:
-                XCTFail("Expected result: \(expectedResult), got \(receivedResult) instead", file: file, line: line)
-            }
-            exp.fulfill()
-        }
-        
-        action()
-        
-        wait(for: [exp], timeout: 1.0)
-    }
-    
-    private class HTTPClientSpy: HTTPClient {
-        private struct Task: HTTPClientTask {
-            func cancel() {}
-        }
-        
-        var requestedURLs: [URL] {
-            messages.map { $0.url }
-        }
-                
-        private var messages = [(url: URL, completion: (HTTPClient.Result) -> Void)]()
-        
-        func get(from url: URL, completion: @escaping (HTTPClient.Result) -> Void) -> HTTPClientTask {
-            messages.append((url, completion))
-            return Task()
-        }
-        
-        func complete(with error: Error, at index: Int = 0) {
-            messages[index].completion(.failure(error))
-        }
-        
-        func complete(withStatusCode code: Int, data: Data, at index: Int = 0) {
-            let response = HTTPURLResponse(
-                url: requestedURLs[index],
-                statusCode: code,
-                httpVersion: nil,
-                headerFields: nil)!
-            messages[index].completion(.success((data, response)))
-        }
     }
 }
