@@ -26,13 +26,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private lazy var localFeedLoader = LocalFeedLoader(store: store, currentDate: Date.init)
     private lazy var url = URL(string: "https://hacker-news-feed.onrender.com/v0")!
     
-    private lazy var remoteFeedLoader = RemoteLoader(
-        url: url.appendingPathComponent("newstories")
-        .appending(queryItems: [URLQueryItem(name: "page", value: "1")]),
-        client: httpClient,
-        mapper: FeedItemsMapper.map
-    )
-    
     convenience init(httpClient: HTTPClient, store: FeedStore & StoryStore) {
         self.init()
         self.httpClient = httpClient
@@ -60,9 +53,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     private func makeRemoteFeedLoaderWithLocalFallback() -> RemoteLoader.Publisher {
         let localFeedLoader = LocalFeedLoader(store: store, currentDate: Date.init)
-
-        return remoteFeedLoader
-            .loadPublisher()
+        let feedUrl = url.appendingPathComponent("newstories")
+            .appending(queryItems: [URLQueryItem(name: "page", value: "1")])
+        return httpClient
+            .getPublisher(url: feedUrl)
+            .tryMap(FeedItemsMapper.map)
             .caching(to: localFeedLoader)
             .fallback(to: localFeedLoader.loadPublisher)
     }
