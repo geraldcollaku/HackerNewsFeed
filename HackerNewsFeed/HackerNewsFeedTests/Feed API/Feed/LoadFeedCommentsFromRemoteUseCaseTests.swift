@@ -86,14 +86,25 @@ class LoadFeedCommentsFromRemoteUseCaseTests: XCTestCase {
     func test_load_deliversItemsOn2xxHTTPResponseWithJSONItems() {
         let (sut, client) = makeSUT()
          
-        let item1 = makeItem(id: 1)
-        let item2 = makeItem(id: 2)
+        let item1 = makeItem(
+            id: 1,
+            message: "a message",
+            createdAt: (Date(timeIntervalSince1970: 1778703786), "2026-05-13T20:23:06.000Z"),
+            username: "a username"
+        )
+
+        let item2 = makeItem(
+            id: 2,
+            message: "another message",
+            createdAt: (Date(timeIntervalSince1970: 1778704338), "2026-05-13T20:32:18.000Z"),
+            username: "another username"
+        )
         
         let samples = [200, 201, 250, 280, 299]
             
         samples.enumerated().forEach { index, code in
-            expect(sut, toCompleteWith: .success([item1, item2]), when: {
-                let json = makeItemsJSON([item1.id, item2.id])
+            expect(sut, toCompleteWith: .success([item1.model, item2.model]), when: {
+                let json = makeItemsJSON([item1.json, item2.json])
                 client.complete(withStatusCode: code, data: json, at: index)
             })
         }
@@ -127,13 +138,22 @@ class LoadFeedCommentsFromRemoteUseCaseTests: XCTestCase {
         .failure(error)
     }
     
-    private func makeItem(id: Int) -> FeedId {
-        let item = FeedId(id: id)
-        return item
+    private func makeItem(id: Int, message: String, createdAt: (date: Date, iso8601String: String), username: String) -> (model: FeedComment, json: [String: Any]) {
+        let item = FeedComment(id: id, message: message, createdAt: createdAt.date, username: username)
+        
+        let json: [String : Any] = [
+            "id": id,
+            "message": message,
+            "created_at": createdAt.iso8601String,
+            "author": [
+                "username": username
+            ].compactMapValues{ $0 }
+        ]
+        return (item, json)
     }
     
-    private func makeItemsJSON(_ items: [Int]) -> Data {
-        let json = try! JSONSerialization.data(withJSONObject: ["ids": items])
+    private func makeItemsJSON(_ items: [[String : Any]]) -> Data {
+        let json = try! JSONSerialization.data(withJSONObject: items)
         return json
     }
     

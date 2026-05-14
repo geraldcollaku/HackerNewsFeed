@@ -8,18 +8,32 @@
 import Foundation
 
 enum FeedCommentsMapper {
-    private struct Root: Codable {
-        let ids: [RemoteFeedItem]
+    private struct Item: Decodable {
+        let id: Int
+        let message: String
+        let created_at: Date
+        let author: Author
+
+        struct Author: Decodable {
+            let username: String
+        }
+
+        var comment: FeedComment {
+            FeedComment(id: id, message: message, createdAt: created_at, username: author.username)
+        }
     }
-    
-    static func map(_ data: Data, from response: HTTPURLResponse) throws -> [RemoteFeedItem] {
-        guard isOK(response), let root = try? JSONDecoder().decode(Root.self, from: data) else {
+
+    static func map(_ data: Data, from response: HTTPURLResponse) throws -> [FeedComment] {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+
+        guard isOK(response), let items = try? decoder.decode([Item].self, from: data) else {
             throw RemoteCommentsLoader.Error.invalidData
         }
-        
-        return root.ids
+
+        return items.map { $0.comment }
     }
-    
+
     private static func isOK(_ response: HTTPURLResponse) -> Bool {
         (200...299).contains(response.statusCode)
     }
