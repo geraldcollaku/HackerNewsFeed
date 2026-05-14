@@ -22,13 +22,17 @@ public enum FeedCommentsMapper {
             FeedComment(id: id, message: message, createdAt: created_at, username: author.username)
         }
     }
+    
+    public enum Error: Swift.Error {
+        case invalidData
+    }
 
     public static func map(_ data: Data, from response: HTTPURLResponse) throws -> [FeedComment] {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
 
         guard isOK(response), let items = try? decoder.decode([Item].self, from: data) else {
-            throw RemoteCommentsLoader.Error.invalidData
+            throw Error.invalidData
         }
 
         return items.map { $0.comment }

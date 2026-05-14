@@ -67,7 +67,7 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
             .appendingPathComponent("newstories")
             .appending(queryItems: [URLQueryItem(name: "page", value: "1")])
         let client = URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
-        let loader = RemoteFeedLoader(url: url, client: client)
+        let loader = RemoteLoader(url: url, client: client, mapper: FeedItemsMapper.map)
         trackForMemoryLeaks(client, file: file, line: line)
 
         let exp = expectation(description: "Wait for load completion")
