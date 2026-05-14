@@ -1,5 +1,5 @@
 //
-//  LoadFeedCommentsFromRemoteUseCaseTests.swift
+//  FeedCommentsMapperTests.swift
 //  HackerNewsFeed
 //
 //  Created by Gerald Collaku on 13.05.26.
@@ -8,7 +8,7 @@
 import XCTest
 import HackerNewsFeed
 
-class LoadFeedCommentsFromRemoteUseCaseTests: XCTestCase {
+class FeedCommentsMapperTests: XCTestCase {
     
     func test_load_deliversErrorOnNon2xxHTTPResponse() {
         let (sut, client) = makeSUT()
