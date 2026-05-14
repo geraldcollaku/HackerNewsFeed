@@ -7,12 +7,13 @@
 
 import Foundation
 import UIKit
+import Combine
 import HackerNewsFeed
 import HackerNewsFeediOS
 
 public enum FeedUIComposer {
     
-    public static func feedComposedWith(loader: @escaping () -> FeedLoader.Publisher, storyLoader: @escaping (Int) -> StoryLoader.Publisher) -> FeedViewController {
+    public static func feedComposedWith(loader: @escaping () -> AnyPublisher<[FeedId], Error>, storyLoader: @escaping (Int) -> StoryLoader.Publisher) -> FeedViewController {
         let presentationAdapter = FeedLoaderPresentationAdapter(feedIdLoader: { loader().dispatchOnMainQueue() })
         
         let feedController = FeedViewController.makeWith(

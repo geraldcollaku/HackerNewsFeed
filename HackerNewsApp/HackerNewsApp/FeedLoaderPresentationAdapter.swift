@@ -10,11 +10,11 @@ import HackerNewsFeediOS
 import Combine
 
 final class FeedLoaderPresentationAdapter: FeedViewControllerDelegate {
-    private let feedIdLoader: () -> FeedLoader.Publisher
+    private let feedIdLoader: () -> AnyPublisher<[FeedId], Error>
     var presenter: FeedPresenter?
     var cancellable: Cancellable?
     
-    init(feedIdLoader: @escaping () -> FeedLoader.Publisher) {
+    init(feedIdLoader: @escaping () -> AnyPublisher<[FeedId], Error>) {
         self.feedIdLoader = feedIdLoader
     }
     

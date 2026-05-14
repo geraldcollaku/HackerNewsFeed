@@ -6,27 +6,30 @@
 //
 
 import Foundation
+import Combine
 import HackerNewsFeed
 import HackerNewsFeediOS
 
-class LoaderSpy: FeedLoader, StoryLoader {
-    private var feedIdRequests = [(FeedLoader.Result) -> Void]()
+class LoaderSpy: StoryLoader {
+    private var feedIdRequests = [PassthroughSubject<[FeedId], Error>]()
     
     var loadFeedIdCallCount: Int {
         return feedIdRequests.count
     }
     
-    func load(completion: @escaping (FeedLoader.Result) -> Void) {
-        feedIdRequests.append(completion)
+    func loadPublisher() -> AnyPublisher<[FeedId], Error> {
+        let publisher = PassthroughSubject<[FeedId], Error>()
+        feedIdRequests.append(publisher)
+        return publisher.eraseToAnyPublisher()
     }
     
     func completeFeedLoading(with news: [FeedId] = [], at index: Int = 0) {
-        feedIdRequests[index](.success(news))
+        feedIdRequests[index].send(news)
     }
     
     func completeFeedLoadingWithError(at index: Int = 0) {
         let error = NSError(domain: "an error", code: 0)
-        feedIdRequests[index](.failure(error))
+        feedIdRequests[index].send(completion: .failure(error))
     }
     
     // MARK: - StoryLoader

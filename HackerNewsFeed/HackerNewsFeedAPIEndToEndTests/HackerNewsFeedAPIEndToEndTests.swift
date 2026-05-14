@@ -62,14 +62,14 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
         return nil
     }
 
-    private func getFeedResult(file: StaticString = #filePath, line: UInt = #line) -> FeedLoader.Result? {
+    private func getFeedResult(file: StaticString = #filePath, line: UInt = #line) -> Swift.Result<[FeedId], Error>? {
         let url = feedTestServerURL
             .appendingPathComponent("newstories")
             .appending(queryItems: [URLQueryItem(name: "page", value: "1")])
         let client = ephemeralClient()
         
         let exp = expectation(description: "Wait for load completion")
-        var receivedResult: FeedLoader.Result?
+        var receivedResult: Swift.Result<[FeedId], Error>?
         client.get(from: url) { result in
             receivedResult = result.flatMap { (data, response) in
                 do {

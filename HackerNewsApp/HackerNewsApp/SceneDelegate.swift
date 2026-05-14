@@ -51,7 +51,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         localFeedLoader.validateCache { _ in }
     }
     
-    private func makeRemoteFeedLoaderWithLocalFallback() -> FeedLoader.Publisher {
+    private func makeRemoteFeedLoaderWithLocalFallback() -> AnyPublisher<[FeedId], Error> {
         let localFeedLoader = LocalFeedLoader(store: store, currentDate: Date.init)
         let feedUrl = url.appendingPathComponent("newstories")
             .appending(queryItems: [URLQueryItem(name: "page", value: "1")])
