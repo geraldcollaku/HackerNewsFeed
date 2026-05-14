@@ -161,16 +161,16 @@ final class FeedAcceptanceTests: XCTestCase {
     }
     
     private func makeData(for url: URL) -> Data {
-        switch url.absoluteString {
-        case "https://hacker-news.firebaseio.com/v0/newstories.json":
+        switch url.lastPathComponent {
+        case "newstories":
             return makeFeedIdData()
         default:
             return makeStoryData(for: url)
         }
     }
-    
+
     private func makeFeedIdData() -> Data {
-        return try! JSONSerialization.data(withJSONObject: [1, 2])
+        return try! JSONSerialization.data(withJSONObject: ["ids": [1, 2]])
     }
     
     private func makeStoryData(for url: URL) -> Data {

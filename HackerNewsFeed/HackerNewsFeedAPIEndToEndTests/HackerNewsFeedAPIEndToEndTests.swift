@@ -41,7 +41,19 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
         }
     }
 
+    override func setUp() {
+        super.setUp()
+        warmUpServer()
+    }
+
     // MARK: - Helpers
+
+    private func warmUpServer() {
+        let url = URL(string: "https://hacker-news-feed.onrender.com/health")!
+        let exp = expectation(description: "Warm up server")
+        URLSession.shared.dataTask(with: url) { _, _, _ in exp.fulfill() }.resume()
+        wait(for: [exp], timeout: 60.0)
+    }
 
     private func firstFeedId() -> Int? {
         if case let .success(feed)? = getFeedResult() {
@@ -64,7 +76,7 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
             receivedResult = result
             exp.fulfill()
         }
-        wait(for: [exp], timeout: 15.0)
+        wait(for: [exp], timeout: 60.0)
         return receivedResult
     }
 
@@ -81,7 +93,7 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
             receivedResult = result
             exp.fulfill()
         }
-        wait(for: [exp], timeout: 15.0)
+        wait(for: [exp], timeout: 60.0)
         return receivedResult
     }
 

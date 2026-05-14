@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum FeedItemsMapper {
+public enum FeedItemsMapper {
     private struct Root: Codable {
         typealias RemoteFeedItem = Int
         let ids: [RemoteFeedItem]
@@ -17,7 +17,7 @@ enum FeedItemsMapper {
         }
     }
     
-    static func map(_ data: Data, from response: HTTPURLResponse) throws -> [FeedId] {
+    public static func map(_ data: Data, from response: HTTPURLResponse) throws -> [FeedId] {
         guard response.isOK, let root = try? JSONDecoder().decode(Root.self, from: data) else {
             throw RemoteFeedLoader.Error.invalidData
         }
