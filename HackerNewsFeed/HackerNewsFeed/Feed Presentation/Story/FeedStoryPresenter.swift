@@ -8,13 +8,6 @@
 import Foundation
 
 public final class FeedStoryPresenter {
-    private var storyErrorMessage: String {
-        NSLocalizedString("FEED_STORY_VIEW_CONNECTION_ERROR",
-                          tableName: "Story",
-                          bundle: Bundle(for: FeedStoryPresenter.self),
-                          comment: "Error message displayed when we can't load story from the server")
-    }
-
     public static func map(_ story: Story) -> FeedStoryViewModel {
         FeedStoryViewModel(
             author: story.author,
