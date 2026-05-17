@@ -57,4 +57,12 @@ public final class FeedStoryPresenter {
         loadingView.display(.stopped)
         errorView.display(.error(message: storyErrorMessage))
     }
+    
+    public static func map(_ story: Story) -> FeedStoryViewModel {
+        FeedStoryViewModel(
+            author: story.author,
+            title: story.title,
+            score: String(story.score ?? 0),
+            url: story.url?.absoluteString)
+    }
 }
