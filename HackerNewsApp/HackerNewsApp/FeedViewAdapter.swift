@@ -12,6 +12,8 @@ class FeedViewAdapter: ResourceView {
     private weak var controller: FeedViewController?
     private let loader: (Int) -> StoryLoader.Publisher
     
+    private typealias FeedStoryPresentationAdapter = LoadResourcePresentationAdapter<Story, WeakRefVirtualProxy<FeedStoryCellController>>
+    
     init(controller: FeedViewController, loader: @escaping (Int) -> StoryLoader.Publisher) {
         self.controller = controller
         self.loader = loader
@@ -19,7 +21,7 @@ class FeedViewAdapter: ResourceView {
     
     func display(_ viewModel: FeedViewModel) {
         controller?.display(viewModel.feed.map { model in
-            let adapter = LoadResourcePresentationAdapter<Story, WeakRefVirtualProxy<FeedStoryCellController>>(loader: { [loader] in
+            let adapter = FeedStoryPresentationAdapter(loader: { [loader] in
                 loader(model.id)
             })
             
