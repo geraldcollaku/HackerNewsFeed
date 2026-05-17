@@ -40,9 +40,9 @@ class FeedSnapshotTests: XCTestCase {
     
     func test_feedWithFailedImageLoading() {
         let sut = makeSUT()
-        
+
         sut.display(feedWithFailedStoryLoading())
-        
+
         assert(snapshot: sut.snapshot(for: .iPhone17(style: .light)), named: "FEED_WITH_FAILED_STORY_LOADING_light")
         assert(snapshot: sut.snapshot(for: .iPhone17(style: .dark)), named: "FEED_WITH_FAILED_STORY_LOADING_dark")
     }
@@ -234,7 +234,7 @@ private class StoryStub: FeedStoryCellControllerDelegate {
     
     func didRequestStory() {
         controller?.display(viewModel)
-        controller?.display(FeedStoryErrorViewModel(errorMessage: shouldRetry ? "error" : nil))
+        controller?.display(shouldRetry ? ResourceErrorViewModel.error(message: "error") : .noError)
     }
     
     func didCancelStoryRequest() {}
