@@ -107,6 +107,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				"Feed Cache/Helpers/FeedCacheTestHelpers.swift",
+				Helpers/SharedLocalizationTestHelpers.swift,
 				Helpers/SharedTestHelpers.swift,
 				"Helpers/XCTestCase+MemoryLeaksTracking.swift",
 			);
@@ -116,6 +117,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				"Feed Cache/Helpers/FeedCacheTestHelpers.swift",
+				Helpers/SharedLocalizationTestHelpers.swift,
 				Helpers/SharedTestHelpers.swift,
 				"Helpers/XCTestCase+MemoryLeaksTracking.swift",
 			);
