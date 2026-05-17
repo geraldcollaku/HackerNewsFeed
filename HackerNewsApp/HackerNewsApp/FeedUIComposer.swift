@@ -14,7 +14,7 @@ import HackerNewsFeediOS
 public enum FeedUIComposer {
     
     public static func feedComposedWith(loader: @escaping () -> AnyPublisher<[FeedId], Error>, storyLoader: @escaping (Int) -> StoryLoader.Publisher) -> FeedViewController {
-        let presentationAdapter = FeedLoaderPresentationAdapter(feedIdLoader: { loader().dispatchOnMainQueue() })
+        let presentationAdapter = LoadResourcePresentationAdapter<[FeedId],  FeedViewAdapter>(loader: { loader().dispatchOnMainQueue() })
         
         let feedController = FeedViewController.makeWith(
             delegate: presentationAdapter,
