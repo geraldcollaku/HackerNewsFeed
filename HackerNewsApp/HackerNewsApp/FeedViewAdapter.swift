@@ -9,12 +9,12 @@ import HackerNewsFeed
 import HackerNewsFeediOS
 
 class FeedViewAdapter: ResourceView {
-    private weak var controller: FeedViewController?
+    private weak var controller: ListViewController?
     private let loader: (Int) -> StoryLoader.Publisher
     
     private typealias FeedStoryPresentationAdapter = LoadResourcePresentationAdapter<Story, WeakRefVirtualProxy<FeedStoryCellController>>
     
-    init(controller: FeedViewController, loader: @escaping (Int) -> StoryLoader.Publisher) {
+    init(controller: ListViewController, loader: @escaping (Int) -> StoryLoader.Publisher) {
         self.controller = controller
         self.loader = loader
     }

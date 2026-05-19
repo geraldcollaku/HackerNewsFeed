@@ -1,5 +1,5 @@
 //
-//  FeedViewController.swift
+//  ListViewController.swift
 //  HackerNewsFeed
 //
 //  Created by Gerald Collaku on 02.03.26.
@@ -18,7 +18,7 @@ public protocol CellController {
     func cancelLoad()
 }
 
-public final class FeedViewController: UITableViewController, UITableViewDataSourcePrefetching, ResourceLoadingView, ResourceErrorView {
+public final class ListViewController: UITableViewController, UITableViewDataSourcePrefetching, ResourceLoadingView, ResourceErrorView {
     public var delegate: FeedViewControllerDelegate?
     @IBOutlet private(set) public var errorView: ErrorView?
     
@@ -30,7 +30,7 @@ public final class FeedViewController: UITableViewController, UITableViewDataSou
         }
     }
     
-    private var onViewDidAppear: ((FeedViewController) -> Void)?
+    private var onViewDidAppear: ((ListViewController) -> Void)?
     
     public override func viewDidLoad() {
         super.viewDidLoad()

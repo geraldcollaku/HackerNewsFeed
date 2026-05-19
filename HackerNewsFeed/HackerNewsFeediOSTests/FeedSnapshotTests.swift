@@ -47,10 +47,10 @@ class FeedSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone17(style: .dark)), named: "FEED_WITH_FAILED_STORY_LOADING_dark")
     }
     
-    private func makeSUT() -> FeedViewController {
-        let bundle = Bundle(for: FeedViewController.self)
+    private func makeSUT() -> ListViewController {
+        let bundle = Bundle(for: ListViewController.self)
         let storyboard = UIStoryboard(name: "Feed", bundle: bundle)
-        let controller = storyboard.instantiateInitialViewController() as! FeedViewController
+        let controller = storyboard.instantiateInitialViewController() as! ListViewController
         controller.loadViewIfNeeded()
         return controller
     }
@@ -206,7 +206,7 @@ struct SnapshotConfiguration {
     }
 }
 
-private extension FeedViewController {
+private extension ListViewController {
     func display(_ stubs: [StoryStub]) {
         let cells: [FeedStoryCellController] = stubs.map { stub in
             let cellController = FeedStoryCellController(delegate: stub)

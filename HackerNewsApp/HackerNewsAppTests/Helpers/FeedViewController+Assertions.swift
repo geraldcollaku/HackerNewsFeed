@@ -10,7 +10,7 @@ import HackerNewsFeediOS
 import HackerNewsFeed
 
 extension FeedUIIntegrationTests {
-    func assertThat(_ sut: FeedViewController, isRendering feed: [FeedId], file: StaticString = #file, line: UInt = #line) {
+    func assertThat(_ sut: ListViewController, isRendering feed: [FeedId], file: StaticString = #file, line: UInt = #line) {
         sut.tableView.layoutIfNeeded()
         RunLoop.main.run(until: Date())
         

@@ -14,10 +14,10 @@ import HackerNewsFeediOS
 public enum FeedUIComposer {
     private typealias FeedPresentationAdapter = LoadResourcePresentationAdapter<[FeedId], FeedViewAdapter>
     
-    public static func feedComposedWith(loader: @escaping () -> AnyPublisher<[FeedId], Error>, storyLoader: @escaping (Int) -> StoryLoader.Publisher) -> FeedViewController {
+    public static func feedComposedWith(loader: @escaping () -> AnyPublisher<[FeedId], Error>, storyLoader: @escaping (Int) -> StoryLoader.Publisher) -> ListViewController {
         let presentationAdapter = FeedPresentationAdapter(loader: { loader().dispatchOnMainQueue() })
         
-        let feedController = FeedViewController.makeWith(
+        let feedController = ListViewController.makeWith(
             delegate: presentationAdapter,
             title: FeedPresenter.title
         )
@@ -34,11 +34,11 @@ public enum FeedUIComposer {
     }
 }
 
-private extension FeedViewController {
-    static func makeWith(delegate: FeedViewControllerDelegate, title: String) -> FeedViewController {
-        let bundle = Bundle(for: FeedViewController.self)
+private extension ListViewController {
+    static func makeWith(delegate: FeedViewControllerDelegate, title: String) -> ListViewController {
+        let bundle = Bundle(for: ListViewController.self)
         let storyboard = UIStoryboard(name: "Feed", bundle: bundle)
-        let feedController = storyboard.instantiateInitialViewController() as! FeedViewController
+        let feedController = storyboard.instantiateInitialViewController() as! ListViewController
         feedController.delegate = delegate
         feedController.title = FeedPresenter.title
         return feedController

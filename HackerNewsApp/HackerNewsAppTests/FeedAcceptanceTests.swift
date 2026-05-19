@@ -64,7 +64,7 @@ final class FeedAcceptanceTests: XCTestCase {
     
     private func launch(
         httpClient: HTTPClientStub = .offline,
-        store: InMemoryFeedStore = .empty) throws -> FeedViewController {
+        store: InMemoryFeedStore = .empty) throws -> ListViewController {
             let sut = SceneDelegate(httpClient: httpClient, store: store)
             let dummyScene = try XCTUnwrap((UIWindowScene.self as NSObject.Type).init() as? UIWindowScene)
             sut.window = UIWindow(windowScene: dummyScene)
@@ -73,7 +73,7 @@ final class FeedAcceptanceTests: XCTestCase {
             sut.configureWindow()
             
             let nav = sut.window?.rootViewController as? UINavigationController
-            let feed = nav?.topViewController as! FeedViewController
+            let feed = nav?.topViewController as! ListViewController
             feed.simulateApperance()
             
             return feed
