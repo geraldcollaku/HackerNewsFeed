@@ -13,7 +13,7 @@ public protocol FeedStoryCellControllerDelegate {
     func didCancelStoryRequest()
 }
 
-public final class FeedStoryCellController: ResourceView, ResourceLoadingView, ResourceErrorView {
+public final class FeedStoryCellController: ResourceView, ResourceLoadingView, ResourceErrorView, CellController {
     public typealias ResourceViewModel = FeedStoryViewModel
     
     private let delegate: FeedStoryCellControllerDelegate
