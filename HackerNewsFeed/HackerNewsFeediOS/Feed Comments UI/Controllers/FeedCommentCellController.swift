@@ -22,12 +22,4 @@ public class FeedCommentCellController: CellController {
         cell.dateLabel.text = model.date
         return cell
     }
-    
-    public func preload() {
-        
-    }
-    
-    public func cancelLoad() {
-        
-    }
 }
