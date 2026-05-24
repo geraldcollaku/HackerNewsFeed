@@ -16,8 +16,8 @@ class ListSnapshotTests: XCTestCase {
         
         sut.display(emptyList())
         
-        record(snapshot: sut.snapshot(for: .iPhone17(style: .light)), named: "EMPTY_LIST_light")
-        record(snapshot: sut.snapshot(for: .iPhone17(style: .dark)), named: "EMPTY_LIST_dark")
+        assert(snapshot: sut.snapshot(for: .iPhone17(style: .light)), named: "EMPTY_LIST_light")
+        assert(snapshot: sut.snapshot(for: .iPhone17(style: .dark)), named: "EMPTY_LIST_dark")
     }
     
     func test_listWithErrorMessage() {
