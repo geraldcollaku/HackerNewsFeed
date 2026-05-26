@@ -13,18 +13,26 @@ public protocol FeedStoryCellControllerDelegate {
     func didCancelStoryRequest()
 }
 
-public final class FeedStoryCellController: ResourceView, ResourceLoadingView, ResourceErrorView, CellController {
+public final class FeedStoryCellController: NSObject {
     public typealias ResourceViewModel = FeedStoryViewModel
     
     private let delegate: FeedStoryCellControllerDelegate
     
     private var cell: FeedStoryCell?
-
+    
     public init(delegate: FeedStoryCellControllerDelegate) {
         self.delegate = delegate
     }
     
-    public func view(in tableView: UITableView) -> UITableViewCell {
+}
+
+extension FeedStoryCellController: CellController {
+    
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        1
+    }
+    
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         cell = tableView.dequeueReusableCell()
         cell?.onRetry = delegate.didRequestStory
         
@@ -35,16 +43,31 @@ public final class FeedStoryCellController: ResourceView, ResourceLoadingView, R
         delegate.didRequestStory()
         return cell!
     }
-
-    public func preload() {
+    
+    public func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        cancelLoad()
+    }
+    
+    public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
         delegate.didRequestStory()
     }
+    
+    public func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
+        cancelLoad()
+    }
 
-    public func cancelLoad() {
+    private func cancelLoad() {
         releaseCellForReuse()
         delegate.didCancelStoryRequest()
     }
 
+    private func releaseCellForReuse() {
+        cell?.onReuse = nil
+        cell = nil
+    }
+}
+
+extension FeedStoryCellController: ResourceView, ResourceLoadingView, ResourceErrorView {
     public func display(_ viewModel: FeedStoryViewModel) {
         cell?.authorLabel.text = viewModel.author
         cell?.titleLabel.text = viewModel.title
@@ -60,8 +83,4 @@ public final class FeedStoryCellController: ResourceView, ResourceLoadingView, R
         cell?.retryButton.isHidden = viewModel.message == nil
     }
     
-    private func releaseCellForReuse() {
-        cell?.onReuse = nil
-        cell = nil
-    }
 }
