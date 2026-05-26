@@ -26,7 +26,7 @@ public final class FeedStoryCellController: NSObject {
     
 }
 
-extension FeedStoryCellController: CellController {
+extension FeedStoryCellController: UITableViewDataSource, UITableViewDelegate, UITableViewDataSourcePrefetching {
     
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         1

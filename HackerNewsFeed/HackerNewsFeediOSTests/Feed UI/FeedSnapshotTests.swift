@@ -78,10 +78,10 @@ class FeedSnapshotTests: XCTestCase {
 
 private extension ListViewController {
     func display(_ stubs: [StoryStub]) {
-        let cells: [FeedStoryCellController] = stubs.map { stub in
+        let cells: [CellController] = stubs.map { stub in
             let cellController = FeedStoryCellController(delegate: stub)
             stub.controller = cellController
-            return cellController
+            return CellController(cellController)
         }
         display(cells)
     }

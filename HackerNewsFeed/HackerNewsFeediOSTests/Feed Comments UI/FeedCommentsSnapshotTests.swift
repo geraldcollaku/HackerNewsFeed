@@ -31,6 +31,12 @@ class FeedCommentsSnapshotTests: XCTestCase {
     }
     
     private func comments() -> [CellController] {
+        commentControllers().map {
+            CellController($0)
+        }
+    }
+    
+    private func commentControllers() -> [FeedCommentCellController] {
         return [
             FeedCommentCellController(
                 model: FeedCommentViewModel(

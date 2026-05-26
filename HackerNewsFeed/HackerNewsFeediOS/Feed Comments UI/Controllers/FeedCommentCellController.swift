@@ -16,7 +16,7 @@ public class FeedCommentCellController: NSObject {
     }
 }
 
-extension FeedCommentCellController: CellController {
+extension FeedCommentCellController: UITableViewDataSource {
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         1
     }
@@ -28,6 +28,4 @@ extension FeedCommentCellController: CellController {
         cell.dateLabel.text = model.date
         return cell
     }
-    
-    public func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {}
 }
