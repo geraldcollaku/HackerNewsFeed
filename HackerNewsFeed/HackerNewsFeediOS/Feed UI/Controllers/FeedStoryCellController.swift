@@ -34,7 +34,10 @@ extension FeedStoryCellController: UITableViewDataSource, UITableViewDelegate, U
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         cell = tableView.dequeueReusableCell()
-        cell?.onRetry = delegate.didRequestStory
+        cell?.onRetry = { [weak self] in
+            
+            self?.delegate.didRequestStory()
+        }
         
         cell?.onReuse = { [weak self] in
             self?.releaseCellForReuse()
