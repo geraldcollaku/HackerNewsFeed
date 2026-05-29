@@ -85,6 +85,19 @@ final class FeedUIIntegrationTests: XCTestCase {
         XCTAssertEqual(sut.errorMessage, nil)
     }
     
+    func test_tapOnErrorView_hidesErrorMessage() {
+        let (sut, loader) = makeSUT()
+        sut.simulateApperance()
+        
+        loader.completeFeedLoadingWithError(at: 0)
+        
+        XCTAssertEqual(sut.errorMessage, loadError)
+        
+        sut.simulateErrorViewTap()
+        
+        XCTAssertEqual(sut.errorMessage, nil)
+    }
+    
     func test_storyView_loadsStoriesWhenVisible() {
         let story0 = 0
         let story1 = 1

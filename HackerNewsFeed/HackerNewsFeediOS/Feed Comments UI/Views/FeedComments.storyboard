@@ -15,35 +15,9 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <view key="tableHeaderView" contentMode="scaleToFill" id="dzI-YN-kSi" customClass="ErrorView" customModule="HackerNewsFeediOS" customModuleProvider="target">
-                            <rect key="frame" x="0.0" y="0.0" width="393" height="44"/>
-                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            <subviews>
-                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Error label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MvX-zB-eqk">
-                                    <rect key="frame" x="0.0" y="8" width="393" height="28"/>
-                                    <gestureRecognizers/>
-                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                    <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                                    <nil key="highlightedColor"/>
-                                    <connections>
-                                        <outletCollection property="gestureRecognizers" destination="ucB-qj-mRp" appends="YES" id="YjH-dL-Iid"/>
-                                    </connections>
-                                </label>
-                            </subviews>
-                            <color key="backgroundColor" red="1" green="0.41759261489999999" blue="0.4154433012" alpha="0.8202090232" colorSpace="custom" customColorSpace="sRGB"/>
-                            <constraints>
-                                <constraint firstItem="MvX-zB-eqk" firstAttribute="top" secondItem="dzI-YN-kSi" secondAttribute="top" constant="8" id="8ED-8g-Nav"/>
-                                <constraint firstAttribute="bottom" secondItem="MvX-zB-eqk" secondAttribute="bottom" constant="8" id="pac-Ma-iM7"/>
-                                <constraint firstAttribute="trailing" secondItem="MvX-zB-eqk" secondAttribute="trailing" id="uPD-jz-9Lq"/>
-                                <constraint firstItem="MvX-zB-eqk" firstAttribute="leading" secondItem="dzI-YN-kSi" secondAttribute="leading" id="v7r-s6-xn1"/>
-                            </constraints>
-                            <connections>
-                                <outlet property="label" destination="MvX-zB-eqk" id="d57-a8-MRE"/>
-                            </connections>
-                        </view>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="FeedCommentCell" rowHeight="110" id="FEED-CELL" customClass="FeedCommentCell" customModule="HackerNewsFeediOS" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="94" width="393" height="110"/>
+                                <rect key="frame" x="0.0" y="50" width="393" height="110"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="FEED-CELL" id="FEED-CONTENT">
                                     <rect key="frame" x="0.0" y="0.0" width="393" height="110"/>
@@ -111,16 +85,9 @@
                             <action selector="refresh" destination="FEED-TVC" eventType="valueChanged" id="uff-BH-yOh"/>
                         </connections>
                     </refreshControl>
-                    <connections>
-                        <outlet property="errorView" destination="dzI-YN-kSi" id="pmv-r4-uvD"/>
-                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FEED-FR" userLabel="First Responder" sceneMemberID="firstResponder"/>
-                <tapGestureRecognizer id="ucB-qj-mRp">
-                    <connections>
-                        <action selector="hideMessageAnimated" destination="dzI-YN-kSi" id="hLy-Dq-EyS"/>
-                    </connections>
-                </tapGestureRecognizer>
+                <tapGestureRecognizer id="ucB-qj-mRp"/>
             </objects>
             <point key="canvasLocation" x="46.564885496183201" y="19.718309859154932"/>
         </scene>
