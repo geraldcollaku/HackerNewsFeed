@@ -33,7 +33,7 @@ class FeedViewAdapter: ResourceView {
                 errorView: WeakRefVirtualProxy(view),
                 mapper: FeedStoryPresenter.map
             )
-            return CellController(view)
+            return CellController(id: model, view)
         })
     }
 }

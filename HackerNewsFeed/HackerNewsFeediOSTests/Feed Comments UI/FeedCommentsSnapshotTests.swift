@@ -33,7 +33,7 @@ class FeedCommentsSnapshotTests: XCTestCase {
     
     private func comments() -> [CellController] {
         commentControllers().map {
-            CellController($0)
+            CellController(id: UUID(), $0)
         }
     }
     

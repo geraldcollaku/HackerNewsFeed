@@ -64,7 +64,7 @@ extension ListViewController {
     }
     
     func numberOfRenderedViews() -> Int {
-        tableView.numberOfRows(inSection: feedSection)
+        tableView.numberOfSections == 0 ? 0 : tableView.numberOfRows(inSection: feedSection)
     }
     
     func storyView(at row: Int) -> UITableViewCell? {
