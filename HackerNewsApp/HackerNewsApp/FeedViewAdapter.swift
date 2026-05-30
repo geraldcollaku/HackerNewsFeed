@@ -11,21 +11,24 @@ import HackerNewsFeediOS
 class FeedViewAdapter: ResourceView {
     private weak var controller: ListViewController?
     private let loader: (Int) -> StoryLoader.Publisher
-    
+
     private typealias FeedStoryPresentationAdapter = LoadResourcePresentationAdapter<Story, WeakRefVirtualProxy<FeedStoryCellController>>
-    
+
     init(controller: ListViewController, loader: @escaping (Int) -> StoryLoader.Publisher) {
         self.controller = controller
         self.loader = loader
     }
-    
+
     func display(_ viewModel: FeedViewModel) {
         controller?.display(viewModel.feed.map { model in
             let adapter = FeedStoryPresentationAdapter(loader: { [loader] in
                 loader(model.id)
             })
-            
+
             let view = FeedStoryCellController(delegate: adapter)
+            view.onNeedsReconfigure = { [weak controller = self.controller, id = AnyHashable(model)] in
+                controller?.update(id: id)
+            }
 
             adapter.presenter = LoadResourcePresenter(
                 resourceView: WeakRefVirtualProxy(view),

@@ -36,6 +36,11 @@ private final class SnapshotWindow: UIWindow {
     }
     
     func snapshot() -> UIImage {
+        setNeedsLayout()
+        layoutIfNeeded()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.05))
+        setNeedsLayout()
+        layoutIfNeeded()
         let render = UIGraphicsImageRenderer(bounds: bounds, format: .init(for: configuration.traitCollection))
         return render.image { action in
             layer.render(in: action.cgContext)

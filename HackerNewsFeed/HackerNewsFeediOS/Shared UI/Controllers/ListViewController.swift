@@ -25,8 +25,10 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
     
     public override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         tableView.dataSource = dataSource
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 170
         configureErrorView()
         
         onViewDidAppear = { vc in
@@ -71,7 +73,12 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
     
     public override func traitCollectionDidChange(_ previous: UITraitCollection?) {
         if previous?.preferredContentSizeCategory != traitCollection.preferredContentSizeCategory {
-            tableView.reloadData()
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                var snapshot = self.dataSource.snapshot()
+                snapshot.reconfigureItems(snapshot.itemIdentifiers)
+                self.dataSource.apply(snapshot, animatingDifferences: false)
+            }
         }
     }
     
@@ -83,7 +90,14 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
         var snapshot = NSDiffableDataSourceSnapshot<Int, CellController>()
         snapshot.appendSections([0])
         snapshot.appendItems(cellControllers, toSection: 0)
-        dataSource.applySnapshotUsingReloadData(snapshot)
+        dataSource.apply(snapshot, animatingDifferences: false)
+    }
+
+    public func update(id: AnyHashable) {
+        var snapshot = dataSource.snapshot()
+        guard let item = snapshot.itemIdentifiers.first(where: { $0.id == id }) else { return }
+        snapshot.reconfigureItems([item])
+        dataSource.apply(snapshot, animatingDifferences: false)
     }
     
     public func display(_ viewModel: ResourceLoadingViewModel) {

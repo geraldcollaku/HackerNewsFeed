@@ -81,13 +81,17 @@ class FeedSnapshotTests: XCTestCase {
 private extension ListViewController {
     func display(_ stubs: [StoryStub]) {
         let cells: [CellController] = stubs.map { stub in
+            let id = UUID()
             let cellController = FeedStoryCellController(delegate: stub)
             stub.controller = cellController
-            return CellController(id: UUID(), cellController)
+            cellController.onNeedsReconfigure = { [weak self] in
+                self?.update(id: id)
+            }
+            return CellController(id: id, cellController)
         }
         display(cells)
     }
- }
+}
 
 private class StoryStub: FeedStoryCellControllerDelegate {
     weak var controller: FeedStoryCellController?

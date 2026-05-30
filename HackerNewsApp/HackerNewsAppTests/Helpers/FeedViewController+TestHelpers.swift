@@ -30,7 +30,10 @@ extension ListViewController {
     
     @discardableResult
     func simulateStoryViewVisible(at index: Int) -> FeedStoryCell? {
-        return storyView(at: index) as? FeedStoryCell
+        let view = storyView(at: index) as? FeedStoryCell
+        let indexPath = IndexPath(row: index, section: feedSection)
+        tableView.delegate?.tableView?(tableView, willDisplay: view!, forRowAt: indexPath)
+        return view
     }
     
     @discardableResult
