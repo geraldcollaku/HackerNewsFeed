@@ -273,6 +273,21 @@ final class FeedUIIntegrationTests: XCTestCase {
         XCTAssertNil(view?.urlText, "Expected no url when a story load finishes after story view is not visible anymore")
     }
     
+    func test_storyView_reloadsDataWhenBecomingVisibleAgain() {
+        let (sut, loader) = makeSUT()
+        let story0 = 0
+        let story1 = 1
+        
+        sut.simulateApperance()
+        loader.completeFeedLoading(with: [makeFeedId(id: story0), makeFeedId(id: story1)], at: 0)
+        sut.simulateStoryViewBecomingVisibleAgain(at: 0)
+        
+        XCTAssertEqual(loader.storiesRequests.count, 2, "Expected to load the story again when a story view becomes visible again")
+
+        sut.simulateStoryViewBecomingVisibleAgain(at: 1)
+        XCTAssertEqual(loader.storiesRequests.count, 4, "Expected to load the two stories again when the second story view becomes visible again")
+    }
+    
     func test_storyView_doesNotShowDataFromPreviousRequestWhenCellIsReused() throws {
         let (sut, loader) = makeSUT()
         let story0 = makeStory(id: 0,

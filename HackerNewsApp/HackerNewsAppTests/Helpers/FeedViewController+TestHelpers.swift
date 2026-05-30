@@ -33,6 +33,15 @@ extension ListViewController {
         return storyView(at: index) as? FeedStoryCell
     }
     
+    @discardableResult
+    func simulateStoryViewBecomingVisibleAgain(at row: Int) -> FeedStoryCell? {
+        let view = simulateStoryViewNotVisible(at: row)
+        let delegate = tableView.delegate
+        let index = IndexPath(row: row, section: feedSection)
+        delegate?.tableView?(tableView, willDisplay: view!, forRowAt: index)
+        return view
+    }
+    
     func simulateStoryViewNearVisible(at row: Int) {
         let ds = tableView.prefetchDataSource
         let index = IndexPath(row: row, section: feedSection)

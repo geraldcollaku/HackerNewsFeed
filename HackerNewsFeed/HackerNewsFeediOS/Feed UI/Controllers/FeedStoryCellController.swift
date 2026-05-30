@@ -46,6 +46,11 @@ extension FeedStoryCellController: UITableViewDataSource, UITableViewDelegate, U
         return cell!
     }
     
+    public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        self.cell = cell as? FeedStoryCell
+        delegate.didRequestStory()
+    }
+    
     public func tableView(_ tableView: UITableView, didEndDisplaying cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         cancelLoad()
     }
