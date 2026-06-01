@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import Combine
 import HackerNewsApp
 import HackerNewsFeed
 import HackerNewsFeediOS
@@ -20,18 +21,18 @@ class CommentsUIIntegrationTests: FeedUIIntegrationTests {
         XCTAssertEqual(sut.title, commentsTitle)
     }
     
-    override func test_loadFeedActions_loadsFeedFromLoader() {
+    func test_loadCommentsActions_loadsCommentsFromLoader() {
         let (sut, loader) = makeSUT()
-        XCTAssertEqual(loader.loadFeedIdCallCount, 0, "Expected no loading indicator before view is loaded")
+        XCTAssertEqual(loader.loadCommentsCount, 0, "Expected no loading indicator before view is loaded")
         
         sut.simulateApperance()
-        XCTAssertEqual(loader.loadFeedIdCallCount, 1, "Expected a loading request once view is loaded")
+        XCTAssertEqual(loader.loadCommentsCount, 1, "Expected a loading request once view is loaded")
         
         sut.simulateUserInitiatedReload()
-        XCTAssertEqual(loader.loadFeedIdCallCount, 2, "Expected another loading request once view is loaded")
+        XCTAssertEqual(loader.loadCommentsCount, 2, "Expected another loading request once view is loaded")
         
         sut.simulateUserInitiatedReload()
-        XCTAssertEqual(loader.loadFeedIdCallCount, 3, "Expected a third loading request once view is loaded")
+        XCTAssertEqual(loader.loadCommentsCount, 3, "Expected a third loading request once view is loaded")
     }
     
     override func test_loadingFeedIndicator_isVisibleWhileLoadingFeed() {
@@ -112,21 +113,21 @@ class CommentsUIIntegrationTests: FeedUIIntegrationTests {
         wait(for: [exp], timeout: 1.0)
     }
     
-    override func test_loadStoryCompletion_dispatchesFromBackgroundToMainThread() {
-        let (sut, loader) = makeSUT()
-        let feed = makeFeedId()
-        
-        sut.simulateApperance()
-        loader.completeFeedLoading(with: [feed])
-        sut.simulateStoryViewVisible(at: 0)
-        
-        let exp = expectation(description: "Wait for background queue")
-        DispatchQueue.global().async {
-            loader.completeStoryLoading(with: self.makeStory(id: feed.id))
-            exp.fulfill()
-        }
-        wait(for: [exp], timeout: 1.0)
-    }
+//    override func test_loadStoryCompletion_dispatchesFromBackgroundToMainThread() {
+//        let (sut, loader) = makeSUT()
+//        let feed = makeFeedId()
+//        
+//        sut.simulateApperance()
+//        loader.completeFeedLoading(with: [feed])
+//        sut.simulateStoryViewVisible(at: 0)
+//        
+//        let exp = expectation(description: "Wait for background queue")
+//        DispatchQueue.global().async {
+//            loader.completeStoryLoading(with: self.makeStory(id: feed.id))
+//            exp.fulfill()
+//        }
+//        wait(for: [exp], timeout: 1.0)
+//    }
     
     // MARK: - Helpers
     
@@ -152,5 +153,28 @@ class CommentsUIIntegrationTests: FeedUIIntegrationTests {
                            type: String? = nil,
                            url: URL = URL(string: "https://any-url.com")!) -> Story {
         Story(id: id, title: title, text: title, author: author, score: score, createdAt: createdAt, totalComments: totalComments, comments: comments, type: type, url: url)
+    }
+    
+    private class LoaderSpy {
+        private var requests = [PassthroughSubject<[FeedId], Error>]()
+        
+        var loadCommentsCount: Int {
+            return requests.count
+        }
+        
+        func loadPublisher() -> AnyPublisher<[FeedId], Error> {
+            let publisher = PassthroughSubject<[FeedId], Error>()
+            requests.append(publisher)
+            return publisher.eraseToAnyPublisher()
+        }
+        
+        func completeFeedLoading(with news: [FeedId] = [], at index: Int = 0) {
+            requests[index].send(news)
+        }
+        
+        func completeFeedLoadingWithError(at index: Int = 0) {
+            let error = NSError(domain: "an error", code: 0)
+            requests[index].send(completion: .failure(error))
+        }
     }
 }
