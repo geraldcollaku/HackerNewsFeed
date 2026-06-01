@@ -29,3 +29,19 @@ func uniqueStory(id: Int = Int.random(in: 0...100)) -> Story {
         type: "story",
         url: nil)
 }
+
+private class DummyView: ResourceView {
+    func display(_ viewModel: Any) {}
+}
+
+var loadError: String {
+    LoadResourcePresenter<Any, DummyView>.loadError
+}
+
+var feedTitle: String {
+    FeedPresenter.title
+}
+
+var commentsTitle: String {
+    FeedCommentsPresenter.title
+}
