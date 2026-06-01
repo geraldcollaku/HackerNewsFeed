@@ -94,7 +94,7 @@ class CommentsUIIntegrationTests: FeedUIIntegrationTests {
         wait(for: [exp], timeout: 1.0)
     }
     
-    override func test_loadFeedCompletion_rendersErrorOnMessageErrorUnitilNextReload() {
+    func  test_loadCommentCompletion_rendersErrorOnMessageErrorUntilNextReload() {
         let (sut, loader) = makeSUT()
         sut.simulateApperance()
         
