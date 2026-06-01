@@ -17,7 +17,7 @@ public enum CommentsUIComposer {
     public static func commentsComposedWith(loader: @escaping () -> AnyPublisher<[FeedId], Error>) -> ListViewController {
         let presentationAdapter = FeedPresentationAdapter(loader: { loader().dispatchOnMainQueue() })
         
-        let feedController = ListViewController.makeWith(title: FeedPresenter.title)
+        let feedController = ListViewController.makeWith(title: FeedCommentsPresenter.title)
         feedController.onRefresh = presentationAdapter.loadResource
         
         presentationAdapter.presenter = LoadResourcePresenter(
@@ -37,7 +37,7 @@ private extension ListViewController {
         let bundle = Bundle(for: ListViewController.self)
         let storyboard = UIStoryboard(name: "Feed", bundle: bundle)
         let feedController = storyboard.instantiateInitialViewController() as! ListViewController
-        feedController.title = FeedPresenter.title
+        feedController.title = title
         return feedController
     }
 }

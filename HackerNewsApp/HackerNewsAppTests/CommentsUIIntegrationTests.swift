@@ -12,12 +12,12 @@ import HackerNewsFeediOS
 
 class CommentsUIIntegrationTests: FeedUIIntegrationTests {
     
-    override func test_feedView_hasTitle() {
+    func test_commentsView_hasTitle() {
         let (sut, _) = makeSUT()
         
         sut.simulateApperance()
         
-        XCTAssertEqual(sut.title, feedTitle)
+        XCTAssertEqual(sut.title, commentsTitle)
     }
     
     override func test_loadFeedActions_loadsFeedFromLoader() {
