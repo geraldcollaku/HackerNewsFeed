@@ -79,6 +79,20 @@ class CommentsUIIntegrationTests: FeedUIIntegrationTests {
         loader.completeCommentsLoading(with: [], at: 1)
         assertThat(sut, isRendering: [FeedComment]())
     }
+
+    func test_loadCommentsCompletion_dispatchesFromBackgroundToMainThread() {
+        let (sut, loader) = makeSUT()
+        
+        sut.simulateApperance()
+        
+        let exp = expectation(description: "Waith for background queue")
+        DispatchQueue.global().async {
+            loader.completeCommentsLoading(at: 0)
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 1.0)
+    }
     
     override func test_loadFeedCompletion_rendersErrorOnMessageErrorUnitilNextReload() {
         let (sut, loader) = makeSUT()
@@ -104,20 +118,6 @@ class CommentsUIIntegrationTests: FeedUIIntegrationTests {
         sut.simulateErrorViewTap()
         
         XCTAssertEqual(sut.errorMessage, nil)
-    }
-    
-    override func test_loadFeedCompletion_dispatchesFromBackgroundToMainThread() {
-        let (sut, loader) = makeSUT()
-        
-        sut.simulateApperance()
-        
-        let exp = expectation(description: "Waith for background queue")
-        DispatchQueue.global().async {
-            loader.completeCommentsLoading()
-            exp.fulfill()
-        }
-        
-        wait(for: [exp], timeout: 1.0)
     }
     
     // MARK: - Helpers
