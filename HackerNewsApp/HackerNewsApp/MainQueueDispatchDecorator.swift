@@ -36,11 +36,3 @@ extension MainQueueDispatchDecorator: StoryLoader where T == StoryLoader {
         }
     }
 }
-
-//extension MainQueueDispatchDecorator: FeedLoader where T == FeedLoader {
-//    func load(completion: @escaping (Swift.Result<[FeedId], Error>) -> Void) {
-//        decoratee.load { [weak self] result in
-//            self?.dispatch { completion(result) }
-//        }
-//    }
-//}
