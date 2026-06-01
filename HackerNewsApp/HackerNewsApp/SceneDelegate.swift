@@ -24,7 +24,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }()
     
     private lazy var localFeedLoader = LocalFeedLoader(store: store, currentDate: Date.init)
-    private lazy var url = URL(string: "https://hacker-news-feed.onrender.com/v0")!
+    private lazy var baseURL = URL(string: "https://hacker-news-feed.onrender.com/v0")!
+    
+    private lazy var navigationController = UINavigationController(rootViewController: FeedUIComposer.feedComposedWith(
+        loader: makeRemoteFeedLoaderWithLocalFallback,
+        storyLoader: makeRemoteStoryLoaderWithLocalFallback,
+        selection: showComments
+    ))
     
     convenience init(httpClient: HTTPClient, store: FeedStore & StoryStore) {
         self.init()
@@ -40,10 +46,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     func configureWindow() {
-        window?.rootViewController = UINavigationController(rootViewController: FeedUIComposer.feedComposedWith(
-            loader: makeRemoteFeedLoaderWithLocalFallback,
-            storyLoader: makeRemoteStoryLoaderWithLocalFallback))
-        
+        window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
     }
     
@@ -51,9 +54,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         localFeedLoader.validateCache { _ in }
     }
     
+    private func showComments(for feedId: FeedId) {
+        let url = baseURL.appendingPathComponent("/story/\(feedId.id)/comments")
+        let comments = CommentsUIComposer.commentsComposedWith(loader: makeRemoteCommentsLoader(url: url))
+        navigationController.pushViewController(comments, animated: true)
+    }
+    
+    private func makeRemoteCommentsLoader(url: URL) -> () -> AnyPublisher<[FeedComment], Error> {
+        return { [httpClient] in
+            return httpClient
+                .getPublisher(url: url)
+                .tryMap(FeedCommentsMapper.map)
+                .eraseToAnyPublisher()
+        }
+    }
+    
     private func makeRemoteFeedLoaderWithLocalFallback() -> AnyPublisher<[FeedId], Error> {
         let localFeedLoader = LocalFeedLoader(store: store, currentDate: Date.init)
-        let feedUrl = url.appendingPathComponent("newstories")
+        let feedUrl = baseURL.appendingPathComponent("newstories")
             .appending(queryItems: [URLQueryItem(name: "page", value: "1")])
         return httpClient
             .getPublisher(url: feedUrl)
@@ -64,8 +82,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     private func makeRemoteStoryLoaderWithLocalFallback(id: Int) -> StoryLoader.Publisher {
         let remoteStoryLoader = RemoteStoryDataLoader(
-            url: { [url] storyId in
-                url.appendingPathComponent("item/\(storyId)")
+            url: { [baseURL] storyId in
+                baseURL.appendingPathComponent("item/\(storyId)")
             },
             client: httpClient
         )

@@ -60,6 +60,13 @@ final class FeedAcceptanceTests: XCTestCase {
         XCTAssertNotNil(store.feedCache)
     }
     
+    func test_onFeedItemSelection_displaysComments() throws {
+        let comments = try showCommentsForFirstItem()
+        
+        XCTAssertEqual(comments.numberOfRenderedComments(), 1)
+        XCTAssertEqual(comments.commentMessage(at: 0), makeCommentMessage())
+    }
+    
     // MARK: - Helpers
     
     private func launch(
@@ -82,6 +89,20 @@ final class FeedAcceptanceTests: XCTestCase {
     private func enterBackground(with store: InMemoryFeedStore) {
         let sut = SceneDelegate(httpClient: HTTPClientStub.offline, store: store)
         sut.sceneWillResignActive(UIApplication.shared.connectedScenes.first!)
+    }
+    
+    private func showCommentsForFirstItem() throws -> ListViewController {
+        let feed = try launch(httpClient: HTTPClientStub.online(response), store: .empty)
+
+        feed.simulateTapOnFeedItem(at: 0)
+
+        let nav = feed.navigationController
+        let comments = nav?.topViewController as! ListViewController
+        comments.simulateApperance()
+        
+        RunLoop.current.run(until: Date())
+        
+        return comments
     }
     
     private class HTTPClientStub: HTTPClient {
@@ -164,6 +185,8 @@ final class FeedAcceptanceTests: XCTestCase {
         switch url.lastPathComponent {
         case "newstories":
             return makeFeedIdData()
+        case "comments":
+            return makeCommentsData()
         default:
             return makeStoryData(for: url)
         }
@@ -187,4 +210,18 @@ final class FeedAcceptanceTests: XCTestCase {
         ]
         return try! JSONSerialization.data(withJSONObject: story)
     }
+    
+    private func makeCommentsData() -> Data {
+        let comments: [[String: Any]] = [
+            [
+                "id": 1,
+                "message": makeCommentMessage(),
+                "created_at": "2026-05-30T10:00:00.000Z",
+                "author": ["username": "a username"]
+            ]
+        ]
+        return try! JSONSerialization.data(withJSONObject: comments)
+    }
+    
+    private func makeCommentMessage() -> String { "a message" }
 }
