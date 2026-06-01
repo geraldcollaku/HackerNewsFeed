@@ -14,7 +14,11 @@ import HackerNewsFeediOS
 public enum FeedUIComposer {
     private typealias FeedPresentationAdapter = LoadResourcePresentationAdapter<[FeedId], FeedViewAdapter>
     
-    public static func feedComposedWith(loader: @escaping () -> AnyPublisher<[FeedId], Error>, storyLoader: @escaping (Int) -> StoryLoader.Publisher) -> ListViewController {
+    public static func feedComposedWith(
+        loader: @escaping () -> AnyPublisher<[FeedId], Error>,
+        storyLoader: @escaping (Int) -> StoryLoader.Publisher,
+        selection: @escaping (FeedId) -> Void = { _ in }
+    ) -> ListViewController {
         let presentationAdapter = FeedPresentationAdapter(loader: { loader().dispatchOnMainQueue() })
         
         let feedController = ListViewController.makeWith(title: FeedPresenter.title)
@@ -23,7 +27,8 @@ public enum FeedUIComposer {
         presentationAdapter.presenter = LoadResourcePresenter(
             resourceView: FeedViewAdapter(
                 controller: feedController,
-                loader: { storyLoader($0).dispatchOnMainQueue() }),
+                loader: { storyLoader($0).dispatchOnMainQueue() },
+                selection: selection),
             loadingView: WeakRefVirtualProxy(feedController),
             errorView: WeakRefVirtualProxy(feedController),
             mapper: FeedPresenter.map)

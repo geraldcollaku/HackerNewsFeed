@@ -82,7 +82,7 @@ private extension ListViewController {
     func display(_ stubs: [StoryStub]) {
         let cells: [CellController] = stubs.map { stub in
             let id = UUID()
-            let cellController = FeedStoryCellController(delegate: stub)
+            let cellController = FeedStoryCellController(delegate: stub, selection: { })
             stub.controller = cellController
             cellController.onNeedsReconfigure = { [weak self] in
                 self?.update(id: id)

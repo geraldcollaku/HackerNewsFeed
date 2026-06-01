@@ -20,6 +20,22 @@ class FeedUIIntegrationTests: XCTestCase {
         XCTAssertEqual(sut.title, feedTitle)
     }
     
+    func test_imageSelection_notifiesHandler() {
+        let item0 = makeFeedId(id: 0)
+        let item1 =  makeFeedId(id: 1)
+        var selectedItems = [FeedId]()
+        let (sut, loader) = makeSUT(selection: { selectedItems.append($0) })
+        
+        sut.simulateApperance()
+        loader.completeFeedLoading(with: [item0, item1], at: 0)
+        
+        sut.simulateTapOnFeedItem(at: 0)
+        XCTAssertEqual(selectedItems, [item0])
+        
+        sut.simulateTapOnFeedItem(at: 1)
+        XCTAssertEqual(selectedItems, [item0, item1])
+    }
+    
     func test_loadFeedActions_loadsFeedFromLoader() {
         let (sut, loader) = makeSUT()
         XCTAssertEqual(loader.loadFeedIdCallCount, 0, "Expected no loading indicator before view is loaded")
@@ -371,9 +387,15 @@ class FeedUIIntegrationTests: XCTestCase {
     
     // MARK: - Helpers
     
-    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: ListViewController, loader: LoaderSpy) {
+    private func makeSUT(selection: @escaping (FeedId) -> Void = { _ in },
+                         file: StaticString = #file,
+                         line: UInt = #line) -> (sut: ListViewController, loader: LoaderSpy) {
         let loader = LoaderSpy()
-        let sut = FeedUIComposer.feedComposedWith(loader: loader.loadPublisher, storyLoader: loader.loadStoryPublisher)
+        let sut = FeedUIComposer.feedComposedWith(
+            loader: loader.loadPublisher,
+            storyLoader: loader.loadStoryPublisher,
+            selection: selection
+        )
         trackForMemoryLeaks(loader, file: file, line: line)
         trackForMemoryLeaks(sut, file: file, line: line)
         return (sut, loader)

@@ -19,10 +19,12 @@ public final class FeedStoryCellController: NSObject {
     public var onNeedsReconfigure: (() -> Void)?
 
     private let delegate: FeedStoryCellControllerDelegate
+    private let selection: () -> Void
     private var cell: FeedStoryCell?
 
-    public init(delegate: FeedStoryCellControllerDelegate) {
+    public init(delegate: FeedStoryCellControllerDelegate, selection: @escaping () -> Void) {
         self.delegate = delegate
+        self.selection = selection
     }
 }
 
@@ -41,6 +43,10 @@ extension FeedStoryCellController: UITableViewDataSource, UITableViewDelegate, U
             self?.releaseCellForReuse()
         }
         return cell!
+    }
+    
+    public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        selection()
     }
 
     public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {

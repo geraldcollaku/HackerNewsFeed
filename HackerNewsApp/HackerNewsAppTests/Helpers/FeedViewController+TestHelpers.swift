@@ -83,6 +83,12 @@ extension ListViewController {
         ds?.tableView(tableView, prefetchRowsAt: [index])
     }
     
+    func simulateTapOnFeedItem(at row: Int) {
+        let delegate = tableView.delegate
+        let index = IndexPath(row: row, section: feedSection)
+        delegate?.tableView?(tableView, didSelectRowAt: index)
+    }
+    
     func simulateStoryViewNotNearVisible(at row: Int) {
         simulateStoryViewVisible(at: row)
         
