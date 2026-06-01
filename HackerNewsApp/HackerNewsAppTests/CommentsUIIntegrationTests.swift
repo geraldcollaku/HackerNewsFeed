@@ -51,26 +51,33 @@ class CommentsUIIntegrationTests: FeedUIIntegrationTests {
         XCTAssertFalse(sut.isShowingLoadingIndicator, "Expected no loading indicator once user intiated loading is completed")
     }
     
-    override func test_loadFeedCompletion_rendersSuccessfullyLoadedFeed() {
+    func test_loadCommentsCompletion_rendersSuccessfullyLoadedComments() {
+        let comment0 = makeComment(id: 0, message: "a message", username: "a username")
+        let comment1 = makeComment(id: 1, message: "another message", username: "another username")
+
         let (sut, loader) = makeSUT()
         
         sut.simulateApperance()
-        assertThat(sut, isRendering: [])
+        assertThat(sut, isRendering: [FeedComment]())
         
-        loader.completeCommentsLoading(with: [makeFeedId()], at: 0)
-        assertThat(sut, isRendering: [makeFeedId()])
+        loader.completeCommentsLoading(with: [comment0], at: 0)
+        assertThat(sut, isRendering: [comment0])
+        
+        loader.completeCommentsLoading(with: [comment0, comment1], at: 0)
+        assertThat(sut, isRendering: [comment0, comment1])
     }
     
-    override func test_loadFeedCompletion_rendersSuccessfullyLoadedEmptyFeedAfterNonEmptyFeed() {
+    func test_loadCommentCompletion_rendersSuccessfullyLoadedEmptyCommentAfterNonEmptyFeed() {
+        let comment0 = makeComment(id: 0, message: "a message", username: "a username")
         let (sut, loader) = makeSUT()
         
         sut.simulateApperance()
-        loader.completeCommentsLoading(with: [makeFeedId()], at: 0)
-        assertThat(sut, isRendering: [makeFeedId()])
+        loader.completeCommentsLoading(with: [comment0], at: 0)
+        assertThat(sut, isRendering: [comment0])
         
         sut.simulateUserInitiatedReload()
         loader.completeCommentsLoading(with: [], at: 1)
-        assertThat(sut, isRendering: [])
+        assertThat(sut, isRendering: [FeedComment]())
     }
     
     override func test_loadFeedCompletion_rendersErrorOnMessageErrorUnitilNextReload() {
@@ -113,25 +120,9 @@ class CommentsUIIntegrationTests: FeedUIIntegrationTests {
         wait(for: [exp], timeout: 1.0)
     }
     
-//    override func test_loadStoryCompletion_dispatchesFromBackgroundToMainThread() {
-//        let (sut, loader) = makeSUT()
-//        let feed = makeFeedId()
-//        
-//        sut.simulateApperance()
-//        loader.completeFeedLoading(with: [feed])
-//        sut.simulateStoryViewVisible(at: 0)
-//        
-//        let exp = expectation(description: "Wait for background queue")
-//        DispatchQueue.global().async {
-//            loader.completeStoryLoading(with: self.makeStory(id: feed.id))
-//            exp.fulfill()
-//        }
-//        wait(for: [exp], timeout: 1.0)
-//    }
-    
     // MARK: - Helpers
     
-    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: ListViewController, loader: LoaderSpy) {
+    private func makeSUT(file: StaticString = #file, line: UInt = #line) -> (sut: ListViewController, loader: LoaderSpy) {
         let loader = LoaderSpy()
         let sut = CommentsUIComposer.commentsComposedWith(loader: loader.loadPublisher)
         trackForMemoryLeaks(loader, file: file, line: line)
@@ -139,37 +130,36 @@ class CommentsUIIntegrationTests: FeedUIIntegrationTests {
         return (sut, loader)
     }
     
-    private func makeFeedId(id: Int = Int.random(in: 0 ... 100)) -> FeedId {
-        FeedId(id: id)
+    private func makeComment(id: Int, message: String = "any message", username: String = "any username") -> FeedComment {
+        FeedComment(id: id, message: message, createdAt: Date(), username: username)
     }
     
-    private func makeStory(id: Int = 0,
-                           title: String? = nil,
-                           author: String? = nil,
-                           score: Int? = nil,
-                           createdAt: Date = Date(),
-                           totalComments: Int? = nil,
-                           comments: [Int] = [],
-                           type: String? = nil,
-                           url: URL = URL(string: "https://any-url.com")!) -> Story {
-        Story(id: id, title: title, text: title, author: author, score: score, createdAt: createdAt, totalComments: totalComments, comments: comments, type: type, url: url)
+    func assertThat(_ sut: ListViewController, isRendering comments: [FeedComment], file: StaticString = #file, line: UInt = #line) {
+        XCTAssertEqual(sut.numberOfRenderedComments(), comments.count, "comments count", file: file, line: line)
+        
+        let viewModels = FeedCommentsPresenter.map(comments).comments
+        viewModels.enumerated().forEach { index, comment in
+            XCTAssertEqual(sut.commentMessage(at: index), comment.message, "message at \(index)", file: file, line: line)
+            XCTAssertEqual(sut.commentDate(at: index), comment.date, "date at \(index)", file: file, line: line)
+            XCTAssertEqual(sut.commentUsername(at: index), comment.username, "username at \(index)", file: file, line: line)
+        }
     }
     
     private class LoaderSpy {
-        private var requests = [PassthroughSubject<[FeedId], Error>]()
+        private var requests = [PassthroughSubject<[FeedComment], Error>]()
         
         var loadCommentsCount: Int {
             return requests.count
         }
         
-        func loadPublisher() -> AnyPublisher<[FeedId], Error> {
-            let publisher = PassthroughSubject<[FeedId], Error>()
+        func loadPublisher() -> AnyPublisher<[FeedComment], Error> {
+            let publisher = PassthroughSubject<[FeedComment], Error>()
             requests.append(publisher)
             return publisher.eraseToAnyPublisher()
         }
         
-        func completeCommentsLoading(with news: [FeedId] = [], at index: Int = 0) {
-            requests[index].send(news)
+        func completeCommentsLoading(with comments: [FeedComment] = [], at index: Int = 0) {
+            requests[index].send(comments)
         }
         
         func completeCommentsLoadingWithError(at index: Int = 0) {

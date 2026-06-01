@@ -11,7 +11,7 @@ public struct FeedCommentsViewModel {
     public let comments: [FeedCommentViewModel]
 }
 
-public struct FeedCommentViewModel: Equatable {
+public struct FeedCommentViewModel: Hashable {
     public let message: String
     public let date: String
     public let username: String
