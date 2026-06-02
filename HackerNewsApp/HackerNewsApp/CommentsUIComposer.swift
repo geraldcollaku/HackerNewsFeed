@@ -49,7 +49,7 @@ final class CommentsViewAdapter: ResourceView {
 
     func display(_ viewModel: FeedCommentsViewModel) {
         controller?.display(viewModel.comments.map { viewModel in
-            CellController(id: viewModel, FeedCommentCellController(model: viewModel))
+            CellController(id: UUID(), FeedCommentCellController(model: viewModel))
         })
     }
 }

@@ -24,7 +24,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }()
     
     private lazy var localFeedLoader = LocalFeedLoader(store: store, currentDate: Date.init)
-    private lazy var baseURL = URL(string: "https://hacker-news-feed.onrender.com/v0")!
+    private lazy var baseURL = URL(string: "https://hacker-news-feed.onrender.com")!
     
     private lazy var navigationController = UINavigationController(rootViewController: FeedUIComposer.feedComposedWith(
         loader: makeRemoteFeedLoaderWithLocalFallback,
@@ -55,7 +55,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     private func showComments(for feedId: FeedId) {
-        let url = baseURL.appendingPathComponent("/story/\(feedId.id)/comments")
+        let url = FeedCommentsEndpoint.get(feedId.id).url(baseURL: baseURL)
         let comments = CommentsUIComposer.commentsComposedWith(loader: makeRemoteCommentsLoader(url: url))
         navigationController.pushViewController(comments, animated: true)
     }
@@ -71,8 +71,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     private func makeRemoteFeedLoaderWithLocalFallback() -> AnyPublisher<[FeedId], Error> {
         let localFeedLoader = LocalFeedLoader(store: store, currentDate: Date.init)
-        let feedUrl = baseURL.appendingPathComponent("newstories")
-            .appending(queryItems: [URLQueryItem(name: "page", value: "1")])
+        let feedUrl = FeedEndpoint.get.url(baseURL: baseURL)
         return httpClient
             .getPublisher(url: feedUrl)
             .tryMap(FeedItemsMapper.map)
