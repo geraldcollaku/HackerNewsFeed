@@ -46,6 +46,17 @@ extension ListViewController {
     var isShowingLoadingIndicator: Bool {
         refreshControl?.isRefreshing == true
     }
+    
+    func numberOfRows(in section: Int) -> Int {
+        tableView.numberOfSections == 0 ? 0 : tableView.numberOfRows(inSection: section)
+    }
+    
+    func cell(row: Int, section: Int) -> UITableViewCell? {
+        guard numberOfRows(in: section) > row else { return nil }
+        let ds = tableView.dataSource
+        let index = IndexPath(row: row, section: section)
+        return ds?.tableView(tableView, cellForRowAt: index)
+    }
 }
 
 extension ListViewController {
@@ -98,10 +109,7 @@ extension ListViewController {
     }
     
     func storyView(at row: Int) -> UITableViewCell? {
-        guard numberOfRenderedViews() > row else { return nil }
-        let ds = tableView.dataSource
-        let index = IndexPath(row: row, section: feedSection)
-        return ds?.tableView(tableView, cellForRowAt: index)
+        cell(row: row, section: feedSection)
     }
     
     func renderedStoryAuthor(at index: Int) -> String? {
@@ -113,7 +121,7 @@ extension ListViewController {
     }
     
     func numberOfRenderedViews() -> Int {
-        tableView.numberOfSections == 0 ? 0 : tableView.numberOfRows(inSection: feedSection)
+        numberOfRows(in: feedSection)
     }
     
     private var feedSection: Int { 0 }
@@ -121,16 +129,13 @@ extension ListViewController {
 
 extension ListViewController {
     func numberOfRenderedComments() -> Int {
-        tableView.numberOfSections == 0 ? 0 : tableView.numberOfRows(inSection: commentsSection)
+        numberOfRows(in: commentsSection)
     }
     
     private var commentsSection: Int { 0 }
     
     private func commentView(at row: Int) -> FeedCommentCell? {
-        guard numberOfRenderedComments() > row else { return nil }
-        let ds = tableView.dataSource
-        let index = IndexPath(row: row, section: commentsSection)
-        return ds?.tableView(tableView, cellForRowAt: index) as? FeedCommentCell
+        cell(row: row, section: commentsSection) as? FeedCommentCell
     }
     
     func commentMessage(at row: Int) -> String? {
