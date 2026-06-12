@@ -31,6 +31,15 @@ class FeedSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone17(style: .dark)), named: "FEED_WITH_FAILED_STORY_LOADING_dark")
     }
     
+    func test_feedWithLoadMoreIndicator() {
+        let sut = makeSUT()
+        
+        sut.display(feedWithLoadMoreIndicator())
+        
+        assert(snapshot: sut.snapshot(for: .iPhone17(style: .light)), named: "FEED_WITH_LOAD_MORE_INDICATOR_light")
+        assert(snapshot: sut.snapshot(for: .iPhone17(style: .dark)), named: "FEED_WITH_LOAD_MORE_INDICATOR_dark")
+    }
+    
     private func makeSUT() -> ListViewController {
         let bundle = Bundle(for: ListViewController.self)
         let storyboard = UIStoryboard(name: "Feed", bundle: bundle)
@@ -55,6 +64,19 @@ class FeedSnapshotTests: XCTestCase {
                 url: "github.com/janesmith/hn-ios",
                 shouldRetry: false
             )
+        ]
+    }
+    
+    private func feedWithLoadMoreIndicator() -> [CellController] {
+        let stub = feedWithContent().first!
+        let cellController = FeedStoryCellController(delegate: stub, selection: {})
+        stub.controller = cellController
+        
+        let loadMore = LoadMoreCellController()
+        loadMore.display(ResourceLoadingViewModel(isLoading: true))
+        return [
+            CellController(id: UUID(), cellController),
+            CellController(id: UUID(), loadMore)
         ]
     }
     
