@@ -19,14 +19,14 @@ class FeedSnapshotTests: XCTestCase {
         assert(snapshot: sut.snapshot(for: .iPhone17(style: .light)), named: "FEED_WITH_CONTENT_light")
         assert(snapshot: sut.snapshot(for: .iPhone17(style: .dark)), named: "FEED_WITH_CONTENT_dark")
         assert(snapshot: sut.snapshot(for: .iPhone17(style: .light, contentSize: .extraExtraExtraLarge)), named: "FEED_WITH_CONTENT_light_extraExtraExtraLarge")
-
+        
     }
     
     func test_feedWithFailedImageLoading() {
         let sut = makeSUT()
-
+        
         sut.display(feedWithFailedStoryLoading())
-
+        
         assert(snapshot: sut.snapshot(for: .iPhone17(style: .light)), named: "FEED_WITH_FAILED_STORY_LOADING_light")
         assert(snapshot: sut.snapshot(for: .iPhone17(style: .dark)), named: "FEED_WITH_FAILED_STORY_LOADING_dark")
     }
@@ -38,6 +38,16 @@ class FeedSnapshotTests: XCTestCase {
         
         assert(snapshot: sut.snapshot(for: .iPhone17(style: .light)), named: "FEED_WITH_LOAD_MORE_INDICATOR_light")
         assert(snapshot: sut.snapshot(for: .iPhone17(style: .dark)), named: "FEED_WITH_LOAD_MORE_INDICATOR_dark")
+    }
+    
+    func test_feedWithLoadMoreError() {
+        let sut = makeSUT()
+        
+        sut.display(feedWithLoadMoreError())
+        
+        assert(snapshot: sut.snapshot(for: .iPhone17(style: .light)), named: "FEED_WITH_LOAD_MORE_ERROR_light")
+        assert(snapshot: sut.snapshot(for: .iPhone17(style: .dark)), named: "FEED_WITH_LOAD_MORE_ERROR_dark")
+        assert(snapshot: sut.snapshot(for: .iPhone17(style: .light, contentSize: .extraExtraLarge)), named: "FEED_WITH_LOAD_MORE_ERROR_light_extraExtraLarge")
     }
     
     private func makeSUT() -> ListViewController {
@@ -68,12 +78,24 @@ class FeedSnapshotTests: XCTestCase {
     }
     
     private func feedWithLoadMoreIndicator() -> [CellController] {
+        let loadMore = LoadMoreCellController()
+        loadMore.display(ResourceLoadingViewModel(isLoading: true))
+        
+        return feedWith(loadMore: loadMore)
+    }
+    
+    private func feedWithLoadMoreError() -> [CellController] {
+        let loadMore = LoadMoreCellController()
+        loadMore.display(ResourceErrorViewModel(message: "This is a multiline\n error message"))
+        
+        return feedWith(loadMore: loadMore)
+    }
+    
+    private func feedWith(loadMore: LoadMoreCellController) ->  [CellController] {
         let stub = feedWithContent().first!
         let cellController = FeedStoryCellController(delegate: stub, selection: {})
         stub.controller = cellController
         
-        let loadMore = LoadMoreCellController()
-        loadMore.display(ResourceLoadingViewModel(isLoading: true))
         return [
             CellController(id: UUID(), cellController),
             CellController(id: UUID(), loadMore)
