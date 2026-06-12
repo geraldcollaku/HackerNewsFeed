@@ -21,8 +21,8 @@ class FeedViewAdapter: ResourceView {
         self.selection = selection
     }
 
-    func display(_ viewModel: FeedViewModel) {
-        controller?.display(viewModel.feed.map { model in
+    func display(_ viewModel: Paginated<FeedId>) {
+        controller?.display(viewModel.items.map { model in
             let adapter = FeedStoryPresentationAdapter(loader: { [loader] in
                 loader(model.id)
             })

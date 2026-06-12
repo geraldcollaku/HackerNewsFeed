@@ -11,20 +11,20 @@ import HackerNewsFeed
 import HackerNewsFeediOS
 
 class LoaderSpy: StoryLoader {
-    private var feedIdRequests = [PassthroughSubject<[FeedId], Error>]()
+    private var feedIdRequests = [PassthroughSubject<Paginated<FeedId>, Error>]()
     
     var loadFeedIdCallCount: Int {
         return feedIdRequests.count
     }
     
-    func loadPublisher() -> AnyPublisher<[FeedId], Error> {
-        let publisher = PassthroughSubject<[FeedId], Error>()
+    func loadPublisher() -> AnyPublisher<Paginated<FeedId>, Error> {
+        let publisher = PassthroughSubject<Paginated<FeedId>, Error>()
         feedIdRequests.append(publisher)
         return publisher.eraseToAnyPublisher()
     }
     
     func completeFeedLoading(with news: [FeedId] = [], at index: Int = 0) {
-        feedIdRequests[index].send(news)
+        feedIdRequests[index].send(Paginated(items: news))
     }
     
     func completeFeedLoadingWithError(at index: Int = 0) {

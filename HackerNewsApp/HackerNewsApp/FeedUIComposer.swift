@@ -12,10 +12,10 @@ import HackerNewsFeed
 import HackerNewsFeediOS
 
 public enum FeedUIComposer {
-    private typealias FeedPresentationAdapter = LoadResourcePresentationAdapter<[FeedId], FeedViewAdapter>
+    private typealias FeedPresentationAdapter = LoadResourcePresentationAdapter<Paginated<FeedId>, FeedViewAdapter>
     
     public static func feedComposedWith(
-        loader: @escaping () -> AnyPublisher<[FeedId], Error>,
+        loader: @escaping () -> AnyPublisher<Paginated<FeedId>, Error>,
         storyLoader: @escaping (Int) -> StoryLoader.Publisher,
         selection: @escaping (FeedId) -> Void = { _ in }
     ) -> ListViewController {
@@ -31,7 +31,7 @@ public enum FeedUIComposer {
                 selection: selection),
             loadingView: WeakRefVirtualProxy(feedController),
             errorView: WeakRefVirtualProxy(feedController),
-            mapper: FeedPresenter.map)
+            mapper: { $0 })
 
         return feedController
     }
