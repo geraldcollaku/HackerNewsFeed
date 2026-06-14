@@ -9,15 +9,19 @@ import Foundation
 import Combine
 import HackerNewsFeed
 import HackerNewsFeediOS
+import HackerNewsApp
 
 class LoaderSpy: StoryLoader {
     private var feedIdRequests = [PassthroughSubject<Paginated<FeedId>, Error>]()
-    
+    private var loadMoreRequests = [PassthroughSubject<Paginated<FeedId>, Error>]()
+
     var loadFeedIdCallCount: Int {
         return feedIdRequests.count
     }
     
-    private(set) var loadMoreCallCount = 0
+    var loadMoreCallCount: Int {
+        loadMoreRequests.count
+    }
     
     func loadPublisher() -> AnyPublisher<Paginated<FeedId>, Error> {
         let publisher = PassthroughSubject<Paginated<FeedId>, Error>()
@@ -26,14 +30,31 @@ class LoaderSpy: StoryLoader {
     }
     
     func completeFeedLoading(with news: [FeedId] = [], at index: Int = 0) {
-        feedIdRequests[index].send(Paginated(items: news, loadMore: { [weak self] _ in
-            self?.loadMoreCallCount += 1
+        feedIdRequests[index].send(Paginated(items: news, loadMorePublisher: { [weak self]  in
+            let publisher = PassthroughSubject<Paginated<FeedId>, Error>()
+            self?.loadMoreRequests.append(publisher)
+            return publisher.eraseToAnyPublisher()
         }))
     }
     
     func completeFeedLoadingWithError(at index: Int = 0) {
         let error = NSError(domain: "an error", code: 0)
         feedIdRequests[index].send(completion: .failure(error))
+    }
+    
+    func completeLoadMore(with news: [FeedId] = [], lastPage: Bool = false, at index: Int = 0) {
+        loadMoreRequests[index].send(Paginated(
+            items: news,
+            loadMorePublisher: lastPage ? nil : { [weak self] in
+                let publisher = PassthroughSubject<Paginated<FeedId>, Error>()
+                self?.loadMoreRequests.append(publisher)
+                return publisher.eraseToAnyPublisher()
+            }))
+    }
+    
+    func completeLoadMoreWithError(at index: Int = 0) {
+        let error = NSError(domain: "an error", code: 0)
+        loadMoreRequests[index].send(completion: .failure(error))
     }
     
     // MARK: - StoryLoader
