@@ -49,7 +49,7 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
     // MARK: - Helpers
 
     private func warmUpServer() {
-        let url = URL(string: "https://hacker-news-feed.onrender.com/health")!
+        let url = URL(string: "http://localhost:3000/health")!
         let exp = expectation(description: "Warm up server")
         URLSession.shared.dataTask(with: url) { _, _, _ in exp.fulfill() }.resume()
         wait(for: [exp], timeout: 60.0)
@@ -107,6 +107,6 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
     }
 
     private var feedTestServerURL: URL {
-        URL(string: "https://hacker-news-feed.onrender.com/v0")!
+        URL(string: "http://localhost:3000/v0")!
     }
 }

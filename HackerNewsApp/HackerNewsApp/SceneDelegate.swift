@@ -24,7 +24,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }()
     
     private lazy var localFeedLoader = LocalFeedLoader(store: store, currentDate: Date.init)
-    private lazy var baseURL = URL(string: "https://hacker-news-feed.onrender.com")!
+    // Local development: backend running on the Mac via `npm start` (reachable
+    // from the Simulator at localhost). Swap back to the deployed URL for release.
+    private lazy var baseURL = URL(string: "http://localhost:3000")!
     
     private lazy var navigationController = UINavigationController(rootViewController: FeedUIComposer.feedComposedWith(
         loader: makeRemoteFeedLoaderWithLocalFallback,

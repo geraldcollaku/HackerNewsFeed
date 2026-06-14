@@ -108,6 +108,14 @@ extension ListViewController {
         ds?.tableView?(tableView, cancelPrefetchingForRowsAt: [index])
     }
     
+    func simulateLoadMoreFeedAction() {
+        guard let view = cell(row: 0, section: loadMoreSection) else { return }
+        
+        let delegate = tableView.delegate
+        let indexPath = IndexPath(row: 0, section: loadMoreSection)
+        delegate?.tableView?(tableView, willDisplay: view, forRowAt: indexPath)
+    }
+    
     func storyView(at row: Int) -> UITableViewCell? {
         cell(row: row, section: feedSection)
     }
@@ -125,6 +133,7 @@ extension ListViewController {
     }
     
     private var feedSection: Int { 0 }
+    private var loadMoreSection: Int { 1 }
 }
 
 extension ListViewController {

@@ -17,6 +17,8 @@ class LoaderSpy: StoryLoader {
         return feedIdRequests.count
     }
     
+    private(set) var loadMoreCallCount = 0
+    
     func loadPublisher() -> AnyPublisher<Paginated<FeedId>, Error> {
         let publisher = PassthroughSubject<Paginated<FeedId>, Error>()
         feedIdRequests.append(publisher)
@@ -24,7 +26,9 @@ class LoaderSpy: StoryLoader {
     }
     
     func completeFeedLoading(with news: [FeedId] = [], at index: Int = 0) {
-        feedIdRequests[index].send(Paginated(items: news))
+        feedIdRequests[index].send(Paginated(items: news, loadMore: { [weak self] _ in
+            self?.loadMoreCallCount += 1
+        }))
     }
     
     func completeFeedLoadingWithError(at index: Int = 0) {
