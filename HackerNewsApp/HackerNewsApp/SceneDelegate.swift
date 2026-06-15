@@ -73,7 +73,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     private func makeRemoteFeedLoaderWithLocalFallback() -> AnyPublisher<Paginated<FeedId>, Error> {
         let localFeedLoader = LocalFeedLoader(store: store, currentDate: Date.init)
-        let feedUrl = FeedEndpoint.get.url(baseURL: baseURL)
+        let feedUrl = FeedEndpoint.get().url(baseURL: baseURL)
         return httpClient
             .getPublisher(url: feedUrl)
             .tryMap(FeedItemsMapper.map)
@@ -88,7 +88,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private func makeRemoteStoryLoaderWithLocalFallback(id: Int) -> StoryLoader.Publisher {
         let remoteStoryLoader = RemoteStoryDataLoader(
             url: { [baseURL] storyId in
-                baseURL.appendingPathComponent("item/\(storyId)")
+                baseURL.appendingPathComponent("/v0/item/\(storyId)")
             },
             client: httpClient
         )
