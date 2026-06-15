@@ -48,7 +48,7 @@ extension ListViewController {
     }
     
     func numberOfRows(in section: Int) -> Int {
-        tableView.numberOfSections == 0 ? 0 : tableView.numberOfRows(inSection: section)
+        tableView.numberOfSections > section ? tableView.numberOfRows(inSection: section) : 0
     }
     
     func cell(row: Int, section: Int) -> UITableViewCell? {
@@ -128,6 +128,10 @@ extension ListViewController {
     
     var loadMoreErrorMessage: String? {
         return loadMoreCell()?.message
+    }
+    
+    var canLoadMoreFeed: Bool {
+        loadMoreCell() != nil
     }
     
     private func loadMoreCell() -> LoadMoreCell? {

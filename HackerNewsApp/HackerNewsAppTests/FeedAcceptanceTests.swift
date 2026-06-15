@@ -21,6 +21,29 @@ final class FeedAcceptanceTests: XCTestCase {
         XCTAssertNotNil(feed.renderedStoryTitle(at: 0))
         XCTAssertNotNil(feed.renderedStoryAuthor(at: 1))
         XCTAssertNotNil(feed.renderedStoryTitle(at: 1))
+        XCTAssertTrue(feed.canLoadMoreFeed)
+        
+        feed.simulateLoadMoreFeedAction()
+        
+        XCTAssertEqual(feed.numberOfRenderedViews(), 3)
+        XCTAssertNotNil(feed.renderedStoryAuthor(at: 0))
+        XCTAssertNotNil(feed.renderedStoryTitle(at: 0))
+        XCTAssertNotNil(feed.renderedStoryAuthor(at: 1))
+        XCTAssertNotNil(feed.renderedStoryTitle(at: 1))
+        XCTAssertNotNil(feed.renderedStoryAuthor(at: 2))
+        XCTAssertNotNil(feed.renderedStoryTitle(at: 2))
+        XCTAssertTrue(feed.canLoadMoreFeed)
+        
+        feed.simulateLoadMoreFeedAction()
+        
+        XCTAssertEqual(feed.numberOfRenderedViews(), 3)
+        XCTAssertNotNil(feed.renderedStoryAuthor(at: 0))
+        XCTAssertNotNil(feed.renderedStoryTitle(at: 0))
+        XCTAssertNotNil(feed.renderedStoryAuthor(at: 1))
+        XCTAssertNotNil(feed.renderedStoryTitle(at: 1))
+        XCTAssertNotNil(feed.renderedStoryAuthor(at: 2))
+        XCTAssertNotNil(feed.renderedStoryTitle(at: 2))
+        XCTAssertFalse(feed.canLoadMoreFeed)
     }
     
     func test_onLaunch_displaysCachedFeedWhenCustomerHasNoConnectivity() throws {
@@ -183,8 +206,12 @@ final class FeedAcceptanceTests: XCTestCase {
     
     private func makeData(for url: URL) -> Data {
         switch url.lastPathComponent {
-        case "newstories":
-            return makeFeedIdData()
+        case "newstories" where url.query?.contains("after_id") == false:
+            return makeFirstFeedIdPageData()
+        case "newstories" where url.query?.contains("after_id=2") == true:
+            return makeSecondFeedIdPageData()
+        case "newstories" where url.query?.contains("after_id=3") == true:
+            return makeEmptyFeedIdPageData()
         case "comments":
             return makeCommentsData()
         default:
@@ -192,8 +219,16 @@ final class FeedAcceptanceTests: XCTestCase {
         }
     }
 
-    private func makeFeedIdData() -> Data {
+    private func makeFirstFeedIdPageData() -> Data {
         return try! JSONSerialization.data(withJSONObject: ["ids": [1, 2]])
+    }
+    
+    private func makeSecondFeedIdPageData() -> Data {
+        return try! JSONSerialization.data(withJSONObject: ["ids": [3]])
+    }
+    
+    private func makeEmptyFeedIdPageData() -> Data {
+        return try! JSONSerialization.data(withJSONObject: ["ids": []])
     }
     
     private func makeStoryData(for url: URL) -> Data {
