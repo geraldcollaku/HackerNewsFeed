@@ -19,7 +19,7 @@ public enum FeedUIComposer {
         storyLoader: @escaping (Int) -> StoryLoader.Publisher,
         selection: @escaping (FeedId) -> Void = { _ in }
     ) -> ListViewController {
-        let presentationAdapter = FeedPresentationAdapter(loader: { loader().dispatchOnMainQueue() })
+        let presentationAdapter = FeedPresentationAdapter(loader: { loader() })
         
         let feedController = ListViewController.makeWith(title: FeedPresenter.title)
         feedController.onRefresh = presentationAdapter.loadResource
@@ -27,7 +27,7 @@ public enum FeedUIComposer {
         presentationAdapter.presenter = LoadResourcePresenter(
             resourceView: FeedViewAdapter(
                 controller: feedController,
-                loader: { storyLoader($0).dispatchOnMainQueue() },
+                loader: { storyLoader($0) },
                 selection: selection),
             loadingView: WeakRefVirtualProxy(feedController),
             errorView: WeakRefVirtualProxy(feedController),

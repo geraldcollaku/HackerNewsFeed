@@ -125,15 +125,39 @@ class FeedUIIntegrationTests: XCTestCase {
     }
     
     func test_loadFeedCompletion_rendersSuccessfullyLoadedEmptyFeedAfterNonEmptyFeed() {
+        let feed0 = makeFeedId()
+        let feed1 = makeFeedId()
+        let feed2 = makeFeedId()
         let (sut, loader) = makeSUT()
         
         sut.simulateApperance()
-        loader.completeFeedLoading(with: [makeFeedId()], at: 0)
-        assertThat(sut, isRendering: [makeFeedId()])
+        loader.completeFeedLoading(with: [feed0], at: 0)
+        assertThat(sut, isRendering: [feed0])
+        
+        sut.simulateLoadMoreFeedAction()
+        loader.completeLoadMore(with: [feed1, feed2])
+        assertThat(sut, isRendering: [feed1, feed2])
         
         sut.simulateUserInitiatedReload()
         loader.completeFeedLoading(with: [], at: 1)
         assertThat(sut, isRendering: [])
+    }
+    
+    func test_loadFeedCompletion_doesNotAlterCurrentRenderingStateOnError() {
+        let feed0 = makeFeedId()
+        let (sut, loader) = makeSUT()
+
+        sut.simulateApperance()
+        loader.completeFeedLoading(with: [feed0], at: 0)
+        assertThat(sut, isRendering: [feed0])
+        
+        sut.simulateUserInitiatedReload()
+        loader.completeFeedLoadingWithError(at: 1)
+        assertThat(sut, isRendering: [feed0])
+        
+        sut.simulateLoadMoreFeedAction()
+        loader.completeLoadMoreWithError(at: 0)
+        assertThat(sut, isRendering: [feed0])
     }
     
     func test_loadFeedCompletion_rendersErrorOnMessageErrorUnitilNextReload() {
@@ -408,9 +432,25 @@ class FeedUIIntegrationTests: XCTestCase {
 
         sut.simulateApperance()
         
-        let exp = expectation(description: "Waith for background queue")
+        let exp = expectation(description: "Wait for background queue")
         DispatchQueue.global().async {
             loader.completeFeedLoading()
+            exp.fulfill()
+        }
+        
+        wait(for: [exp], timeout: 1.0)
+    }
+    
+    func test_loadMoreCompletion_dispatchesFromBackgroundToMainThread() {
+        let (sut, loader) = makeSUT()
+
+        sut.simulateApperance()
+        loader.completeFeedLoading()
+        sut.simulateLoadMoreFeedAction()
+        
+        let exp = expectation(description: "Wait for background queue")
+        DispatchQueue.global().async {
+            loader.completeLoadMore()
             exp.fulfill()
         }
         
