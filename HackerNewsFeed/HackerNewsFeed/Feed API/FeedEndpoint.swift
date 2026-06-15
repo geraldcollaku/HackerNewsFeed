@@ -16,6 +16,7 @@ public enum FeedEndpoint {
             var components = URLComponents()
             components.scheme = baseURL.scheme
             components.host = baseURL.host
+            components.port = baseURL.port
             components.path = baseURL.path + "/v0/newstories"
             components.queryItems = [
                 URLQueryItem(name: "limit", value: "10"),
