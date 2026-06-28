@@ -17,10 +17,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     private lazy var httpClient: HTTPClient =  URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
     private lazy var store: FeedStore & StoryStore = {
-        let url = NSPersistentContainer
-            .defaultDirectoryURL()
-            .appendingPathComponent("feed-store.sqlite")
-        return try! CoreDataFeedStore(storeURL: url)
+        do {
+            let url = NSPersistentContainer
+                .defaultDirectoryURL()
+                .appendingPathComponent("feed-store.sqlite")
+            return try CoreDataFeedStore(storeURL: url)
+        } catch {
+            return NullStore()
+        }
     }()
     
     private lazy var localFeedLoader = LocalFeedLoader(store: store, currentDate: Date.init)
