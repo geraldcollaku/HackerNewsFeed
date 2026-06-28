@@ -5,6 +5,7 @@
 //  Created by Gerald Collaku on 31.03.26.
 //
 
+import os
 import UIKit
 import Combine
 import CoreData
@@ -16,6 +17,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
     
     private lazy var httpClient: HTTPClient =  URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
+    private lazy var logger = Logger(subsystem: "com.hackernewsfeed.HackerNewsApp", category: "main")
     private lazy var store: FeedStore & StoryStore = {
         do {
             let url = NSPersistentContainer
@@ -24,6 +26,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             return try CoreDataFeedStore(storeURL: url)
         } catch {
             assertionFailure("Failed to instantiate CoreData store with error: \(error.localizedDescription)")
+            logger.fault("Failed to instantiate CoreData store with error: \(error.localizedDescription)")
             return NullStore()
         }
     }()
