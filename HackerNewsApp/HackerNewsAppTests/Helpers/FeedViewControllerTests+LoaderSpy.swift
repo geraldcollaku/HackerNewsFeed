@@ -35,6 +35,7 @@ class LoaderSpy: StoryLoader {
             self?.loadMoreRequests.append(publisher)
             return publisher.eraseToAnyPublisher()
         }))
+        feedIdRequests[index].send(completion: .finished)
     }
     
     func completeFeedLoadingWithError(at index: Int = 0) {
@@ -68,6 +69,9 @@ class LoaderSpy: StoryLoader {
     }
     
     private(set) var storiesRequests = [(id: Int, completion: (StoryLoader.Result) -> Void)]()
+    var storyIds: [Int] {
+        storiesRequests.map { $0.id }
+    }
     
     private(set) var cancelledStoriesIds = [Int]()
     

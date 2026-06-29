@@ -29,8 +29,13 @@ class CommentsUIIntegrationTests: XCTestCase {
         XCTAssertEqual(loader.loadCommentsCount, 1, "Expected a loading request once view is loaded")
         
         sut.simulateUserInitiatedReload()
+        XCTAssertEqual(loader.loadCommentsCount, 1, "Expected no request until previous completes")
+        
+        loader.completeCommentsLoading(at: 0)
+        sut.simulateUserInitiatedReload()
         XCTAssertEqual(loader.loadCommentsCount, 2, "Expected another loading request once view is loaded")
         
+        loader.completeCommentsLoading(at: 1)
         sut.simulateUserInitiatedReload()
         XCTAssertEqual(loader.loadCommentsCount, 3, "Expected a third loading request once view is loaded")
     }
@@ -56,14 +61,15 @@ class CommentsUIIntegrationTests: XCTestCase {
         let comment1 = makeComment(id: 1, message: "another message", username: "another username")
 
         let (sut, loader) = makeSUT()
-        
+
         sut.simulateApperance()
         assertThat(sut, isRendering: [FeedComment]())
-        
+
         loader.completeCommentsLoading(with: [comment0], at: 0)
         assertThat(sut, isRendering: [comment0])
-        
-        loader.completeCommentsLoading(with: [comment0, comment1], at: 0)
+
+        sut.simulateUserInitiatedReload()
+        loader.completeCommentsLoading(with: [comment0, comment1], at: 1)
         assertThat(sut, isRendering: [comment0, comment1])
     }
     
@@ -182,6 +188,7 @@ class CommentsUIIntegrationTests: XCTestCase {
         
         func completeCommentsLoading(with comments: [FeedComment] = [], at index: Int = 0) {
             requests[index].send(comments)
+            requests[index].send(completion: .finished)
         }
         
         func completeCommentsLoadingWithError(at index: Int = 0) {

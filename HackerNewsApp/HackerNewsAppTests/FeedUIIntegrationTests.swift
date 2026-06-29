@@ -44,8 +44,13 @@ class FeedUIIntegrationTests: XCTestCase {
         XCTAssertEqual(loader.loadFeedIdCallCount, 1, "Expected a loading request once view is loaded")
         
         sut.simulateUserInitiatedReload()
+        XCTAssertEqual(loader.loadFeedIdCallCount, 1, "Expected no request once until previous request completes")
+        
+        loader.completeFeedLoading(at: 0)
+        sut.simulateUserInitiatedReload()
         XCTAssertEqual(loader.loadFeedIdCallCount, 2, "Expected another loading request once view is loaded")
         
+        loader.completeFeedLoading(at: 1)
         sut.simulateUserInitiatedReload()
         XCTAssertEqual(loader.loadFeedIdCallCount, 3, "Expected a third loading request once view is loaded")
     }
@@ -505,6 +510,28 @@ class FeedUIIntegrationTests: XCTestCase {
             exp.fulfill()
         }
         wait(for: [exp], timeout: 1.0)
+    }
+    
+    func test_storyView_doesNotLoadStoryUntilPreviousRequestCompletes() {
+        let (sut, loader) = makeSUT()
+        let feed = makeFeedId()
+
+        sut.simulateApperance()
+        loader.completeFeedLoading(with: [feed], at: 0)
+        
+        sut.simulateStoryViewNearVisible(at: 0)
+        XCTAssertEqual(loader.storyIds, [feed.id], "Expected first request when near visible")
+        
+        sut.simulateStoryViewVisible(at: 0)
+        XCTAssertEqual(loader.storyIds, [feed.id], "Expected no requests until previous completes")
+        
+        loader.completeStoryLoading(at: 0)
+        sut.simulateStoryViewVisible(at: 0)
+        XCTAssertEqual(loader.storyIds, [feed.id, feed.id], "Expected second request when visible after previous completes")
+        
+        sut.simulateStoryViewNotVisible(at: 0)
+        sut.simulateStoryViewVisible(at: 0)
+        XCTAssertEqual(loader.storyIds, [feed.id, feed.id, feed.id], "Expected a third request when visible after cancelling previous completes")
     }
     
     // MARK: - Helpers
