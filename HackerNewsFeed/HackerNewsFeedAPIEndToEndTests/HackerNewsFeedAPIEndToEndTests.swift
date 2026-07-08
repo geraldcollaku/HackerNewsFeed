@@ -84,18 +84,24 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
         return receivedResult
     }
 
-    private func getStoryDataResult(id: Int, file: StaticString = #file, line: UInt = #line) -> StoryLoader.Result? {
+    private func getStoryDataResult(id: Int, file: StaticString = #file, line: UInt = #line) -> Result<Story, Error>? {
         let url = feedTestServerURL.appendingPathComponent("item/\(id)")
         let client = ephemeralClient()
-        let loader = RemoteStoryDataLoader(url: { _ in url }, client: client)
-        trackForMemoryLeaks(loader)
+        
+        var receivedResult: Result<Story, Error>?
 
         let exp = expectation(description: "Wait for load completion")
-        var receivedResult: StoryLoader.Result?
-        _ = loader.loadStory(with: id) { result in
-            receivedResult = result
+        client.get(from: url) { result in
+            receivedResult = result.flatMap { (data, response) in
+                do {
+                    return .success(try StoryItemMapper.map(data, from: response))
+                } catch {
+                    return .failure(error)
+                }
+            }
             exp.fulfill()
         }
+        
         wait(for: [exp], timeout: 60.0)
         return receivedResult
     }

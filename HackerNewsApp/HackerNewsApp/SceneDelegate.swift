@@ -118,20 +118,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     private func makeRemoteStoryLoaderWithLocalFallback(id: Int) -> StoryLoader.Publisher {
-        let remoteStoryLoader = RemoteStoryDataLoader(
-            url: { [baseURL] storyId in
-                baseURL.appendingPathComponent("/v0/item/\(storyId)")
-            },
-            client: httpClient
-        )
         let localStoryLoader = LocalStoryLoader(store: store)
         
         return localStoryLoader
             .loadStoryPublisher(with: id)
-            .fallback(to: {
-                remoteStoryLoader
-                    .loadStoryPublisher(with: id)
+            .fallback(to: { [makeRemoteStoryLoader] in
+                makeRemoteStoryLoader(id)
                     .caching(to: localStoryLoader, with: id)
+                    .eraseToAnyPublisher()
             })
     }
+    
+    private func makeRemoteStoryLoader(with id: Int) -> AnyPublisher<Story, Error> {
+        let url = StoryEndpoint.get(id: FeedId(id: id)).url(baseURL: baseURL)
+        
+        return httpClient
+            .getPublisher(url: url)
+            .tryMap(StoryItemMapper.map)
+            .eraseToAnyPublisher()
+    }
+    
 }

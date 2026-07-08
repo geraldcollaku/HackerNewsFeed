@@ -6,26 +6,6 @@
 //
 
 public final class LocalStoryLoader {
-    private final class LoadStoryDataTask: StoryLoaderTask {
-        private var completion: ((StoryLoader.Result) -> Void)?
-        
-        init(_ completion: @escaping (StoryLoader.Result) -> Void) {
-            self.completion = completion
-        }
-        
-        func complete(with result: StoryLoader.Result) {
-            completion?(result)
-        }
-        
-        func cancel() {
-            preventFurtherCompletions()
-        }
-        
-        private func preventFurtherCompletions() {
-            completion = nil
-        }
-    }
-    
     public enum LoadError: Swift.Error {
         case failed
         case notFound
@@ -55,17 +35,15 @@ extension LocalStoryLoader: StoryCache {
 extension LocalStoryLoader: StoryLoader {
     public typealias LoadResult = Result<Story, LoadError>
 
-    public func loadStory(with id: Int, completion: @escaping (StoryLoader.Result) -> Void) -> StoryLoaderTask {
-        let task = LoadStoryDataTask(completion)
-        task.complete(
-            with: Swift.Result {
-                try store.retrieve(for: id)
+    public func loadStory(with id: Int) throws -> Story {
+        do {
+            if let story = try store.retrieve(for: id) {
+                return story.toModel()
             }
-                .mapError { _ in LoadError.failed }
-                .flatMap { localStory in
-                    localStory.map { .success($0.toModel()) } ?? .failure(LoadError.notFound)
-        })
-        return task
+        } catch {
+            throw LoadError.failed
+        }
+        throw LoadError.notFound
     }
 }
 

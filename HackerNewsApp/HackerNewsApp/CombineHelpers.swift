@@ -64,14 +64,14 @@ public extension StoryLoader {
     typealias Publisher = AnyPublisher<Story, Error>
     
     func loadStoryPublisher(with id: Int) -> Publisher {
-        var task: StoryLoaderTask?
         return Deferred {
             Future { completion in
-                task = self.loadStory(with: id, completion: completion)
+                completion(Result {
+                    try self.loadStory(with: id)
+                })
             }
             
         }
-        .handleEvents(receiveCancel: { task?.cancel() })
         .eraseToAnyPublisher()
     }
 }
@@ -84,7 +84,7 @@ extension Publisher where Output == Story {
 
 extension StoryCache {
     func saveIgnoringResult(_ story: Story) {
-        save(story) { _ in }
+        try? save(story) 
     }
 }
 

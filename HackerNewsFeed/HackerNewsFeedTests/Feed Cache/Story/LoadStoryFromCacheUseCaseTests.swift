@@ -20,7 +20,7 @@ class LoadStoryFromCacheUseCaseTests: XCTestCase {
         let anyId = 0
         let (sut, store) = makeSUT()
         
-        _ = sut.loadStory(with: anyId) { _ in }
+        _ = try? sut.loadStory(with: anyId)
         
         XCTAssertEqual(store.receivedMessages, [.retrieve(forId: anyId)])
     }
@@ -71,35 +71,33 @@ class LoadStoryFromCacheUseCaseTests: XCTestCase {
     }
 
     private func expect(_ sut: LocalStoryLoader,
-                        toCompleteWith expectedResult: StoryLoader.Result,
+                        toCompleteWith expectedResult: Result<Story, Error>,
                         when action: () -> Void,
                         file: StaticString = #file,
                         line: UInt = #line) {
-        let exp = expectation(description: "Wait for load completion")
         action()
-
-        _ = sut.loadStory(with: anyId()) { receivedResult in
-            switch (receivedResult, expectedResult) {
-            case let (.success(receivedStory), .success(expectedStory)):
-                XCTAssertEqual(receivedStory, expectedStory, file: file, line: line)
-                
-            case let (.failure(receivedError as NSError), .failure(expectedError as NSError)):
-                XCTAssertEqual(receivedError, expectedError, file: file, line: line)
-                
-            default:
-                XCTFail("Expected result \(expectedResult), got \(receivedResult) instead", file: file, line: line)
-            }
-            exp.fulfill()
+        
+        let receivedResult = Result {
+            try sut.loadStory(with: anyId())
         }
         
-        wait(for: [exp], timeout: 1.0)
+        switch (receivedResult, expectedResult) {
+        case let (.success(receivedStory), .success(expectedStory)):
+            XCTAssertEqual(receivedStory, expectedStory, file: file, line: line)
+            
+        case let (.failure(receivedError as NSError), .failure(expectedError as NSError)):
+            XCTAssertEqual(receivedError, expectedError, file: file, line: line)
+            
+        default:
+            XCTFail("Expected result \(expectedResult), got \(receivedResult) instead", file: file, line: line)
+        }
     }
     
-    private func failed() -> StoryLoader.Result {
+    private func failed() -> Result<Story, Error> {
         .failure(LocalStoryLoader.LoadError.failed)
     }
     
-    private func notFound() -> StoryLoader.Result {
+    private func notFound() -> Result<Story, Error> {
         .failure(LocalStoryLoader.LoadError.notFound)
     }
     

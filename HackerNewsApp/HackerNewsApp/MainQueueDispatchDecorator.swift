@@ -27,12 +27,3 @@ final class MainQueueDispatchDecorator<T> {
     }
 }
 
-extension MainQueueDispatchDecorator: StoryLoader where T == StoryLoader {
-    func loadStory(with id: Int, completion: @escaping (StoryLoader.Result) -> Void) -> StoryLoaderTask {
-        return decoratee.loadStory(with: id) { [weak self] result in
-            self?.dispatch {
-                completion(result)
-            }
-        }
-    }
-}
