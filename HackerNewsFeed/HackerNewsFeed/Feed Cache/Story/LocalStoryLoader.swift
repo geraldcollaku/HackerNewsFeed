@@ -46,11 +46,9 @@ extension LocalStoryLoader: StoryCache {
     }
     
     public func save(_ story: Story, completion: @escaping (SaveResult) -> Void) {
-        store.insert(story.toLocal()) { [weak self] result in
-            guard self != nil else { return }
-            
-            completion(result.mapError { _ in SaveError.failed })
-        }
+        completion(SaveResult {
+            try store.insert(story: story.toLocal())
+        }.mapError { _ in SaveError.failed })
     }
 }
 
@@ -59,14 +57,14 @@ extension LocalStoryLoader: StoryLoader {
 
     public func loadStory(with id: Int, completion: @escaping (StoryLoader.Result) -> Void) -> StoryLoaderTask {
         let task = LoadStoryDataTask(completion)
-        store.retrieve(for: id) { result in
-            task.complete(with: result
+        task.complete(
+            with: Swift.Result {
+                try store.retrieve(for: id)
+            }
                 .mapError { _ in LoadError.failed }
                 .flatMap { localStory in
                     localStory.map { .success($0.toModel()) } ?? .failure(LoadError.notFound)
-                }
-            )
-        }
+        })
         return task
     }
 }

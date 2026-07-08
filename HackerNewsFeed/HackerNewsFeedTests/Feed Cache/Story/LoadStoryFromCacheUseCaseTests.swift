@@ -51,21 +51,6 @@ class LoadStoryFromCacheUseCaseTests: XCTestCase {
         })
     }
     
-    func test_loadStoryWithID_doesNotDeliverResultAfterCancellingTask() {
-        let (sut, store) = makeSUT()
-        let local = uniqueStory().local
-        
-        var receivedResult = [StoryLoader.Result]()
-        let task = sut.loadStory(with: anyId()) {
-            receivedResult.append($0)
-        }
-        task.cancel()
-        
-        store.completeRetrieval(with: local)
-        
-        XCTAssertTrue(receivedResult.isEmpty, "Expected no received results after cancelling task")
-    }
-    
     func test_saveStory_requestStoryInsertion() {
         let (sut, store) = makeSUT()
         let story = uniqueStory()
@@ -91,7 +76,8 @@ class LoadStoryFromCacheUseCaseTests: XCTestCase {
                         file: StaticString = #file,
                         line: UInt = #line) {
         let exp = expectation(description: "Wait for load completion")
-        
+        action()
+
         _ = sut.loadStory(with: anyId()) { receivedResult in
             switch (receivedResult, expectedResult) {
             case let (.success(receivedStory), .success(expectedStory)):
@@ -106,7 +92,6 @@ class LoadStoryFromCacheUseCaseTests: XCTestCase {
             exp.fulfill()
         }
         
-        action()
         wait(for: [exp], timeout: 1.0)
     }
     

@@ -14,37 +14,36 @@ class FeedStoryStoreSpy: StoryStore {
     }
     
     private(set) var receivedMessages = [Message]()
-    private var retrievalCompletions = [(StoryStore.RetrievalResult) -> Void]()
-    private var insertionCompletions = [(StoryStore.InsertionResult) -> Void]()
+    private var retrievalResult: Result<LocalStory?, Error>?
+    private var insertionResult: Result<Void, Error>?
 
-    
-    func insert(_ story: LocalStory, completion: @escaping (InsertionResult) -> Void) {
+    func insert(story: LocalStory) throws {
         receivedMessages.append(.insert(story: story))
-        insertionCompletions.append(completion)
+        try insertionResult?.get()
     }
     
-    func retrieve(for id: Int, completion: @escaping (StoryStore.RetrievalResult) -> Void) {
+    func retrieve(for id: Int) throws -> LocalStory? {
         receivedMessages.append(.retrieve(forId: id))
-        retrievalCompletions.append(completion)
+        return try retrievalResult?.get()
     }
     
     func completeRetrieval(with error: Error, at index: Int = 0) {
-        retrievalCompletions[index](.failure(error))
+        retrievalResult = .failure(error)
     }
     
     func completeRetrieval(with story: LocalStory, at index: Int = 0) {
-        retrievalCompletions[index](.success(story))
+        retrievalResult = .success(story)
     }
     
     func completeRetrievalWithEmptyCache(at index: Int = 0) {
-        retrievalCompletions[index](.success(.none))
+        retrievalResult = .success(.none)
     }
     
     func completeInsertion(with error: Error, at index: Int = 0) {
-        insertionCompletions[index](.failure(error))
+        insertionResult = .failure(error)
     }
     
     func completeInsertionSuccessfully(at index: Int = 0) {
-        insertionCompletions[index](.success(()))
+        insertionResult = .success(())
     }
 }
