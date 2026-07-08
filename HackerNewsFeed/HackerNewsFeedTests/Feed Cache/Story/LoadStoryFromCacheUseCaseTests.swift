@@ -55,7 +55,7 @@ class LoadStoryFromCacheUseCaseTests: XCTestCase {
         let (sut, store) = makeSUT()
         let story = uniqueStory()
         
-        sut.save(story.model) { _ in }
+        try? sut.save(story.model) 
         
         XCTAssertEqual(store.receivedMessages, [.insert(story: story.local)])
     }

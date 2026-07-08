@@ -20,7 +20,7 @@ class CacheStoryUseCaseTests: XCTestCase {
         let (sut, store) = makeSUT()
         let story = uniqueStory()
         
-        sut.save(story.model) { _ in }
+        try? sut.save(story.model)
         
         XCTAssertEqual(store.receivedMessages, [.insert(story: story.local)])
     }
@@ -52,31 +52,28 @@ class CacheStoryUseCaseTests: XCTestCase {
         return (sut, store)
     }
     
-    private func failed() -> LocalStoryLoader.SaveResult {
+    private func failed() -> Result<Void, Error> {
         .failure(LocalStoryLoader.SaveError.failed)
     }
     
     private func expect(_ sut: LocalStoryLoader,
-                        toCompleteWith expectedResult: LocalStoryLoader.SaveResult,
+                        toCompleteWith expectedResult: Result<Void, Error>,
                         when action: () -> Void,
                         file: StaticString = #file,
                         line: UInt = #line) {
-        let exp = expectation(description: "Wait for save completion")
         action()
         
-        sut.save(uniqueStory().model) { receivedResult in
-            switch (receivedResult, expectedResult) {
-            case (.success, .success): break
-            case let (.failure(receivedError as NSError), .failure(expectedError as NSError)):
-                XCTAssertEqual(receivedError, expectedError, file: file, line: line)
-            default:
-                XCTFail("Expected result \(expectedResult), got \(receivedResult) instead", file: file, line: line)
-            }
-            
-            exp.fulfill()
+        let receivedResult = Result {
+            try sut.save(uniqueStory().model)
         }
         
-        wait(for: [exp], timeout: 1.0)
+        switch (receivedResult, expectedResult) {
+        case (.success, .success): break
+        case let (.failure(receivedError as NSError), .failure(expectedError as NSError)):
+            XCTAssertEqual(receivedError, expectedError, file: file, line: line)
+        default:
+            XCTFail("Expected result \(expectedResult), got \(receivedResult) instead", file: file, line: line)
+        }
     }
 }
 

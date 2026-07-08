@@ -6,7 +6,5 @@
 //
 
 public protocol StoryCache {
-    typealias Result = Swift.Result<Void, Error>
-
-    func save(_ story: Story, completion: @escaping (Result) -> Void)
+    func save(_ story: Story) throws
 }
