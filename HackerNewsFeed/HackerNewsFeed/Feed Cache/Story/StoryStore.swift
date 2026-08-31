@@ -25,10 +25,10 @@ public extension StoryStore {
         let group = DispatchGroup()
         group.enter()
         var result: InsertionResult!
-        insert(story, completion: {
+        insert(story){
             result = $0
             group.leave()
-        })
+        }
         group.wait()
         return try result.get()
     }
@@ -37,10 +37,10 @@ public extension StoryStore {
         let group = DispatchGroup()
         group.enter()
         var result: RetrievalResult!
-        retrieve(for: id, completion: {
+        retrieve(for: id) {
             result = $0
             group.leave()
-        })
+        }
         group.wait()
         return try result.get()
     }

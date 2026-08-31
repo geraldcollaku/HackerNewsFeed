@@ -234,13 +234,13 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.simulateApperance()
         loader.completeFeedLoading(with: [makeFeedId(id: story0), makeFeedId(id: story1)], at: 0)
         
-        XCTAssertEqual(loader.storiesRequests.count, 0, "Expected no stories until view becomes visible")
+        XCTAssertEqual(loader.storyRequests.count, 0, "Expected no stories until view becomes visible")
         
         sut.simulateStoryViewVisible(at: 0)
-        XCTAssertEqual(loader.storiesRequests.count, 1, "Expected first story once view becomes visible")
+        XCTAssertEqual(loader.storyRequests.count, 1, "Expected first story once view becomes visible")
         
         sut.simulateStoryViewVisible(at: 1)
-        XCTAssertEqual(loader.storiesRequests.count, 2, "Expected a second story once second view becomes visible")
+        XCTAssertEqual(loader.storyRequests.count, 2, "Expected a second story once second view becomes visible")
     }
     
     func test_storyView_cancelsStoryLoadingWhenViewIsNotVisibleAnymore() {
@@ -542,7 +542,7 @@ class FeedUIIntegrationTests: XCTestCase {
         let loader = LoaderSpy()
         let sut = FeedUIComposer.feedComposedWith(
             loader: loader.loadPublisher,
-            storyLoader: loader.loadStoryPublisher,
+            storyLoader:  loader.loadStoryPublisher,
             selection: selection
         )
         trackForMemoryLeaks(loader, file: file, line: line)

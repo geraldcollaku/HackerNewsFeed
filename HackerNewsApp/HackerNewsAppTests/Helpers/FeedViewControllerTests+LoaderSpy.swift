@@ -11,7 +11,7 @@ import HackerNewsFeed
 import HackerNewsFeediOS
 import HackerNewsApp
 
-class LoaderSpy: StoryLoader {
+class LoaderSpy {
     private var feedIdRequests = [PassthroughSubject<Paginated<FeedId>, Error>]()
     private var loadMoreRequests = [PassthroughSubject<Paginated<FeedId>, Error>]()
 
@@ -59,35 +59,36 @@ class LoaderSpy: StoryLoader {
     }
     
     // MARK: - StoryLoader
-    
-    private struct StoryLoaderTaskSpy: StoryLoaderTask {
-        var cancelCallback: () -> Void
-        
-        func cancel() {
-            cancelCallback()
-        }
+
+    private var storyIdRequests = [Int]()
+    private(set) var storyRequests = [PassthroughSubject<Story, Error>]()
+
+    var storiesRequests: [PassthroughSubject<Story, Error>] {
+        storyRequests
     }
-    
-    private(set) var storiesRequests = [(id: Int, completion: (StoryLoader.Result) -> Void)]()
+
     var storyIds: [Int] {
-        storiesRequests.map { $0.id }
+        storyIdRequests
     }
-    
+
     private(set) var cancelledStoriesIds = [Int]()
-    
-    func loadStory(with id: Int, completion: @escaping (StoryLoader.Result) -> Void) -> StoryLoaderTask {
-        storiesRequests.append((id, completion))
-        return StoryLoaderTaskSpy { [weak self] in
-            self?.cancelledStoriesIds.append(id)
-        }
+
+    func loadStoryPublisher(with id: Int) -> StoryLoader.Publisher {
+        storyIdRequests.append(id)
+        let publisher = PassthroughSubject<Story, Error>()
+        storyRequests.append(publisher)
+        return publisher
+            .handleEvents(receiveCancel: { [weak self] in self?.cancelledStoriesIds.append(id) })
+            .eraseToAnyPublisher()
     }
-    
+
     func completeStoryLoading(with story: Story = .any, at index: Int = 0) {
-        storiesRequests[index].completion(.success(story))
+        storyRequests[index].send(story)
+        storyRequests[index].send(completion: .finished)
     }
-    
+
     func completeStoryLoadingWithError(at index: Int = 0) {
         let error = NSError(domain: "an error", code: 0)
-        storiesRequests[index].completion(.failure(error))
+        storyRequests[index].send(completion: .failure(error))
     }
 }

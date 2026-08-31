@@ -140,11 +140,13 @@ class CommentsUIIntegrationTests: XCTestCase {
         }
         
         sut?.simulateApperance()
-        
+
         XCTAssertEqual(cancelCallCount, 0)
-        
-        sut = nil
-        
+
+        autoreleasepool {
+            sut = nil
+        }
+
         XCTAssertEqual(cancelCallCount, 1)
     }
     

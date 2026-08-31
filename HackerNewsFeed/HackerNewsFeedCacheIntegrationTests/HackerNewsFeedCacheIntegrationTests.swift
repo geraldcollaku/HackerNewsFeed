@@ -132,6 +132,7 @@ final class HackerNewsFeedCacheIntegrationTests: XCTestCase {
     
     private func save(_ feed: [FeedId], with loader: LocalFeedLoader, file: StaticString = #filePath, line: UInt = #line) {
         let saveExp = expectation(description: "Wait for save completion")
+        
         loader.save(feed) { result in
             if case let .failure(error) = result {
                 XCTFail("Expected to save feed successfully, got error: \(error) instead", file: file, line: line)
@@ -172,30 +173,23 @@ final class HackerNewsFeedCacheIntegrationTests: XCTestCase {
     }
     
     private func save(_ story: Story, with loader: LocalStoryLoader, file: StaticString = #filePath, line: UInt = #line) {
-        let saveExp = expectation(description: "Wait for save completion")
-        loader.save(story) { result in
-            if case let .failure(error) = result {
-                XCTFail("Expected to save feed successfully, got error: \(error) instead", file: file, line: line)
-            }
-            saveExp.fulfill()
+        let receivedResult = Result { try loader.save(story) }
+        if case let Result.failure(error) = receivedResult {
+            XCTFail("Expected to save feed successfully, got error: \(error) instead", file: file, line: line)
         }
-        wait(for: [saveExp], timeout: 1.0)
     }
     
     private func expect(_ sut: LocalStoryLoader, toLoad expectedStory: Story, for id: Int, file: StaticString = #filePath, line: UInt = #line) {
-        let exp = expectation(description: "Wait for load completion")
-        _ = sut.loadStory(with: id) { result in
-            switch result {
-            case let .success(loadedStory):
-                XCTAssertEqual(loadedStory, expectedStory, file: file, line: line)
-                
-            case let .failure(error):
-                XCTFail("Expected successful feed result, got \(error) instead", file: file, line: line)
-            }
-            
-            exp.fulfill()
+        let result = Result {
+            try sut.loadStory(with: id)
         }
-        wait(for: [exp], timeout: 1.0)
+        
+        switch result {
+        case let .success(loadedStory):
+            XCTAssertEqual(loadedStory, expectedStory, file: file, line: line)
+        case let .failure(error):
+            XCTFail("Expected successful feed result, got \(error) instead", file: file, line: line)
+        }
     }
         
     private func setupEmptyStoreState() {
