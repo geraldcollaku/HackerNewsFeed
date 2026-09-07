@@ -49,21 +49,6 @@ class CoreDataStoryStoreTests: XCTestCase {
         expect(sut, toCompleteWith: found(lastStory), for: id)
     }
     
-    func test_storeSideEffects_runSerially() {
-        let sut = makeSUT()
-        
-        let op1 = expectation(description: "Operation 1")
-        sut.insert([LocalFeedId(id: anyId())], timestamp: Date()) { _ in op1.fulfill() }
-        
-        let op2 = expectation(description: "Operation 2")
-        sut.insert(localStory()) { _ in op2.fulfill() }
-        
-        let op3 = expectation(description: "Operation 3")
-        sut.insert(localStory()) { _ in op3.fulfill() }
-        
-        wait(for: [op1, op2, op3], timeout: 5, enforceOrder: true)
-    }
-    
     // MARK: - Helpers
     
     private func makeSUT(file: StaticString = #file, line: UInt = #line) -> CoreDataFeedStore {
@@ -78,36 +63,30 @@ class CoreDataStoryStoreTests: XCTestCase {
                         for id: Int,
                         file: StaticString = #file,
                         line: UInt = #line) {
-        let exp = expectation(description: "Wait for retrieve completion")
-        sut.retrieve(for: id) { receivedResult in
-            switch (receivedResult, expectedResult) {
-            case let (.success(receivedStory), .success(expectedStory)):
-                XCTAssertEqual(receivedStory, expectedStory, file: file, line: line)
-            default:
-                XCTFail("Expected \(expectedResult), got result \(receivedResult) instead", file: file, line: line)
-            }
-            exp.fulfill()
+        let receivedResult = Result {
+            try sut.retrieve(for: id)
         }
-        wait(for: [exp], timeout: 1.0)
+        switch (receivedResult, expectedResult) {
+        case let (.success(receivedStory), .success(expectedStory)):
+            XCTAssertEqual(receivedStory, expectedStory, file: file, line: line)
+        default:
+            XCTFail("Expected \(expectedResult), got result \(receivedResult) instead", file: file, line: line)
+        }
     }
     
     private func insert(_ story: LocalStory, for id: Int, into sut: CoreDataFeedStore, file: StaticString = #file, line: UInt = #line) {
         let feed = LocalFeedId(id: 0)
-        let exp = expectation(description: "Wait for cache completion")
-        sut.insert([feed], timestamp: Date()) { result in
-            switch result {
-            case let .failure(error):
-                XCTFail("Failed to save \(feed) with error \(error)")
-            case .success:
-                sut.insert(story) { result in
-                    if case let .failure(error) = result {
-                        XCTFail("Failed to insert \(story) with error \(error)")
-                    }
-                }
-            }
-            exp.fulfill()
+        do {
+            try sut.insert([feed], timestamp: Date())
+        } catch {
+            XCTFail("Failed to save \(feed) with error \(error)")
         }
-        wait(for: [exp], timeout: 1.0)
+        
+        do {
+            try sut.insert(story: story)
+        } catch {
+            XCTFail("Failed to insert \(story) with error \(error)")
+        }
     }
     
     private func notFound() -> StoryStore.RetrievalResult {

@@ -8,9 +8,9 @@
 import CoreData
 
 extension CoreDataFeedStore: StoryStore {
-    public func insert(_ story: LocalStory, completion: @escaping (StoryStore.InsertionResult) -> Void) {
-        perform { context in
-            completion(Result {
+    public func insert(story: LocalStory) throws {
+        try perfomSync { context in
+            Result {
                 let managedStory = try ManagedStory.item(from: story, in: context)
                 
                 try ManagedNews.find(id: story.id, in: context).map {
@@ -18,15 +18,15 @@ extension CoreDataFeedStore: StoryStore {
                 }
                 
                 try context.save()
-            })
+            }
         }
     }
-
-    public func retrieve(for id: Int, completion: @escaping (StoryStore.RetrievalResult) -> Void) {
-        perform { context in
-            completion(Result {
+    
+    public func retrieve(for id: Int) throws -> LocalStory? {
+        try perfomSync { context in
+            Result {
                 try ManagedStory.find(with: id, in: context)?.local
-            })
+            }
         }
     }
 }
