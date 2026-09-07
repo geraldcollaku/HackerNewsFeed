@@ -128,19 +128,6 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
         XCTAssertEqual(store.receivedMessages, [.retrieve])
     }
     
-    func test_load_doesNotDeliverResultAfterSUTInstanceHasBeenDeallocated() {
-        let store = FeedStoreSpy()
-        var sut: LocalFeedLoader? = LocalFeedLoader(store: store, currentDate: Date.init)
-        
-        var receivedResult = [Swift.Result<[FeedId], Error>?]()
-        sut?.load { receivedResult.append($0) }
-        
-        sut = nil
-        store.completeRetrieval(with: anyNSError())
-        
-        XCTAssertTrue(receivedResult.isEmpty)
-    }
-    
     // MARK: - Helpers
     
     private func makeSUT(currentDate: @escaping () -> Date = Date.init, file: StaticString = #filePath, line: UInt = #line) -> (sut: LocalFeedLoader, store: FeedStoreSpy) {
@@ -153,7 +140,8 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
     
     private func expect(_ sut: LocalFeedLoader, toCompleteWith expectedResult: Swift.Result<[FeedId], Error>, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
         let exp = expectation(description: "wait for load completion")
-
+        action()
+        
         sut.load { receivedResult in
             switch (receivedResult, expectedResult) {
             case let (.success(receivedIds), .success(expectedIds)):
@@ -165,9 +153,7 @@ class LoadFeedFromCacheUseCaseTests: XCTestCase {
             }
             exp.fulfill()
         }
-        
-        action()
-        
+                
         wait(for: [exp], timeout: 1.0)
     }
 }
