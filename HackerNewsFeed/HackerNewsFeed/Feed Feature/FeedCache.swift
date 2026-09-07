@@ -6,7 +6,5 @@
 //
 
 public protocol FeedCache {
-    typealias Result = Swift.Result<Void, Error>
-    
-    func save(_ feed: [FeedId], completion: @escaping (Result) -> Void)
+    func save(_ feed: [FeedId]) throws
 }

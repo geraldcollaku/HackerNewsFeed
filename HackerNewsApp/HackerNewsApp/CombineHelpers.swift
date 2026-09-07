@@ -103,7 +103,7 @@ extension Publisher where Output == Paginated<FeedId> {
 
 extension FeedCache {
     func saveIgnoringResult(_ feed: [FeedId]) {
-        save(feed) { _ in }
+       try? save(feed)
     }
     
     func saveIgnoringResult(_ feed: Paginated<FeedId>) {
