@@ -10,23 +10,17 @@ import HackerNewsFeed
 
 class NullStore: FeedStore & StoryStore {
     
-    func deleteCachedFeed(completion: @escaping DeletionCompletion) {
-        completion(.success(()))
+    func deleteCachedFeed() throws { }
+    
+    func insert(_ feed: [LocalFeedId], timestamp: Date) throws {}
+
+    func retrieve() throws -> CachedFeed? {
+        .none
     }
     
-    func insert(_ feed: [LocalFeedId], timestamp: Date, completion: @escaping InsertionCompletion) {
-        completion(.success(()))
-    }
+    func insert(story: LocalStory) throws { }
     
-    func retrieve(completion: @escaping RetrievalCompletion) {
-        completion(.success(.none))
-    }
-    
-    func insert(_ story: LocalStory, completion: @escaping (InsertionResult) -> Void) {
-        completion(.success(()))
-    }
-    
-    func retrieve(for id: Int, completion: @escaping (StoryStore.RetrievalResult) -> Void) {
-        completion(.success(.none))
+    func retrieve(for id: Int) throws -> LocalStory? {
+        .none
     }
 }
