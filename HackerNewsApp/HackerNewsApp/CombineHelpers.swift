@@ -54,7 +54,9 @@ public extension LocalFeedLoader {
     typealias Publisher = AnyPublisher<[FeedId], Error>
     func loadPublisher() -> Publisher {
         return Deferred {
-            Future(self.load)
+            Future { completion in
+                completion(Result { try self.load() })
+            }
         }
         .eraseToAnyPublisher()
     }
