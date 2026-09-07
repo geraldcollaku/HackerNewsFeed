@@ -16,6 +16,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     var window: UIWindow?
     
+    private lazy var scheduler: any Scheduler = DispatchQueue(label: "com.hackernews.infraqueue", qos: .userInitiated)
     private lazy var httpClient: HTTPClient =  URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
     private lazy var logger = Logger(subsystem: "com.hackernewsfeed.HackerNewsApp", category: "main")
     private lazy var store: FeedStore & StoryStore = {
@@ -32,8 +33,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }()
     
     private lazy var localFeedLoader = LocalFeedLoader(store: store, currentDate: Date.init)
-    // Local development: backend running on the Mac via `npm start` (reachable
-    // from the Simulator at localhost). Swap back to the deployed URL for release.
+
     private lazy var baseURL = URL(string: "http://localhost:3000")!
     
     private lazy var navigationController = UINavigationController(rootViewController: FeedUIComposer.feedComposedWith(
@@ -42,8 +42,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         selection: showComments
     ))
     
-    convenience init(httpClient: HTTPClient, store: FeedStore & StoryStore) {
+    convenience init(scheduler: any Scheduler,httpClient: HTTPClient, store: FeedStore & StoryStore) {
         self.init()
+        self.scheduler = scheduler
         self.httpClient = httpClient
         self.store = store
     }
@@ -90,6 +91,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             .caching(to: localFeedLoader)
             .fallback(to: localFeedLoader.loadPublisher)
             .map(makeFirstPage)
+            .subscribe(onSome: scheduler)
             .eraseToAnyPublisher()
     }
     
@@ -101,6 +103,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             }
             .map(makePage)
             .caching(to: localFeedLoader)
+            .subscribe(onSome: scheduler)
+            .eraseToAnyPublisher()
     }
     
     private func makeRemoteFeedLoader(after: FeedId? = nil) -> AnyPublisher<[FeedId], Error> {
