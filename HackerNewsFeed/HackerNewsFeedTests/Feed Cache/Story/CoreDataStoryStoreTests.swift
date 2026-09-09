@@ -59,7 +59,7 @@ class CoreDataStoryStoreTests: XCTestCase {
     }
     
     private func expect(_ sut: CoreDataFeedStore,
-                        toCompleteWith expectedResult: StoryStore.RetrievalResult,
+                        toCompleteWith expectedResult: Result<LocalStory?, Error>,
                         for id: Int,
                         file: StaticString = #file,
                         line: UInt = #line) {
@@ -89,11 +89,11 @@ class CoreDataStoryStoreTests: XCTestCase {
         }
     }
     
-    private func notFound() -> StoryStore.RetrievalResult {
+    private func notFound() -> Result<LocalStory?, Error> {
         .success(.none)
     }
     
-    private func found(_ story: LocalStory) -> StoryStore.RetrievalResult {
+    private func found(_ story: LocalStory) -> Result<LocalStory?, Error> {
         return .success(story)
     }
     
