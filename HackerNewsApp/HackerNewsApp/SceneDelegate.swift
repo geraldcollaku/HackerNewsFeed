@@ -16,7 +16,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     var window: UIWindow?
     
-    private lazy var scheduler: any Scheduler = DispatchQueue(label: "com.hackernews.infraqueue", qos: .userInitiated)
+    private lazy var scheduler: any Scheduler = DispatchQueue(label: "com.hackernews.infraqueue", qos: .userInitiated, attributes: .concurrent)
     private lazy var httpClient: HTTPClient =  URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
     private lazy var logger = Logger(subsystem: "com.hackernewsfeed.HackerNewsApp", category: "main")
     private lazy var store: FeedStore & StoryStore = {
@@ -62,12 +62,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     func sceneWillResignActive(_ scene: UIScene) {
-        do {
-            try localFeedLoader.validateCache()
-        } catch {
-            logger.error("Failed to validate cache with error: \(error.localizedDescription)")
+        scheduler.schedule { [localFeedLoader, logger] in
+            do {
+                try localFeedLoader.validateCache()
+            } catch {
+                logger.error("Failed to validate cache with error: \(error.localizedDescription)")
+            }
         }
-       
     }
     
     private func showComments(for feedId: FeedId) {
@@ -88,10 +89,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private func makeRemoteFeedLoaderWithLocalFallback() -> AnyPublisher<Paginated<FeedId>, Error> {
         let localFeedLoader = LocalFeedLoader(store: store, currentDate: Date.init)
         return makeRemoteFeedLoader()
+            .receive(onSome: scheduler)
             .caching(to: localFeedLoader)
             .fallback(to: localFeedLoader.loadPublisher)
             .map(makeFirstPage)
-            .subscribe(onSome: scheduler)
             .eraseToAnyPublisher()
     }
     
@@ -102,6 +103,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 (cachedItems + newItems, newItems.last)
             }
             .map(makePage)
+            .receive(onSome: scheduler)
             .caching(to: localFeedLoader)
             .subscribe(onSome: scheduler)
             .eraseToAnyPublisher()
