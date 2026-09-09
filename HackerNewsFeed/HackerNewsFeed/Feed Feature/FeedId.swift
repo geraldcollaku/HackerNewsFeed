@@ -5,7 +5,7 @@
 //  Created by Gerald Collaku on 25.12.25.
 //
 
-public struct FeedId: Hashable {
+public struct FeedId: Hashable, Sendable {
     public let id: Int
     
     public init(id: Int) {

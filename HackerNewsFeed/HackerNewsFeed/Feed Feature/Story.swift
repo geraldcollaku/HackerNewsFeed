@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Story: Equatable {
+public struct Story: Equatable, Sendable {
     public let id: Int
     public let title: String?
     public let text: String?

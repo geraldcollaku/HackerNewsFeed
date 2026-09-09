@@ -11,13 +11,14 @@ import Combine
 import HackerNewsFeed
 import HackerNewsFeediOS
 
+@MainActor
 public enum FeedUIComposer {
     private typealias FeedPresentationAdapter = LoadResourcePresentationAdapter<Paginated<FeedId>, FeedViewAdapter>
     
     public static func feedComposedWith(
-        loader: @escaping () -> AnyPublisher<Paginated<FeedId>, Error>,
-        storyLoader: @escaping (Int) -> StoryLoader.Publisher,
-        selection: @escaping (FeedId) -> Void = { _ in }
+        loader: @MainActor @escaping () -> AnyPublisher<Paginated<FeedId>, Error>,
+        storyLoader: @MainActor @escaping (Int) -> StoryLoader.Publisher,
+        selection: @MainActor @escaping (FeedId) -> Void = { _ in }
     ) -> ListViewController {
         let presentationAdapter = FeedPresentationAdapter(loader: { loader() })
         

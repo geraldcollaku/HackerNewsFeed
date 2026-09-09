@@ -9,6 +9,7 @@ import HackerNewsFeed
 import HackerNewsFeediOS
 import Foundation
 
+@MainActor
 class FeedViewAdapter: ResourceView {
     private weak var controller: ListViewController?
     private let loader: (Int) -> StoryLoader.Publisher

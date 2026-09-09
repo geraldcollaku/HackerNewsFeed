@@ -86,20 +86,6 @@ class CommentsUIIntegrationTests: XCTestCase {
         loader.completeCommentsLoading(with: [], at: 1)
         assertThat(sut, isRendering: [FeedComment]())
     }
-
-    func test_loadCommentsCompletion_dispatchesFromBackgroundToMainThread() {
-        let (sut, loader) = makeSUT()
-        
-        sut.simulateApperance()
-        
-        let exp = expectation(description: "Waith for background queue")
-        DispatchQueue.global().async {
-            loader.completeCommentsLoading(at: 0)
-            exp.fulfill()
-        }
-        
-        wait(for: [exp], timeout: 1.0)
-    }
     
     func  test_loadCommentCompletion_rendersErrorOnMessageErrorUntilNextReload() {
         let (sut, loader) = makeSUT()

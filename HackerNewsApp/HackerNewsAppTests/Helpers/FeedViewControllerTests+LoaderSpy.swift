@@ -11,6 +11,7 @@ import HackerNewsFeed
 import HackerNewsFeediOS
 import HackerNewsApp
 
+@MainActor
 class LoaderSpy {
     private var feedIdRequests = [PassthroughSubject<Paginated<FeedId>, Error>]()
     private var loadMoreRequests = [PassthroughSubject<Paginated<FeedId>, Error>]()

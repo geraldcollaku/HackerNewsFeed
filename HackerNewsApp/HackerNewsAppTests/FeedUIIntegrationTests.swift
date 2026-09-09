@@ -467,52 +467,6 @@ class FeedUIIntegrationTests: XCTestCase {
         XCTAssertEqual(newView.urlText, story1.url?.absoluteString)
     }
     
-    func test_loadFeedCompletion_dispatchesFromBackgroundToMainThread() {
-        let (sut, loader) = makeSUT()
-
-        sut.simulateApperance()
-        
-        let exp = expectation(description: "Wait for background queue")
-        DispatchQueue.global().async {
-            loader.completeFeedLoading()
-            exp.fulfill()
-        }
-        
-        wait(for: [exp], timeout: 1.0)
-    }
-    
-    func test_loadMoreCompletion_dispatchesFromBackgroundToMainThread() {
-        let (sut, loader) = makeSUT()
-
-        sut.simulateApperance()
-        loader.completeFeedLoading()
-        sut.simulateLoadMoreFeedAction()
-        
-        let exp = expectation(description: "Wait for background queue")
-        DispatchQueue.global().async {
-            loader.completeLoadMore()
-            exp.fulfill()
-        }
-        
-        wait(for: [exp], timeout: 1.0)
-    }
-    
-    func test_loadStoryCompletion_dispatchesFromBackgroundToMainThread() {
-        let (sut, loader) = makeSUT()
-        let feed = makeFeedId()
-        
-        sut.simulateApperance()
-        loader.completeFeedLoading(with: [feed])
-        sut.simulateStoryViewVisible(at: 0)
-        
-        let exp = expectation(description: "Wait for background queue")
-        DispatchQueue.global().async {
-            loader.completeStoryLoading(with: self.makeStory(id: feed.id))
-            exp.fulfill()
-        }
-        wait(for: [exp], timeout: 1.0)
-    }
-    
     func test_storyView_doesNotLoadStoryUntilPreviousRequestCompletes() {
         let (sut, loader) = makeSUT()
         let feed = makeFeedId()
@@ -537,7 +491,7 @@ class FeedUIIntegrationTests: XCTestCase {
     
     // MARK: - Helpers
     
-    private func makeSUT(selection: @escaping (FeedId) -> Void = { _ in },
+    private func makeSUT(selection: @MainActor @escaping (FeedId) -> Void = { _ in },
                          file: StaticString = #file,
                          line: UInt = #line) -> (sut: ListViewController, loader: LoaderSpy) {
         let loader = LoaderSpy()
@@ -569,7 +523,7 @@ class FeedUIIntegrationTests: XCTestCase {
 }
 
 extension Story {
-    static var any = Story(
+    static let any = Story(
         id: Int.random(in: 0 ... 100),
         title: "a title",
         text: "a text",

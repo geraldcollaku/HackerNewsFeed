@@ -7,11 +7,11 @@
 
 import Foundation
 
-public struct FeedCommentsViewModel {
+public struct FeedCommentsViewModel: Sendable {
     public let comments: [FeedCommentViewModel]
 }
 
-public struct FeedCommentViewModel: Hashable {
+public struct FeedCommentViewModel: Hashable, Sendable {
     public let message: String
     public let date: String
     public let username: String

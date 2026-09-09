@@ -11,6 +11,7 @@ import Combine
 import HackerNewsFeed
 import HackerNewsFeediOS
 
+@MainActor
 public enum CommentsUIComposer {
     private typealias CommentsPresentationAdapter = LoadResourcePresentationAdapter<[FeedComment], CommentsViewAdapter>
     
@@ -40,6 +41,7 @@ private extension ListViewController {
     }
 }
 
+@MainActor
 final class CommentsViewAdapter: ResourceView {
     private weak var controller: ListViewController?
 
