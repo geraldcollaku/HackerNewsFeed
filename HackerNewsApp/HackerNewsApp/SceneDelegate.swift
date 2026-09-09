@@ -16,7 +16,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     var window: UIWindow?
     
-    private lazy var scheduler: any Scheduler = DispatchQueue(label: "com.hackernews.infraqueue", qos: .userInitiated, attributes: .concurrent)
+    private lazy var scheduler: any Scheduler = {
+        if let store = store as? CoreDataFeedStore {
+            return .scheduler(for: store)
+        }
+        return DispatchQueue(label: "com.hackernews.infraqueue", qos: .userInitiated, attributes: .concurrent)
+    }()
+    
     private lazy var httpClient: HTTPClient =  URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
     private lazy var logger = Logger(subsystem: "com.hackernewsfeed.HackerNewsApp", category: "main")
     private lazy var store: FeedStore & StoryStore = {
@@ -42,7 +48,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         selection: showComments
     ))
     
-    convenience init(scheduler: any Scheduler,httpClient: HTTPClient, store: FeedStore & StoryStore) {
+    convenience init(scheduler: any Scheduler, httpClient: HTTPClient, store: FeedStore & StoryStore) {
         self.init()
         self.scheduler = scheduler
         self.httpClient = httpClient

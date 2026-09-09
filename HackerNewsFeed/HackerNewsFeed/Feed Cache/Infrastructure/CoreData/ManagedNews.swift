@@ -19,6 +19,7 @@ extension ManagedNews {
         return NSOrderedSet(array: localFeed.map { local in
             let managed = ManagedNews(context: context)
             managed.id = local.id
+            managed.story = try? ManagedStory.find(with: local.id, in: context)
             return managed
         })
     }

@@ -39,18 +39,3 @@ extension InMemoryFeedStore: StoryStore {
         storyCache[id]
     }
 }
-
-extension InMemoryFeedStore {
-    
-    static var empty: InMemoryFeedStore {
-        InMemoryFeedStore()
-    }
-    
-    static var withExpiredCache: InMemoryFeedStore {
-        InMemoryFeedStore(feedCache: CachedFeed(feed: [], timestamp: Date.distantPast))
-    }
-    
-    static var withNonExpiredCache: InMemoryFeedStore {
-        InMemoryFeedStore(feedCache: CachedFeed(feed: [], timestamp: Date()))
-    }
-}

@@ -135,6 +135,53 @@ extension Publisher {
     }
 }
 
+extension Scheduler where Self == CoreDataFeedStoreScheduler {
+    static func scheduler(for store: CoreDataFeedStore) -> Self {
+        CoreDataFeedStoreScheduler(store: store)
+    }
+}
+
+struct CoreDataFeedStoreScheduler: Scheduler {
+    
+    var now: DispatchQueue.SchedulerTimeType { .init(.now())}
+    
+    var minimumTolerance: DispatchQueue.SchedulerTimeType.Stride {
+        .zero
+    }
+    
+    private let store: CoreDataFeedStore
+    
+    init(store: CoreDataFeedStore) {
+        self.store = store
+    }
+    
+    func schedule(after date: DispatchQueue.SchedulerTimeType, interval: DispatchQueue.SchedulerTimeType.Stride, tolerance: DispatchQueue.SchedulerTimeType.Stride, options: DispatchQueue.SchedulerOptions?, _ action: @escaping () -> Void) -> any Cancellable {
+        if store.contextQueue == .main, Thread.isMainThread {
+            action()
+        } else {
+            store.perform(action)
+        }
+        return AnyCancellable {}
+    }
+    
+    
+    func schedule(after date: DispatchQueue.SchedulerTimeType, tolerance: DispatchQueue.SchedulerTimeType.Stride, options: DispatchQueue.SchedulerOptions?, _ action: @escaping () -> Void) {
+        if store.contextQueue == .main, Thread.isMainThread {
+            action()
+        } else {
+            store.perform(action)
+        }
+    }
+    
+    func schedule(options: SchedulerOptions?, _ action: @escaping () -> Void) {
+        if store.contextQueue == .main, Thread.isMainThread {
+            action()
+        } else {
+            store.perform(action)
+        }
+    }
+}
+
 extension DispatchQueue {
     
     static var immediateWhenOnMainQueueScheduler: ImmediateWhenOnMainQueueScheduler {

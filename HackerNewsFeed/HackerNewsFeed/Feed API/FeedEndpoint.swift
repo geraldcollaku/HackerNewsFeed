@@ -9,7 +9,6 @@ import Foundation
 
 public enum FeedEndpoint {
     case get(after: FeedId? = nil)
-    
     public func url(baseURL: URL) -> URL {
         switch self {
         case let .get(feed):
