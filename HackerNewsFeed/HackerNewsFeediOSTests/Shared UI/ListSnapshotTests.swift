@@ -9,6 +9,7 @@ import XCTest
 import HackerNewsFeediOS
 @testable import HackerNewsFeed
 
+@MainActor
 class ListSnapshotTests: XCTestCase {
     
     func test_emptyList() {

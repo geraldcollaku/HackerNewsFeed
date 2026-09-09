@@ -96,9 +96,9 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
         dataSource.apply(snapshot, animatingDifferences: false)
     }
 
-    public func update(id: AnyHashable) {
+    public func update<ID: Hashable>(id: ID) {
         var snapshot = dataSource.snapshot()
-        guard let item = snapshot.itemIdentifiers.first(where: { $0.id == id }) else { return }
+        guard let item = snapshot.itemIdentifiers.first(where: { $0.id as! ID == id }) else { return }
         snapshot.reconfigureItems([item])
         dataSource.apply(snapshot, animatingDifferences: false)
     }

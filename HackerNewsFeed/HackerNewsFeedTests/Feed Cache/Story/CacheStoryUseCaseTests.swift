@@ -8,6 +8,7 @@
 import XCTest
 import HackerNewsFeed
 
+@MainActor
 class CacheStoryUseCaseTests: XCTestCase {
     
     func test_init_doesNotMessageStoreUponCreation() {

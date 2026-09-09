@@ -10,6 +10,7 @@ import HackerNewsFeed
 import HackerNewsFeediOS
 @testable import HackerNewsApp
 
+@MainActor
 final class FeedAcceptanceTests: XCTestCase {
     
     func test_onLaunch_displaysRemoteFeedWhenCustomerHasConnectivity() throws {
@@ -217,8 +218,8 @@ final class FeedAcceptanceTests: XCTestCase {
     private func makeCommentMessage() -> String { "a message" }
 }
 
+@MainActor
 extension CoreDataFeedStore {
-    
     static var empty: CoreDataFeedStore {
         get throws {
             try CoreDataFeedStore(storeURL: URL(fileURLWithPath: "/dev/null"), contextQueue: .main)

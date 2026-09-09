@@ -8,6 +8,7 @@
 import XCTest
 import HackerNewsFeed
 
+@MainActor
 class CoreDataStoryStoreTests: XCTestCase {
     
     func test_retrieveStory_deliversNotFoundWhenNotEmpty() throws {
@@ -54,7 +55,7 @@ class CoreDataStoryStoreTests: XCTestCase {
     
     // MARK: - Helpers
     
-    private func makeSUT(_ test: @escaping (CoreDataFeedStore) -> Void, file: StaticString = #file, line: UInt = #line) throws {
+    private func makeSUT(_ test: @Sendable @escaping (CoreDataFeedStore) -> Void, file: StaticString = #file, line: UInt = #line) throws {
         let storeURL = URL(fileURLWithPath: "/dev/null")
         let sut = try! CoreDataFeedStore(storeURL: storeURL)
         trackForMemoryLeaks(sut, file: file, line: line)

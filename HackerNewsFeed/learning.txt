@@ -1,0 +1,35 @@
+
+Migrating to swift concurrency from completion closures, dispatch queues, combine to async await
+
+How?
+
+- set concurrency checking to `Complete` so compiler will set the checks.
+- Activate swift 6 language mode (generates compile and run time errors and need to be at the end)
+
++ Fully testable
+    + Just as fast and reliable as current tests
++ Have minimal impact on the current features
++ No blocking on sync context and no unsafe code
+
+Do it in small checks, start with small targets, small steps. One target at a time
++ Build settings check Swift compiler - concurrency
+   + Approachable concurrency enables a bunch of features using swift concurrency
+Default actor isolation can be
+ - Main actor - run all operations in the main thread. If choosing it all types will be main actor and single threaded by default running operations in the main thread. It can be good for UI modules or application modules. Like hackernews feed iOS.
+ - nonisolated
+    
+
+When we mark smth with sendable we can know for sure that expression is concurrency safe and can be accessible from any thread
+
+A class can be sendable if it contains immutable sendable properties - that's the case here.
+CoreDataFeedStore has container, context that are sendable, so it can be sendable and is concurrency safe. We need to mutate inside perform action.
+
+withCheckedContinuation is used to convert non async code to async
+await creates a suspension point, code is supended until async completes
+then we can resume the async context
+
+not sure what autoclosure is?
+private func assertNotNil(_ value: Any?, _ message: @autoclosure () -> String = "", file: StaticString = #filePath, line: UInt = #line) {
+    XCTAssertNotNil(value, message(), file: file, line: line)
+}
+

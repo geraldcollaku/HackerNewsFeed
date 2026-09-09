@@ -8,6 +8,7 @@
 import XCTest
 import HackerNewsFeed
 
+@MainActor
 class FeedCommentsPresenterTests: XCTestCase {
     
     func test_title_isLocalized() {

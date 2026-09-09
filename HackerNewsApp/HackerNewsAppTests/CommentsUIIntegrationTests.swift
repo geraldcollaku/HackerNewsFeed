@@ -11,6 +11,7 @@ import HackerNewsApp
 import HackerNewsFeed
 import HackerNewsFeediOS
 
+@MainActor
 class CommentsUIIntegrationTests: XCTestCase {
     
     func test_commentsView_hasTitle() {

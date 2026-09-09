@@ -8,6 +8,7 @@
 import XCTest
 import HackerNewsFeed
 
+@MainActor
 class FeedCommentsEndpointTests: XCTestCase {
     
     func test_feedComments_endpointURL() {

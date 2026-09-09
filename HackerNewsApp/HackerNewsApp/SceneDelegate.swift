@@ -99,6 +99,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             .caching(to: localFeedLoader)
             .fallback(to: localFeedLoader.loadPublisher)
             .map(makeFirstPage)
+            .subscribe(onSome: scheduler)
             .eraseToAnyPublisher()
     }
     
@@ -144,6 +145,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                     .caching(to: localStoryLoader, with: id)
                     .eraseToAnyPublisher()
             })
+            .subscribe(onSome: scheduler)
     }
     
     private func makeRemoteStoryLoader(with id: Int) -> AnyPublisher<Story, Error> {

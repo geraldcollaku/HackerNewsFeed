@@ -8,6 +8,7 @@
 import XCTest
 import HackerNewsFeed
 
+@MainActor
 final class FeedStoryPresenterTests: XCTestCase {
     
     func test_map_createsViewModel() {

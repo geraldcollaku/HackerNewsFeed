@@ -8,12 +8,12 @@
 import UIKit
 
 public struct CellController {
-    let id: AnyHashable
+    let id: any Hashable & Sendable
     let datasource: UITableViewDataSource
     let delegate: UITableViewDelegate?
     let datasourcePrefetching: UITableViewDataSourcePrefetching?
         
-    public init(id: AnyHashable, _ datasource: UITableViewDataSource) {
+    public init(id: any Hashable & Sendable, _ datasource: UITableViewDataSource) {
         self.id = id
         self.datasource = datasource
         self.delegate = datasource as? UITableViewDelegate
@@ -21,14 +21,15 @@ public struct CellController {
     }
 }
 
-extension CellController: Equatable {
-    public static func == (lhs: CellController, rhs: CellController) -> Bool {
-        lhs.id == rhs.id
+extension CellController: nonisolated Equatable {
+    public nonisolated static func == (lhs: CellController, rhs: CellController) -> Bool {
+     AnyHashable(lhs.id) == AnyHashable(rhs.id)
     }
 }
 
-extension CellController: Hashable {
-    public func hash(into hasher: inout Hasher) {
+extension CellController: nonisolated Hashable {
+    public nonisolated func hash(into hasher: inout Hasher) {
+        let id = AnyHashable(self.id)
         hasher.combine(id)
     }
 }

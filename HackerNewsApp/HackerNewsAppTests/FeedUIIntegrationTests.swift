@@ -10,6 +10,7 @@ import HackerNewsApp
 import HackerNewsFeed
 import HackerNewsFeediOS
 
+@MainActor
 class FeedUIIntegrationTests: XCTestCase {
     
     func test_feedView_hasTitle() {

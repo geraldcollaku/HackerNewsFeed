@@ -9,6 +9,7 @@ import XCTest
 import HackerNewsFeediOS
 @testable import HackerNewsFeed
 
+@MainActor
 class FeedSnapshotTests: XCTestCase {
     
     func test_feedWithContent() {

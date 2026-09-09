@@ -9,6 +9,7 @@ import XCTest
 import HackerNewsFeediOS
 @testable import HackerNewsApp
 
+@MainActor
 class SceneDelegateTests: XCTestCase {
     func test_configureWindow_setsWindowAsKeyAndVisible() throws {
         let sut = SceneDelegate()

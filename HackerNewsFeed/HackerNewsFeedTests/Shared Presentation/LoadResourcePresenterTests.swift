@@ -8,6 +8,7 @@
 import XCTest
 import HackerNewsFeed
 
+@MainActor
 class LoadResourcePresenterTests: XCTestCase {
     
     func test_init_doesNotSendMessagesToView() {

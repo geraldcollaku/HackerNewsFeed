@@ -8,6 +8,7 @@
 import XCTest
 import HackerNewsFeed
 
+@MainActor
 class FeedCommentsMapperTests: XCTestCase {
     
     func test_map_throwsErrorOnNon2xxHTTPResponse() throws {

@@ -8,6 +8,7 @@
 //import XCTest
 //import HackerNewsFeed
 //
+//@MainActor
 //class CodableFeedStoreTests: XCTestCase, FailableFeedStoreSpecs {
 //    
 //    override func setUp() {

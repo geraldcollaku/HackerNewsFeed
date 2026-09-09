@@ -8,10 +8,12 @@
 import Foundation
 import CoreData
 
-public class CoreDataFeedStore {
+public final class CoreDataFeedStore: Sendable {
     private static let modelName = "FeedStore"
+    @MainActor
     private static let model = NSManagedObjectModel.with(name: modelName, in: Bundle(for: CoreDataFeedStore.self))
-
+    let bundle = Bundle(for: CoreDataFeedStore.self)
+    
     private let container: NSPersistentContainer
     let context: NSManagedObjectContext
     
@@ -29,12 +31,16 @@ public class CoreDataFeedStore {
         context == container.viewContext ? .main : .background
     }
     
-    public init(storeURL: URL, contextQueue: ContextQueue = .background) throws {
-        let bundle = Bundle(for: CoreDataFeedStore.self)
+    @MainActor
+    public convenience init(storeURL: URL, contextQueue: ContextQueue = .background) throws {
         guard let model = CoreDataFeedStore.model else {
             throw StoreError.modelNotFound
         }
-        
+    
+        try self.init(storeURL: storeURL, model: model)
+    }
+    
+    public init(storeURL: URL, contextQueue: ContextQueue = .background, model: NSManagedObjectModel) throws {
         do {
             container = try NSPersistentContainer.load(name: CoreDataFeedStore.modelName, model: model, url: storeURL, in: bundle)
             context = contextQueue == .main ? container.viewContext : container.newBackgroundContext()
@@ -43,7 +49,7 @@ public class CoreDataFeedStore {
         }
     }
     
-    public func perform(_ action: @escaping () -> Void) {
+    public func perform(_ action: @Sendable @escaping () -> Void) {
         context.perform(action)
     }
     

@@ -5,6 +5,7 @@
 //  Created by Gerald Collaku on 23.03.26.
 //
 
+@MainActor
 public struct FeedStoryLoadingViewModel {
     public let isLoading: Bool
     
