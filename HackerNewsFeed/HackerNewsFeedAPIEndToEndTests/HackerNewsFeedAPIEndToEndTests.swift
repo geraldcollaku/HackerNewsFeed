@@ -69,16 +69,11 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
             .appending(queryItems: [URLQueryItem(name: "page", value: "1")])
         let client = ephemeralClient()
         
-        return await withCheckedContinuation { continuation in
-            client.get(from: url) { result in
-                continuation.resume(returning: result.flatMap { (data, response) in
-                    do {
-                        return .success(try FeedItemsMapper.map(data, from: response))
-                    } catch {
-                        return .failure(error)
-                    }
-                })
-            }
+        do {
+            let (data, response) = try await client.get(from: url)
+            return .success(try FeedItemsMapper.map(data, from: response))
+        } catch {
+            return .failure(error)
         }
     }
 
@@ -86,16 +81,11 @@ final class HackerNewsFeedAPIEndToEndTests: XCTestCase {
         let url = feedTestServerURL.appendingPathComponent("item/\(id)")
         let client = ephemeralClient()
         
-        return await withCheckedContinuation { continuation in
-            client.get(from: url) { result in
-                continuation.resume(returning: result.flatMap { (data, response) in
-                    do {
-                        return .success(try StoryItemMapper.map(data, from: response))
-                    } catch {
-                        return .failure(error)
-                    }
-                })
-            }
+        do {
+            let (data, response) = try await client.get(from: url)
+            return .success(try StoryItemMapper.map(data, from: response))
+        } catch {
+            return .failure(error)
         }
     }
     
