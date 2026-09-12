@@ -11,14 +11,14 @@ import HackerNewsFeed
 @MainActor
 class CoreDataStoryStoreTests: XCTestCase {
     
-    func test_retrieveStory_deliversNotFoundWhenNotEmpty() throws {
-        try makeSUT { sut in
+    func test_retrieveStory_deliversNotFoundWhenNotEmpty() async throws {
+        try await makeSUT { sut in
             expect(sut, toCompleteWith: notFound(), for: anyId())
         }
     }
     
-    func test_retrieveStory_deliversNotFoundWhenStoredStoryDoesNotMatch() throws {
-        try makeSUT { sut in
+    func test_retrieveStory_deliversNotFoundWhenStoredStoryDoesNotMatch() async throws {
+        try await makeSUT { sut in
             let id = 0
             let story = localStory(with: id)
             let nonMatchingId = anyId(1)
@@ -29,8 +29,8 @@ class CoreDataStoryStoreTests: XCTestCase {
         }
     }
     
-    func test_retrieveStory_deliversFoundStoryWhenThereIsAStoreStoryMatchingID() throws {
-        try makeSUT { sut in
+    func test_retrieveStory_deliversFoundStoryWhenThereIsAStoreStoryMatchingID() async throws {
+        try await makeSUT { sut in
             let matchingId = 0
             let story = localStory(with: matchingId)
             
@@ -40,8 +40,8 @@ class CoreDataStoryStoreTests: XCTestCase {
         }
     }
     
-    func test_retrieveStory_deliversLastInsertedStory() throws {
-        try makeSUT { sut in
+    func test_retrieveStory_deliversLastInsertedStory() async throws {
+        try await makeSUT { sut in
             let id = 0
             let firstStory = localStory(with: id, title: "first title")
             let lastStory = localStory(with: id, title: "second title")
@@ -55,19 +55,14 @@ class CoreDataStoryStoreTests: XCTestCase {
     
     // MARK: - Helpers
     
-    private func makeSUT(_ test: @Sendable @escaping (CoreDataFeedStore) -> Void, file: StaticString = #file, line: UInt = #line) throws {
+    private func makeSUT(_ test: @Sendable @escaping (CoreDataFeedStore) -> Void, file: StaticString = #file, line: UInt = #line) async throws {
         let storeURL = URL(fileURLWithPath: "/dev/null")
         let sut = try! CoreDataFeedStore(storeURL: storeURL)
         trackForMemoryLeaks(sut, file: file, line: line)
         
-        let exp = expectation(description: "wait for completion")
-        
-        sut.perform {
+        await sut.perform {
             test(sut)
-            exp.fulfill()
         }
-        
-        wait(for: [exp], timeout: 1.0)
     }
 }
 

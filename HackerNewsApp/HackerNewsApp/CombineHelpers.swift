@@ -169,7 +169,11 @@ struct CoreDataFeedStoreScheduler: Scheduler {
             action()
         } else {
             nonisolated(unsafe) let uncheckedAction = action
-            store.perform { uncheckedAction() }
+            Task.immediate {
+                await store.perform {
+                    uncheckedAction()
+                }
+            }
         }
         return AnyCancellable {}
     }
@@ -180,8 +184,10 @@ struct CoreDataFeedStoreScheduler: Scheduler {
             action()
         } else {
             nonisolated(unsafe) let uncheckedAction = action
-            store.perform {
-                uncheckedAction()
+            Task.immediate {
+                await store.perform {
+                    uncheckedAction()
+                }
             }
         }
     }
@@ -191,8 +197,10 @@ struct CoreDataFeedStoreScheduler: Scheduler {
             action()
         } else {
             nonisolated(unsafe) let uncheckedAction = action
-            store.perform {
-                uncheckedAction()
+            Task.immediate {
+                await store.perform {
+                    uncheckedAction()
+                }
             }
         }
     }
