@@ -2,40 +2,43 @@
 //  InMemoryFeedStore.swift
 //  HackerNewsApp
 //
-//  Created by Gerald Collaku on 07.09.26.
+//  Created by Gerald Collaku on 13.09.26.
 //
 
-import HackerNewsFeed
 import Foundation
+import HackerNewsFeed
 
-class InMemoryFeedStore: FeedStore {
+@MainActor
+public class InMemoryFeedStore {
     private(set) var feedCache: CachedFeed?
     private var storyCache: [Int: LocalStory] = [:]
     
     init(feedCache: CachedFeed? = nil) {
         self.feedCache = feedCache
     }
-    
-    func deleteCachedFeed() throws {
+}
+
+extension InMemoryFeedStore: FeedStore {
+    public func deleteCachedFeed() throws {
         feedCache = nil
     }
     
-    func insert(_ feed: [LocalFeedId], timestamp: Date) throws {
+    public func insert(_ feed: [LocalFeedId], timestamp: Date) throws {
         feedCache =  CachedFeed(feed: feed, timestamp: timestamp)
     }
     
-    func retrieve() throws -> CachedFeed? {
+    public func retrieve() throws -> CachedFeed? {
         feedCache
     }
 }
 
 extension InMemoryFeedStore: StoryStore {
     
-    func insert(story: LocalStory) throws {
+    public func insert(story: LocalStory) throws {
         storyCache[story.id] = story
     }
     
-    func retrieve(for id: Int) throws -> LocalStory? {
+    public func retrieve(for id: Int) throws -> LocalStory? {
         storyCache[id]
     }
 }

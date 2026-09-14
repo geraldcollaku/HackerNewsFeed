@@ -25,16 +25,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     private lazy var httpClient: HTTPClient =  URLSessionHTTPClient(session: URLSession(configuration: .ephemeral))
     private lazy var logger = Logger(subsystem: "com.hackernewsfeed.HackerNewsApp", category: "main")
-    private lazy var store: FeedStore & StoryStore = {
+    
+    private lazy var store: FeedStore & StoryStore & StoreScheduler & Sendable = {
         do {
-            let url = NSPersistentContainer
+            return try CoreDataFeedStore(storeURL: NSPersistentContainer
                 .defaultDirectoryURL()
-                .appendingPathComponent("feed-store.sqlite")
-            return try CoreDataFeedStore(storeURL: url)
+                .appendingPathComponent("feed-store.sqlite"))
         } catch {
             assertionFailure("Failed to instantiate CoreData store with error: \(error.localizedDescription)")
             logger.fault("Failed to instantiate CoreData store with error: \(error.localizedDescription)")
-            return NullStore()
+            return InMemoryFeedStore()
         }
     }()
     
@@ -48,7 +48,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         selection: showComments
     ))
     
-    convenience init(scheduler: any Scheduler, httpClient: HTTPClient, store: FeedStore & StoryStore) {
+    convenience init(scheduler: any Scheduler, httpClient: HTTPClient, store: FeedStore & StoryStore & StoreScheduler & Sendable) {
         self.init()
         self.scheduler = scheduler
         self.httpClient = httpClient
@@ -136,16 +136,47 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     private func makeRemoteStoryLoaderWithLocalFallback(id: Int) -> StoryLoader.Publisher {
-        let localStoryLoader = LocalStoryLoader(store: store)
-        
-        return localStoryLoader
-            .loadStoryPublisher(with: id)
-            .fallback(to: { [makeRemoteStoryLoader] in
-                makeRemoteStoryLoader(id)
-                    .caching(to: localStoryLoader, with: id)
-                    .eraseToAnyPublisher()
-            })
-            .subscribe(onSome: scheduler)
+        return Deferred {
+            Future { completion in
+                Task.immediate {
+                    do {
+                        let story = try await self.loadLocalStoryWithRemoteFallback(id: id)
+                        completion(.success(story))
+                    } catch {
+                        completion(.failure(error))
+                    }
+                }
+            }
+            
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    private func loadLocalStoryWithRemoteFallback(id: Int) async throws -> Story {
+        do {
+            return try await loadLocalStory(id: id)
+        } catch {
+            return try await loadAndCacheRemoteStory(id: id)
+        }
+    }
+    
+    private func loadLocalStory(id: Int) async throws -> Story {
+        try await store.schedule { [store] in
+            let localStoryLoader = LocalStoryLoader(store: store)
+            let story = try localStoryLoader.loadStory(with: id)
+            return story
+        }
+    }
+    
+    private func loadAndCacheRemoteStory(id: Int) async throws -> Story {
+        let url = StoryEndpoint.get(id: FeedId(id: id)).url(baseURL: baseURL)
+        let (data, response) = try await httpClient.get(from: url)
+        let story = try StoryItemMapper.map(data, from: response)
+        await store.schedule { [store] in
+            let localStoryLoader = LocalStoryLoader(store: store)
+            try? localStoryLoader.save(story)
+        }
+        return story
     }
     
     private func makeRemoteStoryLoader(with id: Int) -> AnyPublisher<Story, Error> {
@@ -157,4 +188,27 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             .eraseToAnyPublisher()
     }
     
+}
+
+protocol StoreScheduler {
+    @MainActor
+    func schedule<T>(_ action: @escaping @Sendable () throws -> T) async rethrows -> T
+}
+
+extension CoreDataFeedStore: StoreScheduler {
+    @MainActor
+    func schedule<T>(_ action: @escaping @Sendable () throws -> T) async rethrows -> T {
+        if contextQueue == .main {
+            return try action()
+        } else {
+            return try await perform(action)
+        }
+    }
+}
+
+extension InMemoryFeedStore: StoreScheduler {
+    @MainActor
+    func schedule<T>(_ action: @escaping @Sendable () throws -> T) async rethrows -> T {
+        try action()
+    }
 }

@@ -37,7 +37,7 @@ public final class CoreDataFeedStore: Sendable {
             throw StoreError.modelNotFound
         }
     
-        try self.init(storeURL: storeURL, model: model)
+        try self.init(storeURL: storeURL, contextQueue: contextQueue, model: model)
     }
     
     public init(storeURL: URL, contextQueue: ContextQueue = .background, model: NSManagedObjectModel) throws {

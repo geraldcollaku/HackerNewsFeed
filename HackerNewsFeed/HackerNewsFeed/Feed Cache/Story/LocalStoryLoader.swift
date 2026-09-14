@@ -33,8 +33,6 @@ extension LocalStoryLoader: StoryCache {
 }
 
 extension LocalStoryLoader: StoryLoader {
-    public typealias LoadResult = Result<Story, LoadError>
-
     public func loadStory(with id: Int) throws -> Story {
         do {
             if let story = try store.retrieve(for: id) {
