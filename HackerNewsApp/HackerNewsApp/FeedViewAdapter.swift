@@ -12,15 +12,15 @@ import Foundation
 @MainActor
 class FeedViewAdapter: ResourceView {
     private weak var controller: ListViewController?
-    private let loader: (Int) -> StoryLoader.Publisher
+    private let loader: (Int) async throws -> Story
     private let selection: (FeedId) -> Void
     private let currentFeed: [FeedId: CellController]
 
-    private typealias FeedStoryPresentationAdapter = LoadResourcePresentationAdapter<Story, WeakRefVirtualProxy<FeedStoryCellController>>
+    private typealias FeedStoryPresentationAdapter = AsyncLoadResourcePresentationAdapter<Story, WeakRefVirtualProxy<FeedStoryCellController>>
 
     private typealias LoadMorePresentationAdapter = LoadResourcePresentationAdapter<Paginated<FeedId>, FeedViewAdapter>
-    
-    init(currentFeed: [FeedId: CellController] = [:], controller: ListViewController, loader: @escaping (Int) -> StoryLoader.Publisher, selection: @escaping (FeedId) -> Void) {
+
+    init(currentFeed: [FeedId: CellController] = [:], controller: ListViewController, loader: @escaping (Int) async throws -> Story, selection: @escaping (FeedId) -> Void) {
         self.currentFeed = currentFeed
         self.controller = controller
         self.loader = loader
@@ -36,17 +36,17 @@ class FeedViewAdapter: ResourceView {
             }
             
             let adapter = FeedStoryPresentationAdapter(loader: { [loader] in
-                loader(model.id)
+                try await loader(model.id)
             })
             
             let view = FeedStoryCellController(delegate: adapter, selection: { [selection] in
                 selection(model)
             })
-            
-            view.onNeedsReconfigure = { [weak controller = self.controller, id = AnyHashable(model)] in
-                controller?.update(id: id)
+
+            view.onNeedsReconfigure = { [weak controller] in
+                controller?.updateRowHeights()
             }
-            
+
             adapter.presenter = LoadResourcePresenter(
                 resourceView: WeakRefVirtualProxy(view),
                 loadingView: WeakRefVirtualProxy(view),

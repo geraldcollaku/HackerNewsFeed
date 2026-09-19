@@ -17,7 +17,7 @@ public enum FeedUIComposer {
     
     public static func feedComposedWith(
         loader: @MainActor @escaping () -> AnyPublisher<Paginated<FeedId>, Error>,
-        storyLoader: @MainActor @escaping (Int) -> StoryLoader.Publisher,
+        storyLoader: @MainActor @escaping (Int) async throws -> Story,
         selection: @MainActor @escaping (FeedId) -> Void = { _ in }
     ) -> ListViewController {
         let presentationAdapter = FeedPresentationAdapter(loader: { loader() })
@@ -28,7 +28,7 @@ public enum FeedUIComposer {
         presentationAdapter.presenter = LoadResourcePresenter(
             resourceView: FeedViewAdapter(
                 controller: feedController,
-                loader: { storyLoader($0) },
+                loader: { try await storyLoader($0) },
                 selection: selection),
             loadingView: WeakRefVirtualProxy(feedController),
             errorView: WeakRefVirtualProxy(feedController),

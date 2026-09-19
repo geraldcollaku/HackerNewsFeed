@@ -129,9 +129,6 @@ private extension ListViewController {
             let id = UUID()
             let cellController = FeedStoryCellController(delegate: stub, selection: { })
             stub.controller = cellController
-            cellController.onNeedsReconfigure = { [weak self] in
-                self?.update(id: id)
-            }
             return CellController(id: id, cellController)
         }
         display(cells)

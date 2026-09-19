@@ -130,7 +130,7 @@ class FeedUIIntegrationTests: XCTestCase {
         assertThat(sut, isRendering: [makeFeedId()])
     }
     
-    func test_loadFeedCompletion_rendersSuccessfullyLoadedEmptyFeedAfterNonEmptyFeed() {
+    func test_loadFeedCompletion_rendersSuccessfullyLoadedEmptyFeedAfterNonEmptyFeed() async throws {
         let feed0 = makeFeedId()
         let feed1 = makeFeedId()
         let feed2 = makeFeedId()
@@ -244,111 +244,140 @@ class FeedUIIntegrationTests: XCTestCase {
         XCTAssertEqual(loader.storyRequests.count, 2, "Expected a second story once second view becomes visible")
     }
     
-    func test_storyView_cancelsStoryLoadingWhenViewIsNotVisibleAnymore() {
+    func test_storyView_cancelsFirstStoryLoadingWhenViewIsNotVisibleAnymore() async throws {
         let story0 = 0
         let story1 = 1
-        
+
         let (sut, loader) = makeSUT()
-        
+
         sut.simulateApperance()
         loader.completeFeedLoading(with: [makeFeedId(id: story0), makeFeedId(id: story1)], at: 0)
         XCTAssertEqual(loader.cancelledStoriesIds, [], "Expected no cancelled story until view is not visible")
-        
+
         sut.simulateStoryViewNotVisible(at: 0)
+        let result0 = try await loader.storyResult(at: 0)
+        XCTAssertEqual(result0, .cancelled)
         XCTAssertEqual(loader.cancelledStoriesIds, [story0], "Expected one cancelled story request once view is not visible anymore")
-        
+    }
+
+    func test_storyView_cancelsSecondStoryLoadingWhenViewIsNotVisibleAnymore() async throws {
+        let story0 = 0
+        let story1 = 1
+
+        let (sut, loader) = makeSUT()
+
+        sut.simulateApperance()
+        loader.completeFeedLoading(with: [makeFeedId(id: story0), makeFeedId(id: story1)], at: 0)
+
+        sut.simulateStoryViewNotVisible(at: 0)
         sut.simulateStoryViewNotVisible(at: 1)
+        let result1 = try await loader.storyResult(at: 1)
+        XCTAssertEqual(result1, .cancelled)
         XCTAssertEqual(loader.cancelledStoriesIds, [story0, story1], "Expected two cancelled story request once view is not visible anymore")
     }
-    
-    func test_storyViewLoadingIndicator_isVisibleWhenLoadingStory() {
+
+    func test_storyViewLoadingIndicator_isVisibleWhenLoadingStory() async throws {
         let story0 = 0
         let story1 = 1
         let (sut, loader) = makeSUT()
-        
+
         sut.simulateApperance()
         loader.completeFeedLoading(with: [makeFeedId(id: story0), makeFeedId(id: story1)], at: 0)
-        
+        sut.settlePendingLayout()
+
         let view0 = sut.simulateStoryViewVisible(at: 0)
         let view1 = sut.simulateStoryViewVisible(at: 1)
         XCTAssertEqual(view0?.isShowingLoadingIndicator, true, "Expected loading indicator for first view while loading first story")
         XCTAssertEqual(view1?.isShowingLoadingIndicator, true, "Expected loading indicator for second view while loading second story")
-        
+
         loader.completeStoryLoading(at: 0)
+        _ = try await loader.storyResult(at: 0)
+
         XCTAssertEqual(view0?.isShowingLoadingIndicator, false, "Expected no loading indicator for first view once first story loading completes successfully")
         XCTAssertEqual(view1?.isShowingLoadingIndicator, true, "Expected no loading indicator state change once first story loading completes succesfully")
-        
+
         loader.completeStoryLoadingWithError(at: 1)
+        _ = try await loader.storyResult(at: 1)
+
         XCTAssertEqual(view0?.isShowingLoadingIndicator, false, "Expected no loading indicator change for first view once second story loading completes successfully")
         XCTAssertEqual(view1?.isShowingLoadingIndicator, false, "Expected no loading indicator state change once seconds story loading completes succesfully")
     }
-    
-    func test_storyView_rendersStory() {
+
+    func test_storyView_rendersStory() async throws {
         let (sut, loader) = makeSUT()
         let story0 = makeStory(title: "a title", author: "an author")
         let story1 = makeStory(title: "another title", author: "another author")
-        
+
         sut.simulateApperance()
         loader.completeFeedLoading(with: [makeFeedId(), makeFeedId()], at: 0)
-        
+        sut.settlePendingLayout()
+
         let view0 = sut.simulateStoryViewVisible(at: 0)
         let view1 = sut.simulateStoryViewVisible(at: 1)
-        
+
         loader.completeStoryLoading(with: story0, at: 0)
+        _ = try await loader.storyResult(at: 0)
         XCTAssertEqual(view0?.titleText, story0.title)
         XCTAssertEqual(view0?.urlText, story0.url?.absoluteString)
         XCTAssertEqual(view0?.authorText, story0.author)
         XCTAssertEqual(view0?.scoreText, String(story0.score ?? 0))
-        
+
         loader.completeStoryLoading(with: story1, at: 1)
+        _ = try await loader.storyResult(at: 1)
         XCTAssertEqual(view1?.titleText, story1.title)
         XCTAssertEqual(view1?.urlText, story1.url?.absoluteString)
         XCTAssertEqual(view1?.authorText, story1.author)
         XCTAssertEqual(view1?.scoreText, String(story1.score ?? 0))
     }
-    
-    func test_storyViewRetryButton_isVisibleOnStoryLoadError() {
+
+    func test_storyViewRetryButton_isVisibleOnStoryLoadError() async throws {
         let (sut, loader) = makeSUT()
         let story = makeStory(title: "a title", author: "an author")
 
         sut.simulateApperance()
         loader.completeFeedLoading(with: [makeFeedId(), makeFeedId()], at: 0)
-        
+        sut.settlePendingLayout()
+
         let view0 = sut.simulateStoryViewVisible(at: 0)
         let view1 = sut.simulateStoryViewVisible(at: 1)
-        
+
         XCTAssertEqual(view0?.isShowingRetryAction, false, "Expected no retry action for first view while loading first story")
         XCTAssertEqual(view1?.isShowingRetryAction, false, "Expected no retry action for second view while loading second story")
 
         loader.completeStoryLoading(with: story, at: 0)
+        _ = try await loader.storyResult(at: 0)
         XCTAssertEqual(view0?.isShowingRetryAction, false, "Expected no retry action for first view once first story loaded successfully")
         XCTAssertEqual(view1?.isShowingRetryAction, false, "Expected no retry action for second view once first story loading completes successfully")
-        
+
         loader.completeStoryLoadingWithError(at: 1)
+        _ = try await loader.storyResult(at: 1)
         XCTAssertEqual(view0?.isShowingRetryAction, false, "Expected no retry action state change for first view once second view loads with error")
         XCTAssertEqual(view1?.isShowingRetryAction, true, "Expected  retry action for second view once second view loads with error")
     }
     
-    func test_storyViewRetryAction_retriesStoryLoad() {
+    func test_storyViewRetryAction_retriesStoryLoad() async throws {
         let (sut, loader) = makeSUT()
 
         sut.simulateApperance()
         loader.completeFeedLoading(with: [makeFeedId(), makeFeedId()], at: 0)
-        
+
         let view0 = sut.simulateStoryViewVisible(at: 0)
         let view1 = sut.simulateStoryViewVisible(at: 1)
-        
-        XCTAssertEqual(loader.storiesRequests.count, 2, "Expected to load both story ids")
-        
+
+        XCTAssertEqual(loader.storyRequests.count, 2, "Expected to load both story ids")
+
         loader.completeStoryLoadingWithError(at: 0)
+        _ = try await loader.storyResult(at: 0)
         loader.completeStoryLoadingWithError(at: 1)
-        XCTAssertEqual(loader.storiesRequests.count, 2, "Expected no more loading when story loading completes with error")
+        _ = try await loader.storyResult(at: 1)
+
+        XCTAssertEqual(loader.storyRequests.count, 2, "Expected no more loading when story loading completes with error")
         
         view0?.simulateRetryAction()
-        XCTAssertEqual(loader.storiesRequests.count, 3, "Expected one more loading after tapping retry action")
+        XCTAssertEqual(loader.storyRequests.count, 3, "Expected one more loading after tapping retry action")
 
         view1?.simulateRetryAction()
-        XCTAssertEqual(loader.storiesRequests.count, 4, "Expected another loading after tapping retry action")
+        XCTAssertEqual(loader.storyRequests.count, 4, "Expected another loading after tapping retry action")
     }
     
     func test_storyView_preloadStoryWhenViewNearVisible() {
@@ -356,16 +385,16 @@ class FeedUIIntegrationTests: XCTestCase {
 
         sut.simulateApperance()
         loader.completeFeedLoading(with: [makeFeedId(), makeFeedId()], at: 0)
-        XCTAssertTrue(loader.storiesRequests.isEmpty, "Expected no story request until view is near visible")
+        XCTAssertTrue(loader.storyRequests.isEmpty, "Expected no story request until view is near visible")
         
         sut.simulateStoryViewNearVisible(at: 0)
-        XCTAssertEqual(loader.storiesRequests.count, 1, "Expected first story request once first view is visible")
+        XCTAssertEqual(loader.storyRequests.count, 1, "Expected first story request once first view is visible")
         
         sut.simulateStoryViewNearVisible(at: 1)
-        XCTAssertEqual(loader.storiesRequests.count, 2, "Expected second story request once second view is visible")
+        XCTAssertEqual(loader.storyRequests.count, 2, "Expected second story request once second view is visible")
     }
     
-    func test_storyView_cancelsStoryPreloadingWhenNotNearVisibleAnymore() {
+    func test_storyView_cancelsFirstStoryPreloadingWhenNotNearVisibleAnymore() async throws {
         let (sut, loader) = makeSUT()
         let story0 = 0
         let story1 = 1
@@ -373,11 +402,23 @@ class FeedUIIntegrationTests: XCTestCase {
         sut.simulateApperance()
         loader.completeFeedLoading(with: [makeFeedId(id: story0), makeFeedId(id: story1)], at: 0)
         XCTAssertEqual(loader.cancelledStoriesIds, [], "Expected no cancelled stories until image is not near visible")
-        
+
         sut.simulateStoryViewNotNearVisible(at: 0)
+        _ = try await loader.storyResult(at: 0)
         XCTAssertEqual(loader.cancelledStoriesIds, [story0], "Expected first story request once first view is visible")
-        
+    }
+
+    func test_storyView_cancelsSecondStoryPreloadingWhenNotNearVisibleAnymore() async throws {
+        let (sut, loader) = makeSUT()
+        let story0 = 0
+        let story1 = 1
+
+        sut.simulateApperance()
+        loader.completeFeedLoading(with: [makeFeedId(id: story0), makeFeedId(id: story1)], at: 0)
+
+        sut.simulateStoryViewNotNearVisible(at: 0)
         sut.simulateStoryViewNotNearVisible(at: 1)
+        _ = try await loader.storyResult(at: 1)
         XCTAssertEqual(loader.cancelledStoriesIds, [story0, story1], "Expected second story request once second view is visible")
     }
     
@@ -410,10 +451,10 @@ class FeedUIIntegrationTests: XCTestCase {
         loader.completeFeedLoading(with: [makeFeedId(id: story0), makeFeedId(id: story1)], at: 0)
         sut.simulateStoryViewBecomingVisibleAgain(at: 0)
         
-        XCTAssertEqual(loader.storiesRequests.count, 2, "Expected to load the story again when a story view becomes visible again")
+        XCTAssertEqual(loader.storyRequests.count, 2, "Expected to load the story again when a story view becomes visible again")
 
         sut.simulateStoryViewBecomingVisibleAgain(at: 1)
-        XCTAssertEqual(loader.storiesRequests.count, 4, "Expected to load the two stories again when the second story view becomes visible again")
+        XCTAssertEqual(loader.storyRequests.count, 4, "Expected to load the two stories again when the second story view becomes visible again")
     }
     
     func test_storyView_doesNotShowDataFromPreviousRequestWhenCellIsReused() throws {
@@ -438,7 +479,7 @@ class FeedUIIntegrationTests: XCTestCase {
         XCTAssertNil(view0.urlText, "Expected no url for reused view once story loading completes successfully")
     }
     
-    func test_storyView_showsDataForNewViewRequestsAfterPreviousViewIsReused() throws {
+    func test_storyView_showsDataForNewViewRequestsAfterPreviousViewIsReused() async throws {
         let (sut, loader) = makeSUT()
         let story0 = makeStory(id: 0,
                                title: "a title",
@@ -453,7 +494,8 @@ class FeedUIIntegrationTests: XCTestCase {
         
         sut.simulateApperance()
         loader.completeFeedLoading(with: [makeFeedId(id: story0.id), makeFeedId(id: story1.id)], at: 0)
-        
+        sut.settlePendingLayout()
+
         let previousView = try XCTUnwrap(sut.simulateStoryViewVisible(at: 0))
         
         let newView = try XCTUnwrap(sut.simulateStoryViewVisible(at: 1))
@@ -461,26 +503,28 @@ class FeedUIIntegrationTests: XCTestCase {
         previousView.prepareForReuse()
         
         loader.completeStoryLoading(with: story1, at: 1)
-        
+        _ = try await loader.storyResult(at: 1)
+
         XCTAssertEqual(newView.authorText, story1.author)
         XCTAssertEqual(newView.titleText, story1.title)
         XCTAssertEqual(newView.urlText, story1.url?.absoluteString)
     }
-    
-    func test_storyView_doesNotLoadStoryUntilPreviousRequestCompletes() {
+
+    func test_storyView_doesNotLoadStoryUntilPreviousRequestCompletes() async throws {
         let (sut, loader) = makeSUT()
         let feed = makeFeedId()
 
         sut.simulateApperance()
         loader.completeFeedLoading(with: [feed], at: 0)
-        
+
         sut.simulateStoryViewNearVisible(at: 0)
         XCTAssertEqual(loader.storyIds, [feed.id], "Expected first request when near visible")
-        
+
         sut.simulateStoryViewVisible(at: 0)
         XCTAssertEqual(loader.storyIds, [feed.id], "Expected no requests until previous completes")
-        
+
         loader.completeStoryLoading(at: 0)
+        _ = try await loader.storyResult(at: 0)
         sut.simulateStoryViewVisible(at: 0)
         XCTAssertEqual(loader.storyIds, [feed.id, feed.id], "Expected second request when visible after previous completes")
         
@@ -497,11 +541,16 @@ class FeedUIIntegrationTests: XCTestCase {
         let loader = LoaderSpy()
         let sut = FeedUIComposer.feedComposedWith(
             loader: loader.loadPublisher,
-            storyLoader:  loader.loadStoryPublisher,
+            storyLoader:  loader.loadStory,
             selection: selection
         )
         trackForMemoryLeaks(loader, file: file, line: line)
         trackForMemoryLeaks(sut, file: file, line: line)
+
+        addTeardownBlock { [weak loader] in
+            try await loader?.cancelPendingRequests()
+        }
+
         return (sut, loader)
     }
     

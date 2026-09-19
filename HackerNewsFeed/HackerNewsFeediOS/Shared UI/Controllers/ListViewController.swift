@@ -85,6 +85,11 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
     @IBAction private func refresh() {
         onRefresh?()
     }
+
+    public func updateRowHeights() {
+        tableView.beginUpdates()
+        tableView.endUpdates()
+    }
     
     public func display(_ sections: [CellController]...) {
         var snapshot = NSDiffableDataSourceSnapshot<Int, CellController>()
@@ -96,13 +101,6 @@ public final class ListViewController: UITableViewController, UITableViewDataSou
         dataSource.apply(snapshot, animatingDifferences: false)
     }
 
-    public func update<ID: Hashable>(id: ID) {
-        var snapshot = dataSource.snapshot()
-        guard let item = snapshot.itemIdentifiers.first(where: { $0.id as! ID == id }) else { return }
-        snapshot.reconfigureItems([item])
-        dataSource.apply(snapshot, animatingDifferences: false)
-    }
-    
     public func display(_ viewModel: ResourceLoadingViewModel) {
         refreshControl?.update(isRefreshing: viewModel.isLoading)
     }

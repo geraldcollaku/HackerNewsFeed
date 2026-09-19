@@ -18,6 +18,12 @@ extension ListViewController {
         beginAppearanceTransition(true, animated: false)
         endAppearanceTransition()
     }
+
+    /// Settles any pending diffable-datasource layout before manually simulating row
+    /// visibility, so the cells the test captures match what UIKit will actually display.
+    func settlePendingLayout() {
+        tableView.layoutIfNeeded()
+    }
     
     func replaceRefreshControlWithFakeForiOS17Support() {
         let fake = FakeRefreshControl()

@@ -16,15 +16,26 @@ public protocol FeedStoryCellControllerDelegate {
 public final class FeedStoryCellController: NSObject {
     public typealias ResourceViewModel = FeedStoryViewModel
 
-    public var onNeedsReconfigure: (() -> Void)?
-
     private let delegate: FeedStoryCellControllerDelegate
     private let selection: () -> Void
     private var cell: FeedStoryCell?
 
+    private var lastStoryViewModel: FeedStoryViewModel?
+    private var lastLoadingViewModel: ResourceLoadingViewModel?
+    private var lastErrorViewModel: ResourceErrorViewModel?
+
+    public var onNeedsReconfigure: (() -> Void)?
+
     public init(delegate: FeedStoryCellControllerDelegate, selection: @escaping () -> Void) {
         self.delegate = delegate
         self.selection = selection
+    }
+
+    private func bind(_ cell: FeedStoryCell?) {
+        self.cell = cell
+        lastStoryViewModel.map(display)
+        lastLoadingViewModel.map(display)
+        lastErrorViewModel.map(display)
     }
 }
 
@@ -35,7 +46,7 @@ extension FeedStoryCellController: UITableViewDataSource, UITableViewDelegate, U
     }
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        cell = tableView.dequeueReusableCell()
+        bind(tableView.dequeueReusableCell())
         cell?.onRetry = { [weak self] in
             self?.delegate.didRequestStory()
         }
@@ -44,13 +55,13 @@ extension FeedStoryCellController: UITableViewDataSource, UITableViewDelegate, U
         }
         return cell!
     }
-    
+
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         selection()
     }
 
     public func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        self.cell = cell as? FeedStoryCell
+        bind(cell as? FeedStoryCell)
         delegate.didRequestStory()
     }
 
@@ -79,6 +90,7 @@ extension FeedStoryCellController: UITableViewDataSource, UITableViewDelegate, U
 
 extension FeedStoryCellController: ResourceView, ResourceLoadingView, ResourceErrorView {
     public func display(_ viewModel: FeedStoryViewModel) {
+        lastStoryViewModel = viewModel
         cell?.authorLabel.text = viewModel.author
         cell?.titleLabel.text = viewModel.title
         cell?.scoreLabel.text = viewModel.score
@@ -87,10 +99,12 @@ extension FeedStoryCellController: ResourceView, ResourceLoadingView, ResourceEr
     }
 
     public func display(_ viewModel: ResourceLoadingViewModel) {
+        lastLoadingViewModel = viewModel
         cell?.container.isShimmering = viewModel.isLoading
     }
 
     public func display(_ viewModel: ResourceErrorViewModel) {
+        lastErrorViewModel = viewModel
         cell?.retryButton.isHidden = viewModel.message == nil
     }
 }

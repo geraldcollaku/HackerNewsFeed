@@ -44,7 +44,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     private lazy var navigationController = UINavigationController(rootViewController: FeedUIComposer.feedComposedWith(
         loader: makeRemoteFeedLoaderWithLocalFallback,
-        storyLoader: makeRemoteStoryLoaderWithLocalFallback,
+        storyLoader: loadLocalStoryWithRemoteFallback,
         selection: showComments
     ))
     
@@ -133,23 +133,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         Paginated(items: items, loadMorePublisher: last.map { last in
             { self.makeRemoteLoadMoreLoader(last: last) }
         })
-    }
-    
-    private func makeRemoteStoryLoaderWithLocalFallback(id: Int) -> StoryLoader.Publisher {
-        return Deferred {
-            Future { completion in
-                Task.immediate {
-                    do {
-                        let story = try await self.loadLocalStoryWithRemoteFallback(id: id)
-                        completion(.success(story))
-                    } catch {
-                        completion(.failure(error))
-                    }
-                }
-            }
-            
-        }
-        .eraseToAnyPublisher()
     }
     
     private func loadLocalStoryWithRemoteFallback(id: Int) async throws -> Story {
